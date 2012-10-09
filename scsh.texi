@@ -6,14 +6,12 @@
 @synindex vr fn
 @c %**end of header
 
-
 @c Part 2: Summary Description and Copyright
 @copying
 This manual is for scsh, release 0.6.7.
 
 Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 @end copying
-
 
 @c Part 3: Titlepage, Contents, Copyright
 
@@ -30,7 +28,6 @@ Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler,
 
 @c Output the table of contents at the beginning.
 @contents
-
 
 @c Part 4: `Top' Node and Master Menu
 
@@ -64,17 +61,99 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 Introduction
 
 * Copyright & source-code license::
-* Obtaining scsh
-* Building scsh
-* Caveats
-* Naming conventions
-* Lexical issues
-* Record types and the define-record form
-* A word about Unix standards
+* Obtaining scsh::
+* Building scsh::
+* Caveats::
+* Naming conventions::
+* Lexical issues::
+* Record types and the define-record form::
+* A word about Unix standards::
+
+Process notation
+
+* Extended process forms and I/O redirections::
+* Process forms::
+* Using extended process forms in Scheme::
+* More complex process operations::
+* Conditional process sequencing forms::
+* Process filters::
+
+System Calls
+
+* Errors::
+* I/O::
+* File system::
+* Processes::
+* Process state::
+* User and group database access::
+* Accessing command-line arguments::
+* System parameters::
+* Signal system::
+* Time::
+* Environment variables::
+* Terminal device control::
+
+Networking
+
+* High-level interface::
+* Sockets::
+* Socket addresses::
+* Socket primitives::
+* Performing input and output on sockets::
+* Socket options::
+* Database-information entries::
+
+Strings and characters
+
+* Manipulating file names::
+* Other string manipulation facilities::
+* ASCII encoding::
+* Character predicates::
+* Deprecated character-set procedures::
+
+Pattern-matching strings with regular expressions
+
+* Summary SRE syntax::
+* Examples::
+* A short tutorial::
+* Regexp functions::
+* The regexp ADT::
+* Syntax-hacking tools::
+
+Reading delimited strings
+
+Awk, record I/O, and field parsing
+
+* Record I/O and field parsing::
+* Awk::
+* Backwards compatibility::
+
+Concurrent system programming
+
+* Threads::
+* Locks::
+* Placeholders::
+* The event interface to interrupts::
+* Interaction between threads and process state::
+
+Miscellaneous routines
+
+*  Integer bitwise ops::
+*  Password encryption::
+*  Dot-Locking::
+*  Syslog facility::
+*  MD5 interface::
+*  Configuration variables::
+
+Running scsh
+
+*  Scsh command-line switches::
+*  The scsh virtual machine::
+*  Compiling scsh programs::
+*  Standard file locations::
 
 @end detailmenu
 @end menu
-
 
 @c Part 5: The Body of the Document
 
