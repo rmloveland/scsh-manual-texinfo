@@ -382,7 +382,7 @@ September 4, 1994
 @cindex chapter, first
 
 This is the reference manual for scsh, a Unix shell that is embedded
-withinScheme. Scsh is a Scheme system designed for writing useful
+within Scheme. Scsh is a Scheme system designed for writing useful
 standalone Unix programs and shell scripts--it spans a wide range of
 application, from "script" applications usually handled with perl or sh,
 to more standard systems applications usually written in C.
@@ -394,7 +394,8 @@ operating system. Thismanual gives a complete description of scsh. A
 general discussion of the design principles behind scsh can be found in
 a companion paper, "A Scheme Shell."
 
-1.1 Copyright & source-code license
+@section Copyright & source-code license
+
 Scsh is open source. The complete sources come with the standard distribution,which can be downloaded off the net. Scsh has an ideologically hip, BSD-style
 license.
 
@@ -403,9 +404,8 @@ don't call it "scsh," unless it's exactly compliant with the scsh interfaces.)
 
 Take all the code you like; we'll just write more.
 
-1
+@section Obtaining scsh
 
-1.2 Obtaining scsh
 Scsh is distributed via net publication. We place new releases at well-knownnetwork sites, and allow them to propagate from there. We currently release
 scsh to the following Internet sites:
 
@@ -419,7 +419,8 @@ this manual in Postscript form, for those who simply wish to read about thesyste
 However, nothing is certain for long on the Net. Probably the best way toget a copy of scsh is to use a network resource-discovery tool, such as archie,
 to find ftp servers storing scsh tar files. Take the set of sites storing the mostrecent release of scsh, choose one close to your site, and download the tar file.
 
-1.3 Building scsh
+@section Building scsh
+
 Scsh currently runs on a fairly large set of Unix systems, including Linux,FreeBSD, OpenBSD, NetBSD, MacOS X, SunOS, Solaris, AIX, NeXTSTEP,
 Irix, and HP-UX. We use the Gnu project's autoconfig tool to generate self-configuring shell scripts that customise the scsh Makefile for different OS variants. This means that if you use one of the common Unix implementations,building scsh should require exactly the following steps:
 
@@ -441,15 +442,14 @@ If you don't have the patience to do this, you can start up a Scheme shellimmedi
 
 ./scshvm -o ./scshvm -i scsh/scsh.image
 
-2
-
 See chapter 11 for full details on installation locations and startup options.
 
 It is not too difficult to port scsh to another Unix platform if your OS is notsupported by the current release. See the release notes for more details on how
 
 to do this.
 
-1.4 Caveats
+@section Caveats
+
 It is important to note what scsh is not, as well as what it is. Scsh, in the currentrelease, is primarily designed for the writing of shell scripts--programming.
 It is not a very comfortable system for interactive command use: the currentrelease lacks job control, command-line editing, a terse, convenient command
 syntax, and it does not read in an initialisation file analogous to .login or
@@ -457,7 +457,8 @@ syntax, and it does not read in an initialisation file analogous to .login or
 
 currently provide these features.
 
-1.5 Naming conventions
+@section Naming conventions
+
 Scsh follows a general naming scheme that consistently employs a set of abbre-viations. This is intended to make it easier to remember the names of things.
 Some of the common ones are:
 fdes Means "file descriptor," a small integer used in Unix to represent I/Ochannels.
@@ -513,17 +514,17 @@ Enumerated constants from some set s are usually named s/const1, s/const2, . . .
 signal/cont,
 signal/kill, signal/int, signal/hup, and so forth.
 
-1.6 Lexical issues
+@section Lexical issues
 Scsh's lexical syntax is just R5RS Scheme, with the following exceptions.
 
-1.6.1 Extended symbol syntax
+@subsection Extended symbol syntax
+
 Scsh's symbol syntax differs from R5RS Scheme in the following ways:
 
 * In scsh, symbol case is preserved by read and is significant on symbolcomparison. This means
 
-4
-
 (run (less Readme))
+
 displays the right file.
 
 * "-" and "+" are allowed to begin symbols. So the following are legitimatesymbols:
@@ -537,11 +538,14 @@ displays the right file.
 * A symbol may begin with a digit. So the following are legitimate sym-bols:
 
 9x15 80x36-3+440
-1.6.2 Extended string syntax
+
+@subsection Extended string syntax
+
 Scsh strings are allowed to contain the ANSI C escape sequences such as \n and
 \161.
 
-1.6.3 Block comments and executable interpreter-triggers
+@subsection Block comments and executable interpreter-triggers
+
 Scsh allows source files to begin with a header of the form
 
 #!/usr/local/bin/scsh -s
@@ -555,14 +559,13 @@ chapter 11 for information on how to use this feature). The scsh interpreterigno
 Although the form of the #! read-macro was chosen to support interpreter-triggers for executable Unix scripts, it is a general block-comment sequence
 and can be used as such anywhere in a scsh program.
 
-1.6.4 Here-strings
+@subsection Here-strings
+
 The read macro #< is used to introduce "here-strings" in programs, similarto the
 
 << "here document" redirections provided by sh and csh. There aretwo kinds of here-string, character-delimited and line-delimited; they are both
 
 introduced by the #< sequence.
-
-5
 
 Character-delimited here-strings
 A character-delimited here-string has the form
@@ -600,8 +603,6 @@ Line-delimited here-strings are useful for writing down long, constantstrings--s
 
 format strings, or arguments to Unix pro-grams, e.g.,
 
-6
-
 ;; Free up some disk space for my netnews files.
 (run (csh -c #<<EOF
 cd /urops
@@ -625,7 +626,8 @@ by either a newline or end-of-file. Absolutely no interpretation is done on thei
 is copied as-is. The newline immediately preceding the terminating delimiterline is not included in the result string (leave an extra blank line if you need
 to put a final newline in the here-string--see the example above). If EOF isencountered before reading the end of the here-string, an error is signalled.
 
-1.6.5 Dot
+@subsection Dot
+
 It is unfortunate that the single-dot token, ".", is both a fundamental Unix filename and a deep, primitive syntactic token in Scheme--it means the following
 will not parse correctly in scsh:
 
@@ -636,12 +638,10 @@ You must instead quote the dot:
 
 When you write shell scripts that manipulate the file system, keep in mindthe special status of the dot token.
 
-1.7 Record types and the define-record form
+@section Record types and the define-record form
 Scsh's interfaces occasionally provide data in structured record types; an exam-ple is the
 
 file-info record whose various fields describe the size, protection,
-
-7
 
 last date of modification, and other pertinent data for a particular file. Theserecord types are described in this manual using the
 
@@ -679,9 +679,8 @@ Alternatively, you may define your own, of course.
 1He wrote it.
 2He wrote it.
 
-8
+@section A word about Unix standards
 
-1.8 A word about Unix standards
 "The wonderful thing about Unix standards is that there are so many to choosefrom." You may be totally bewildered about the multitude of various standards that exist. Rest assured that nowhere in this manual will you encounteran attempt to spell it all out for you; you could not read and internalise such a
 twisted account without bleeding from the nose and ears.
 
@@ -695,14 +694,14 @@ OSIX when at all possible; itsmajor departure is symbolic links, which aren't in
 
 OSIX (see--it really is aleast common denominator).
 
-9
+@node Process notation, System Calls, Introduction, top
+@chapter Process notation
 
-Chapter 2
-Process notation
 Scsh has a notation for controlling Unix processes that takes the form of s-expressions; this notation can then be embedded inside of standard Scheme
 code. The basic elements of this notation are process forms, extended process forms,and redirections.
 
-2.1 Extended process forms and I/O redirections
+@section Extended process forms and I/O redirections
+
 An extended process form is a specification of a Unix process to run, in a particu-lar I/O environment:
 
 epf ::= (pf redir1 ... redirn)
@@ -723,8 +722,6 @@ The subforms of a redirection are implicitly backquoted, and symbolsstand for th
 (> ,x) means "output to the file namedby Scheme variable
 x," and (< /usr/shivers/.login) means "read from
 /usr/shivers/.login."
-
-10
 
 Here are two more examples of I/O redirection:
 
@@ -1135,10 +1132,9 @@ applies filter to the string, and writes the result to the current output port.T
 The optional buflen argument controls the number of characters each in-ternal read operation requests; this means that filter will never be applied
 to a string longer than buflen chars. The default buflen value is 1024.
 
-20
+@node System Calls, next, Process notation, top
+@chapter System Calls
 
-Chapter 3
-System Calls
 Scsh provides (almost) complete access to the basic Unix kernel services: pro-cesses, files, signals and so forth. These procedures comprise a Scheme binding
 for POSIX, with a few of the more standard extensions thrown in (e.g., symboliclinks,
 
@@ -1162,8 +1158,6 @@ For reference purposes, the Unix errno numbers are bound to the variables
 errno/perm, errno/noent, etc. System calls never return error/intr--theyautomatically retry.
 
 (errno-error errno syscall . data) -! no return value procedure
-
-21
 
 Raises a Unix error exception for Unix error number errno. The syscalland data arguments are packaged up in the exception packet passed to
 the exception handler.
@@ -1206,13 +1200,8 @@ Error clauses have two forms
 ((errno ...) body ...)
 (else body ...)
 
-In the first type of clause, the errno forms are integer expressions. Theyare evaluated and compared to the error's errno value. An
+In the first type of clause, the errno forms are integer expressions. Theyare evaluated and compared to the error's errno value. An else clause matches any errno value. Note that the errno and data variables are lexi-cally visible to the error clauses.
 
-else clause
-
-22
-
-matches any errno value. Note that the errno and data variables are lexi-cally visible to the error clauses.
 Example:
 
 (with-errno-handler
@@ -1234,16 +1223,18 @@ It is not defined what dynamic context the handler executes in, so fluidvariable
 Note that Scsh system calls always retry when interrupted, so that the
 errno/intr exception is never raised. If the programmer wishes to aborta system call on an interrupt, he should have the interrupt handler explicitly raise an exception or invoke a stored continuation to throw out ofthe system call.
 
-3.1.1 Interactive mode and error handling
+@subsection Interactive mode and error handling
+
 Scsh runs in two modes: interactive and script mode. It starts up in interac-tive mode if the scsh interpreter is started up with no script argument. Otherwise, scsh starts up in script mode. The mode determines whether scsh printsprompts in between reading and evaluating forms, and it affects the default error handler. In interactive mode, the default error handler will report the error,and generate an interactive breakpoint so that the user can interact with the
 system to examine, fix, or dismiss from the error. In script mode, the defaulterror handler causes the scsh process to exit.
 
 When scsh forks a child with (fork), the child resets to script mode. Thiscan be overridden if the programmer wishes.
 
-23
 
-3.2 I/O
-3.2.1 Standard R5RS I/O procedures
+@section I/O
+
+@subsection Standard R5RS I/O procedures
+
 In scsh, most standard R5RS I/O operations (such as display or read-char)work on both integer file descriptors and Scheme ports. When doing I/O with
 a file descriptor, the I/O operation is done directly on the file, bypassing anybuffered data that may have accumulated in an associated port. Note that
 character-at-a-time operations such as read-char are likely to be quite slowwhen performed directly upon file descriptors.
@@ -1258,7 +1249,8 @@ The procedures peek-char and read do not accept file descriptor argu-ments, sinc
 
 stream, a feature not supported by Unix I/O.
 
-3.2.2 Port manipulation and standard ports
+@subsection Port manipulation and standard ports
+
 (close-after port consumer) -! value(s) of consumer procedure
 
 Returns (consumer port), but closes the port on return. No dynamic-wind magic.
@@ -1279,8 +1271,6 @@ These procedures install port as the current input, current output, anderror out
 (with-error-output-port port . body) -! value(s) of body syntax
 
 These special forms are simply syntactic sugar for the with-currentinput-port* procedure and friends.
-
-24
 
 (set-current-input-port! port) -! undefined procedure
 (set-current-output-port! port) -! undefined procedure
@@ -1324,9 +1314,7 @@ is exactly equivalent to the series of assignments
 (set-current-output-port! (fdes->outport 1))
 (set-error-output-port! (fdes->outport 2))
 
-1Why not move->fdes? Because the current output port and error port might be the same port.
-
-25
+1 Why not move->fdes? Because the current output port and error port might be the same port.
 
 However, you are more likely to find the dynamic-extent variant,
 with-stdio-ports*, below, to be of use in general programming.
@@ -1347,7 +1335,8 @@ with-stdio-ports* binds the standard ports (current-input-port),
 
 The with-stdio-ports special form is merely syntactic sugar.
 
-3.2.3 String ports
+@subsection String ports
+
 Scheme 48 has string ports, which you can use. Scsh has not committed tothe particular interface or names that Scheme 48 uses, so be warned that the
 interface described herein may be liable to change.
 (make-string-input-port string) -! port procedure
@@ -1365,14 +1354,11 @@ string-output-port-output to the port.
 The procedure value is called on a port. When it returns,
 call-with-string-output-port returns a string containing the charac-ters that were written to that port during the execution of procedure.
 
-3.2.4 Revealed ports and file descriptors
+@subsection Revealed ports and file descriptors
+
 The material in this section and the following one is not critical for most appli-cations. You may safely skim or completely skip this section on a first reading.
 
-Dealing with Unix file descriptors in a Scheme environment is difficult. InUnix, open files are part of the process environment, and are referenced by
-
-26
-
-small integers called file descriptors. Open file descriptors are the fundamen-tal way I/O redirections are passed to subprocesses, since file descriptors are
+Dealing with Unix file descriptors in a Scheme environment is difficult. InUnix, open files are part of the process environment, and are referenced by small integers called file descriptors. Open file descriptors are the fundamen-tal way I/O redirections are passed to subprocesses, since file descriptors are
 preserved across fork's and exec's.
 
 Scheme, on the other hand, uses ports for specifying I/O sources. Ports aregarbage-collected Scheme objects, not integers. Ports can be garbage collected;
@@ -1416,8 +1402,6 @@ See discussion below. To really put a stake through a descriptor's heart without
 
 The revealed field is an aid to garbage collection. It is an integer semaphore.If it is zero, the port's file descriptor can be closed when the port is collected.
 
-27
-
 Essentially, the revealed field reflects whether or not the port's file descriptorhas escaped to the Scheme user. If the Scheme user doesn't know what file descriptor is associated with a given port, then he can't possibly retain an "inte-ger handle" on the port after dropping pointers to the port itself, so the garbage
 collector is free to close the file.
 
@@ -1452,17 +1436,10 @@ This facility preserves the transparent close-on-collect property for file ports
 substrate without interference from the garbage collector. This is critical, sinceshell programming absolutely requires access to the Unix file descriptors, as
 their numerical values are a critical part of the process interface.
 
-A port's underlying file descriptor can be shifted around with dup(2) whenconvenient. That is, the actual file descriptor on top of which a port is constructed can be shifted around underneath the port by the scsh kernel when
-
-28
-
-necessary. This is important, because when the user is setting up file descrip-tors prior to a
-
-exec(2), he may explicitly use a file descriptor that has alreadybeen allocated to some port. In this case, the scsh kernel just shifts the port's
+A port's underlying file descriptor can be shifted around with dup(2) whenconvenient. That is, the actual file descriptor on top of which a port is constructed can be shifted around underneath the port by the scsh kernel when necessary. This is important, because when the user is setting up file descrip-tors prior to a exec(2), he may explicitly use a file descriptor that has alreadybeen allocated to some port. In this case, the scsh kernel just shifts the port's
 
 file descriptor to some new location with dup, freeing up its old descriptor. Thisprevents errors from happening in the following scenario. Suppose we have a
-file open on port f. Now we want to run a program that reads input on file 0,writes output to file 1, errors to file 2, and logs execution information on file 3.
-We want to run this program with input from f. So we write:
+file open on port f. Now we want to run a program that reads input on file 0,writes output to file 1, errors to file 2, and logs execution information on file 3. We want to run this program with input from f. So we write:
 
 (run (/usr/shivers/bin/prog)
 
@@ -1493,14 +1470,13 @@ Under normal circumstances, all this machinery just works behind thescenes to ke
 about it is when he starts accessing file descriptors from ports, which he shouldalmost never have to do. If a user starts asking what file descriptors have been
 allocated to what ports, he has to take responsibility for managing this infor-mation.
 
-3.2.5 Port-mapping machinery
+@subsection Port-mapping machinery
+
 The procedures provided in this section are almost never needed. You maysafely skim or completely skip this section on a first reading.
 
 Here are the routines for manipulating ports in scsh. The important pointsto remember are:
 
 * A file port is associated with an open file, not a particular file descriptor.
-
-29
 
 * The association between a file port and a particular file descriptor is neverchanged except when the file descriptor is explicitly closed. "Closing"
 
@@ -1546,9 +1522,8 @@ different from target-fd). Returns the port. This operation resets fd/port'sreve
 
 In all cases when fd/port is actually shifted, if there is a port already usingtarget-fd, it is first relocated to some other file descriptor.
 
-30
+@subsection Unix I/O
 
-3.2.6 Unix I/O
 (dup fd/port [newfd]) -! fd/port procedure
 (dup->inport fd/port [newfd]) -! port procedure
 (dup->outport fd/port [newfd]) -! port procedure
@@ -1598,8 +1573,6 @@ Oops: The current implementation doesn't handle offset argumentsthat are not imm
 
 Oops: The current implementation doesn't handle buffered ports.
 
-31
-
 (tell fd/port) -! integer procedure
 
 Returns the position of the I/O cursor in the the I/O stream. Not all filedescriptors or ports support cursor-reporting; this is dependent on the
@@ -1633,15 +1606,11 @@ Returns a file descriptor.
 (fdes-flags fd/port) -! integer procedure
 (set-fdes-flags fd/port integer) -! undefined procedure
 
-These procedures allow reading and writing of an open file's flags. Theonly such flag defined by P
-
-OSIX is fdflags/close-on-exec; your Uniximplementation may provide others.
+These procedures allow reading and writing of an open file's flags. Theonly such flag defined by POSIX is fdflags/close-on-exec; your Uniximplementation may provide others.
 
 These procedures should not be particularly useful to the programmer, asthe scsh runtime already provides automatic control of the close-on-exec
 property. Unrevealed ports always have their file descriptors markedclose-on-exec, as they can be closed when the scsh process execs a new
 program. Whenever the user reveals or unreveals a port's file descrip-tor, the runtime automatically sets or clears the flag for the programmer.
-
-32
 
 Allowed operations Status flagOpen+Get+Set These flags can be used
 in open-file,
@@ -1675,9 +1644,7 @@ open/exclusive
 open/no-control-tty
 open/truncate
 
-Table 3.1: Status flags for open-file, fdes-status and set-fdes-status.Only P
-
-OSIX flags are guaranteed to be present; your operating system may de-fine others. The
+Table 3.1: Status flags for open-file, fdes-status and set-fdes-status.Only POSIX flags are guaranteed to be present; your operating system may de-fine others. The
 
 open/access-mask value is not an actual flag, but a bit maskused to select the field for the
 
@@ -1701,16 +1668,10 @@ Returns two ports, the read and write end-points of a Unix pipe.
 (read-string nbytes [fd/port]) -! string or #f procedure
 (read-string! str [fd/port start end]) -! nread or #f procedure
 
-33
-
 These calls read exactly as much data as you requested, unless there isnot enough data (eof).
 
-read-string! reads the data into string str atthe indices in the half-open interval [start
-
-, end); the default interval is thewhole string: start = 0 and end =
-(string-length string). They willpersistently retry on partial reads and when interrupted until (1) error,
-
-(2) eof, or (3) the input request is completely satisfied. Partial reads canoccur when reading from an intermittent source, such as a pipe or tty.
+read-string! reads the data into string str atthe indices in the half-open interval [start, end); the default interval is thewhole string: start = 0 and end =
+(string-length string). They willpersistently retry on partial reads and when interrupted until (1) error, (2) eof, or (3) the input request is completely satisfied. Partial reads canoccur when reading from an intermittent source, such as a pipe or tty.
 
 read-string returns the string read; read-string! returns the numberof characters read. They both return false at eof. A request to read zero
 bytes returns immediately, with no eof check.
@@ -1781,8 +1742,6 @@ select-based. Therefore, you cannot expect a performance increase from
 writing a single-threaded program using select and select! insteadof writing a multi-threaded program where each thread handles one
 I/O connection.
 
-35
-
 The moral of this story is that select and select! make sense in onlytwo situations: legacy code written for an older version of scsh, and
 programs which make inherent use of select/select! which do notbenefit from multiple threads. Examples are network clients that send
 requests to multiple alternate servers and discard all but one of them.
@@ -1820,11 +1779,7 @@ has established a connection--for example, to a network port.
 
 This procedure writes all the data requested. If the procedure cannotperform the write with a single kernel call (due to interrupts or partial
 
-writes), it will perform multiple write operations until all the data is writ-ten or an error has occurred. A non-blocking I/O error is considered an
-
-36
-
-error. (Error exception packets for this syscall include the amount of datapartially transferred before the error occurred.)
+writes), it will perform multiple write operations until all the data is writ-ten or an error has occurred. A non-blocking I/O error is considered an error. (Error exception packets for this syscall include the amount of datapartially transferred before the error occurred.)
 The data written are the characters of string in the half-open interval[start
 
 , end). The default interval is the whole string: start = 0 andend =
@@ -1862,9 +1817,8 @@ and is an error (the problem is the subsequent flush operation).
 
 Oops: write-string/partial is currently not implemented. Con-sider using threads to achive the same functionality.
 
-37
+@subsection Buffered I/O
 
-3.2.7 Buffered I/O
 Scheme 48 ports use buffered I/O--data is transferred to or from the OS inblocks. Scsh provides control of this mechanism: the programmer may force
 saved-up output data to be transferred to the OS when he chooses, and mayalso choose which I/O buffering policy to employ for a given port (or turn
 buffering off completely).
@@ -1899,8 +1853,6 @@ respectively one for bufpol/none.
 
 (force-output [fd/port]) -! undefined procedure
 
-38
-
 This procedure does nothing when applied to an integer file descriptoror unbuffered port. It flushes buffered output when applied to a buffered
 port, and raises a write-error exception on error. Returns no value.
 
@@ -1908,17 +1860,14 @@ port, and raises a write-error exception on error. Returns no value.
 
 This procedure flushes all open output ports with buffered data.
 
-3.2.8 File locking
+@subsection File locking
+
 Scsh provides POSIX advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
 a process has an exclusive lock on a region of a file, other processes will not beable to obtain locks on that region of the file, but they will still be able to read
 and write the file with no hindrance. Using advisory locks requires cooperationamongst the agents accessing the shared resource.
 
 Remark: Unfortunately, POSIX file locks are associated with actual files,not with associated open file descriptors. Once a process locks a file, using
-some file descriptor fd, the next time any file descriptor referencing that fileis closed, all associated locks are released. This severely limits the utility of
-
-POSIX advisory file locks, and we'd recommend caution when using them.It is not without reason that the FreeBSD man pages refer to P
-
-OSIX filelocking as "completely stupid."
+some file descriptor fd, the next time any file descriptor referencing that fileis closed, all associated locks are released. This severely limits the utility of POSIX advisory file locks, and we'd recommend caution when using them.It is not without reason that the FreeBSD man pages refer to POSIX filelocking as "completely stupid."
 
 Scsh moves Scheme ports from file descriptor to file descriptor with dup()and
 
@@ -1984,8 +1933,6 @@ the proc field of the returned lock region, and is the only procedure thathas an
 process objects.) Note that if you apply this procedure to a file systemthat is shared across multiple operating systems (i.e., an NFS file system),
 the proc field may be ambiguous. We note, again, that POSIX advisoryfile locking is not a terribly useful or well-designed facility.
 
-40
-
 (unlock-region fdes lock) -! undefined procedure
 
 Release a lock from a file.
@@ -2000,7 +1947,8 @@ saved continuation or raising an exception) also causes the lock to bereleased.
 After a normal return from thunk, its return values are returned by
 with-region-lock*. The with-region-lock special form is equivalentsyntactic sugar.
 
-3.3 File system
+@section File system
+
 Besides the following procedures, which allow access to the computer's filesystem, scsh also provides a set of procedures which manipulate file names.
 These string-processing procedures are documented in section 5.1.
 (create-directory fname [perms override?]) -! undefined procedure
@@ -2021,8 +1969,6 @@ Perms defaults to #o777 (but is masked by the current umask).
 
 Remark: Currently, if you try to create a hard or symbolic link from afile to itself, you will error out with override? false, and simply delete
 your file with override? true. Catching this will require some sort oftrue-name procedure, which I currently do not have.
-
-41
 
 (delete-directory fname) -! undefined procedure
 (delete-file fname) -! undefined procedure
@@ -2063,8 +2009,6 @@ This procedure sets the access and modified times for the file fname to thesuppl
 
 neither time argument is supplied, they are both taken to be the currenttime. You must provide both times or neither. If the procedure completes
 successfully, the file's time of last status-change (ctime) is set to the cur-rent time.
-
-42
 
 (sync-file fd/port) -! undefined procedure
 (sync-file-system) -! undefined procedure
@@ -2109,8 +2053,6 @@ ctime) ; Time of last status change.
 The uid field of a file-info record is accessed with the procedure
 
 (file-info:uid x)
-
-43
 
 and similarly for the other fields. The type field is a symbol; allother fields are integers. A file-info record is discriminated with the
 file-info? predicate.
@@ -2159,8 +2101,6 @@ These procedures are file-type predicates that test the type of a given file.The
 file-info is applied;the sole exception is
 file-symlink?, which does not take the optionalchase? second argument.
 
-44
-
 For example,
 
 (file-directory? "/usr/dalbertz") =) #t
@@ -2193,19 +2133,11 @@ Value meaning
 A file is considered writeable if either (1) it exists and is writeable or (2)it doesn't exist and the directory is writeable. Since symlink permission
 
 bits are ignored by the filesystem, these calls do not take a chase? flag.
-Note that these procedures use the process' effective user and group idsfor permission checking. P
-
-OSIX defines an access() function that usesthe process' real uid and gids. This is handy for setuid programs that
-
-would like to find out if the actual user has specific rights; scsh ought toprovide this functionality (but doesn't at the current time).
+Note that these procedures use the process' effective user and group idsfor permission checking. POSIX defines an access() function that usesthe process' real uid and gids. This is handy for setuid programs that would like to find out if the actual user has specific rights; scsh ought toprovide this functionality (but doesn't at the current time).
 
 There are several problems with these procedures. First, there's an atom-icity issue. In between checking permissions for a file and then trying an
 operation on the file, another process could change the permissions, so areturn value from these functions guarantees nothing. Second, the code
-special-cases permission checking when the uid is root--if the file exists,
-
-45
-
-root is assumed to have the requested permission. However, not evenroot can write a file that is on a read-only file system, such as a CD ROM.
+special-cases permission checking when the uid is root--if the file exists, root is assumed to have the requested permission. However, not evenroot can write a file that is on a read-only file system, such as a CD ROM.
 In this case, file-not-writable? will lie, saying that root has write ac-cess, when in fact the opening the file for write access will fail. Finally,
 write permission confounds write access and create access. These shouldbe disentangled.
 
@@ -2246,8 +2178,6 @@ Returns:
 This is simply (not (file-not-exists? fname [chase?]))
 
 (directory-files [dir dotfiles?]) -! string list procedure
-
-46
 
 Return the list of files in directory dir, which defaults to the current work-ing directory. The dotfiles? flag (default
 
@@ -2297,9 +2227,7 @@ literally.3 C shell {a,b,c} patterns are expanded. Backslash quotes char-acters,
 
 {, }, *, [, ], and ?.
 
-3Why bother to mention such a silly possibility? Because that is what sh does.
-
-47
+3 Why bother to mention such a silly possibility? Because that is what sh does.
 
 Note that the rules of backslash for Scheme strings and glob patternswork together to require four backslashes in a row to specify a single
 literal backslash. Fortunately, it is very rare that a backslash occurs in aUnix file name.
@@ -2351,8 +2279,6 @@ If the first character of the pattern (after expanding braces) is a slash, these
 directory.
 If the last character of the pattern (after expanding braces) is a slash, thenthe result matches must be directories, e.g.,
 
-48
-
 (glob "/usr/man/man?/") =)
 
 ("/usr/man/man1/" "/usr/man/man2/" ...)
@@ -2401,8 +2327,6 @@ A given pati pattern is matched as a regexp, so it is not forced to matchthe ent
 t".
 
 The pati patterns can be more general than stated above.
-
-49
 
 * A single pattern can specify multiple levels of the path by em-bedding
 
@@ -2456,8 +2380,6 @@ Some examples:
 
 (define (true . x) #t)
 
-50
-
 (file-match "." #f "./\\.c")
 (file-match "." #f "" "\\.c")
 (file-match "." #f true "\\.c")
@@ -2496,24 +2418,15 @@ simply serves to scatter the name searches into sparse regions, so thatcollision
 affect correctness.
 Security note: doing I/O to files created this way in /var/tmp/ is notnecessarily secure. General users have write access to
 
-/var/tmp/, so evenif an attacker cannot access the new temp file, he can delete it and replace
+/var/tmp/, so evenif an attacker cannot access the new temp file, he can delete it and replace it with one of his own. A subsequent open of this filename will thengive you his file, to which he has access rights. There are several ways to defeat this attack,
 
-it with one of his own. A subsequent open of this filename will thengive you his file, to which he has access rights. There are several ways to
-defeat this attack,
-
-51
-
-1. Use temp-file-iterate, below, to return the file descriptor allo-cated when the file is opened. This will work if the file only needs
-
-to be opened once.
-2. If the file needs to be opened twice or more, create it in a protecteddirectory, e.g.,
-
-$HOME.
+1. Use temp-file-iterate, below, to return the file descriptor allo-cated when the file is opened. This will work if the file only needs to be opened once.
+2. If the file needs to be opened twice or more, create it in a protected directory, e.g., $HOME.
 
 3. Ensure that /var/tmp has its sticky bit set. This requires system ad-ministrator privileges.
 
 The actual default prefix used is controlled by the dynamic variable
-*temp-file-template*, and can be overridden for increased security.See
+\*temp-file-template\*, and can be overridden for increased security.See
 
 temp-file-iterate.
 
@@ -2548,8 +2461,6 @@ returning whatever value(s) maker returned.
 After a number of unsuccessful trials, temp-file-iterate may give upand signal an error.
 
 Thus, if we ignore its optional prefix argument, create-temp-file couldbe defined as:
-
-52
 
 (define (create-temp-file)
 
@@ -2601,8 +2512,6 @@ temp-file-channel returns, sothe file is essentially unnamed, and its disk stora
 as the two ports are closed.
 Temp-file-channel is analogous to port-pipe with two exceptions:
 
-53
-
 * If the writer process gets ahead of the reader process, it will not hangwaiting for some small pipe buffer to drain. It will simply buffer the
 
 data on disk. This is good.*
@@ -2613,7 +2522,8 @@ In order to ensure that an end-of-file returned to the reader is legit-imate, th
 
 way to do this is for the reader to delay doing input until the writerhas completely finished doing output, or exited.
 
-3.4 Processes
+@section Processes
+
 (exec prog arg1 . . . argn) -! no return value procedure
 (exec-path prog arg1 . . . argn) -! no return value procedure
 (exec/env prog env arg1 . . . argn) -! no return value procedure
@@ -2646,8 +2556,6 @@ Note that the C exec() procedure allows the zeroth element of the argu-ment vect
 
 char *argv[] = {"-", "-f", 0};
 exec("/bin/csh", argv, envp);
-
-54
 
 The scsh exec, exec-path, exec/env, and exec-path/env procedures donot give this functionality--element 0 of the arg vector is always identical
 to the prog argument. In the rare case the user wishes to differentiatethese two items, he can use the low-level
@@ -2689,11 +2597,7 @@ call-terminally calls its thunk. When the thunk returns, the processexits. Altho
 call-terminally could be implemented as
 
 (* (thunk) (thunk) (exit 0))
-an implementation can take advantage of the fact that this procedurenever returns. For example, the runtime can start with a fresh stack and
-
-55
-
-also start with a fresh dynamic environment, where shadowed bindingsare discarded. This can allow the old stack and dynamic environment
+an implementation can take advantage of the fact that this procedurenever returns. For example, the runtime can start with a fresh stack and also start with a fresh dynamic environment, where shadowed bindingsare discarded. This can allow the old stack and dynamic environment
 to be collected (assuming this data is not reachable through some livecontinuation).
 
 (suspend) -! undefined procedure
@@ -2730,8 +2634,6 @@ To create a background three-process pipe a | b | c, we write:
 
 (fork/pipe b)
 (c)))
-
-56
 
 which returns the process object for c's process.
 Note that these procedures affect file descriptors, not ports. That is, thepipe is allocated connecting the child's file descriptor 1 to the parent's file
@@ -2770,19 +2672,14 @@ Like fork/pipe, but the pipe connections between the child and parentare specifi
 (|+ conns pf1 ... pfn)
 process form for a description of connection lists.
 
-3.4.1 Process objects and process reaping
+@subsection Process objects and process reaping
+
 Scsh uses process objects to represent Unix processes. They are created by the
 fork procedure, and have the following exposed structure:
 
-(define-record proc
+(define-record proc pid)
 
-pid)
-
-57
-
-The only exposed slot in a proc record is the process' pid, the integer id as-signed by Unix to the process. The only exported primitive procedures for manipulating process objects are proc? and proc:pid. Process objects are createdwith the
-
-fork procedure.
+The only exposed slot in a proc record is the process' pid, the integer id as-signed by Unix to the process. The only exported primitive procedures for manipulating process objects are proc? and proc:pid. Process objects are createdwith the fork procedure.
 
 (pid->proc pid [probe?]) -! proc procedure
 
@@ -2872,7 +2769,8 @@ procedures out of the kernel's process table. If a program doesn't use processre
 
 wait-any to wait for thechildren to exit.
 
-3.4.2 Process waiting
+@subsection Process waiting
+
 (wait proc/pid [flags]) -! status procedure
 
 This procedure waits until a child process exits, and returns its exit code.The proc/pid argument is either a process object (section 3.4.1) or an integer process id. Wait returns the child's exit status code (or suspensioncode, if the
@@ -2917,7 +2815,8 @@ Note that if the programmer wishes to wait for exited processes by pro-cess grou
 
 (section 3.4.1), as this loses process group information. However, mostprocess-group waiting is for stopped processes (to implement job control), so this is rarely an issue, as stopped processes are not subject toreaping.
 
-3.4.3 Analysing process status codes
+@subsection Analysing process status codes
+
 When a child process dies (or is suspended), its parent can call the wait pro-cedure to recover the exit (or suspension) status of the child. The exit status is
 a small integer that encodes information describing how the child terminated.The bit-level format of the exit status is not defined by P
 
@@ -2948,7 +2847,8 @@ If the child process was suspended by a signal, status:stop-sig returnsthe signa
 false.
 If the child process terminated abnormally, status:term-sig returns thesignal that terminated the child. Otherwise, this function returns false.
 
-3.5 Process state
+@section Process state
+
 (umask) -! fixnum procedure
 (set-umask perms) -! undefined procedure
 (with-umask* perms thunk) -! value(s) of thunk procedure
@@ -3041,7 +2941,8 @@ Returns the resolution of the CPU timer in clock ticks per second. Thiscan be us
 
 process-times to seconds.
 
-3.6 User and group database access
+@section User and group database access
+
 These procedures are used to access the user and group databases (e.g., theones traditionally stored in
 
 /etc/passwd and /etc/group.)
@@ -3071,7 +2972,8 @@ name gid members)
 
 The gid/name argument is either an integer gid or a string group-name.
 
-3.7 Accessing command-line arguments
+@section Accessing command-line arguments
+
 command-line-arguments string list
 (command-line) -! string list procedure
 
@@ -3155,7 +3057,8 @@ heap-image executable by the Scheme 48 virtual machine, its semanticswill be unc
 /usr/local/bin/scsh -s
 is not part of the program; it's a specification for the machine to executethe program on, so it is not properly part of the program's argument list.
 
-3.8 System parameters
+@section System parameters
+
 (system-name) -! string procedure
 
 Returns the name of the host on which we are executing. This may be alocal name, such as "solar," as opposed to a fully-qualified domain name
@@ -3180,7 +3083,8 @@ domain name.
 
 66
 
-3.9 Signal system
+@section Signal system
+
 Signal numbers are bound to the variables signal/hup, signal/int, . . . . Seetables 3.9 and 3.3 for the full list.
 
 (signal-process proc sig) -! undefined procedure
@@ -3342,13 +3246,15 @@ These procedures manipulate the raw signal handler of the scsh processand therfo
 intended to be used for igoring synchronous signals if system calls can-not succeed otherwise. Do not use these procedures for asynchronous
 signals!
 
-3.10 Time
+@section Time
+
 Scsh's time system is fairly sophisticated, particularly with respect to its carefultreatment of time zones. However, casual users shouldn't be intimidated; all of
 the complexity is optional, and defaulting all the optional arguments reducesthe system to a simple interface.
 
 71
 
-3.10.1 Terminology
+@subsection Terminology
+
 "UTC" and "UCT" stand for "universal coordinated time," which is the officialname for what is colloquially referred to as "Greenwich Mean Time."
 
 POSIX allows a single time zone to specify two different offsets from UTC:one standard one, and one for "summer time." Summer time is frequently
@@ -3356,7 +3262,8 @@ some sort of daylight savings time.
 
 The scsh time package consistently uses this terminology: we never say"gmt" or "dst;" we always say "utc" and "summer time."
 
-3.10.2 Basic data types
+@subsection Basic data types
+
 We have two types: time and date.
 
 A time specifies an instant in the history of the universe. It is location andtime-zone independent.4 A time is a real value giving the number of elapsed
@@ -3416,15 +3323,13 @@ date record to pass as an argument to time. Other procedures,however, may refuse
 
 date records.
 
-3.10.3 Time zones
+@subsection Time zones
+
 Several time procedures take time zones as arguments. When optional, thetime zone defaults to local time zone. Otherwise the time zone can be one of:
 
-#f Local timeInteger Seconds of offset from UTC. For example, New
+#f Local timeInteger Seconds of offset from UTC. For example, New York City is -18000 (-5 hours), San Francisco is-28800 (-8 hours).
 
-York City is -18000 (-5 hours), San Francisco is-28800 (-8 hours).
-String A POSIX time zone string understood by the OS(i.e.., the sort of time zone assigned to the
-
-$TZenvironment variable).
+String A POSIX time zone string understood by the OS(i.e.., the sort of time zone assigned to the $TZ environment variable).
 
 An integer time zone gives the number of seconds you must add to UTC to gettime in that zone. It is not "seconds west" of UTC--that flips the sign.
 
@@ -3432,13 +3337,12 @@ To get UTC time, use a time zone of either 0 or "UCT0".
 
 73
 
-3.10.4 Procedures
+@subsection Procedures
+
 (time+ticks) -! [secs ticks] procedure
 (ticks/sec) -! real procedure
 
-The current time, with sub-second resolution. Sub-second resolution isnot provided by P
-
-OSIX, but is available on many systems. The time isreturned as elapsed seconds since the Unix epoch, plus a number of subsecond "ticks." The length of a tick may vary from implementation toimplementation; it can be determined from
+The current time, with sub-second resolution. Sub-second resolution is not provided by POSIX, but is available on many systems. The time isreturned as elapsed seconds since the Unix epoch, plus a number of subsecond "ticks." The length of a tick may vary from implementation toimplementation; it can be determined from
 
 (ticks/sec).
 
@@ -3457,6 +3361,7 @@ support to deal with the quantity.
 You can convert seconds and ticks to seconds with the expression
 
 (+ secs (/ ticks (ticks/sec)))
+
 Given that, why not have the fine-grain time procedure just return anon-integer real for time? Following Common Lisp, I chose to allow
 
 the system clock to report sub-second time in its own units to lowerthe overhead of determining the time. This would be important for a
@@ -3589,7 +3494,8 @@ tz-secs are set, they are not brought into agreement. It isn't clearhow to do th
 
 Oops: fill-in-date! isn't implemented yet.
 
-3.11 Environment variables
+@section Environment variables
+
 (setenv var val) -! undefined procedure
 (getenv var) -! string procedure
 
@@ -3706,7 +3612,8 @@ $EDITOR values.
 (env2 (alist-update env1 "EDITOR" my-editor))) ; the new env.
 (run (begin (exec-path/env "mail" env2 "shivers@cs.cmu.edu"))))
 
-3.11.1 Path lists and colon lists
+@subsection Path lists and colon lists
+
 When environment variables such as $PATH need to encode a list of strings(such as a list of directories to be searched), the common Unix convention is
 to separate the list elements with colon delimiters.5 To convert between thecolon-separated string encoding and the list-of-strings representation, see the
 infix-splitter function (section 8.1.2) and the string library's string-joinfunction. For example,
@@ -3736,7 +3643,8 @@ equal? for com-paring elements.
 
 80
 
-3.11.2 $USER, $HOME, and $PATH
+@subsection $USER, $HOME, and $PATH
+
 Like sh and unlike csh, scsh has no interactive dependencies on environmentvariables. It does, however, initialise certain internal values at startup time
 from the initial process environment, in particular $HOME and $PATH. Scshnever uses
 
@@ -3760,7 +3668,8 @@ exec-path and exec-path/env searches.
 To access, rebind or side-effect thread-fluid cells, you must open the
 thread-fluids package.
 
-3.12 Terminal device control
+@section Terminal device control
+
 Scsh provides a complete set of routines for manipulating terminal devices--putting them in "raw" mode, changing and querying their special characters,
 modifying their I/O speeds, and so forth. The scsh interface is designed bothfor generality and portability across different Unix platforms, so you don't
 have to rewrite your program each time you move to a new system. We'vealso made an effort to use reasonable, Scheme-like names for the multitudinous named constants involved, so when you are reading code, you'll haveless likelihood of getting lost in a bewildering maze of obfuscatory constants
@@ -3770,12 +3679,10 @@ This section can only lay out the basic functionality of the terminal deviceinte
 
 consult one of the standard Unix texts.
 
-3.12.1 Portability across OS variants
-Terminal-control software is inescapably complex, ugly, and low-level. Unixvariants each provide their own way of controlling terminal devices, making
-it difficult to provide interfaces that are portable across different Unix systems.Scsh's terminal support is based primarily upon the P
+@subsection Portability across OS variants
 
-OSIX termios interface.Programs that can be written using only the P
-OSIX interface are likely to bewidely portable.
+Terminal-control software is inescapably complex, ugly, and low-level. Unixvariants each provide their own way of controlling terminal devices, making
+it difficult to provide interfaces that are portable across different Unix systems.Scsh's terminal support is based primarily upon the POSIX termios interface.Programs that can be written using only the POSIX interface are likely to bewidely portable.
 
 81
 
@@ -3794,7 +3701,8 @@ flags can reliably be referenced without producing OS-dependent "unboundvariable
 
 Finally, note that although POSIX, SVR4, and Berkeley cover the lion's shareof the terminal-driver functionality, each operating system inevitably has nonstandard extensions. While a particular scsh implementation may providethese extensions, they are not portable, and so are not documented here.
 
-3.12.2 Miscellaneous procedures
+@subsection Miscellaneous procedures
+
 (tty? fd/port) -! boolean procedure
 
 Return true if the argument is a tty.
@@ -3803,7 +3711,8 @@ Return true if the argument is a tty.
 
 The argument fd/port must be a file descriptor or port open on a tty. Re-turn the file-name of the tty.
 
-3.12.3 The tty-info record type
+@subsection The tty-info record type
+
 The primary data-structure that describes a terminal's mode is a tty-inforecord, defined as follows:
 
 82
@@ -3868,7 +3777,8 @@ time field and the ttychar/eolelement of the control-characters string. Many imp
 To stay out of trouble, set the min and time fields only if you are putting theterminal into raw mode; set the eof and eol control-characters only if you are
 putting the terminal into canonical mode. It's ugly, but it's Unix.
 
-3.12.4 Using tty-info records
+@subsection Using tty-info records
+
 (make-tty-info if of cf lf ispeed ospeed min time) -! tty-info-record procedure
 (copy-tty-info tty-info-record) -! tty-info-record procedure
 
@@ -3911,7 +3821,8 @@ set-tty-info/flush Drain output, flush input, then change.
 
 Oops: If I had defined these with the parameters in the reverse order,I could have made fd/port/fname optional. Too late now.
 
-3.12.5 Other terminal-device procedures
+@subsection Other terminal-device procedures
+
 (send-tty-break [fd/port/fname duration]) -! no-value procedure
 
 The fd/port/fname parameter is an integer file descriptor or Scheme I/Oport opened on a terminal device, or a file-name for a terminal device;
@@ -3956,7 +3867,8 @@ The stop-tty-output and start-tty-output procedures suspend andresume output fro
 stop-tty-input and
 start-tty-input procedures transmit the special STOP and STARTcharacters to the terminal with the intention of stopping and starting terminal input flow.
 
-3.12.6 Control terminals, sessions, and terminal process groups
+@subsection Control terminals, sessions, and terminal process groups
+
 (open-control-tty tty-name [flags]) -! port procedure
 
 This procedure opens terminal device tty-name as the process' control ter-minal (see the
@@ -3998,7 +3910,8 @@ Return the file-name of the process' control tty. On every version of Unixof whi
 
 "/dev/tty". However, thisprocedure uses the official Posix interface, so it is more portable than simply using a constant string.
 
-3.12.7 Pseudo-terminals
+@subsection Pseudo-terminals
+
 Scsh implements an interface to Berkeley-style pseudo-terminals.
 (fork-pty-session thunk) -! [process pty-in pty-out tty-name] procedure
 
@@ -4172,8 +4085,7 @@ ttyout/vtab-delay0
 ttyout/vtab-delay1All
 ttyout/all-delay Total bit-field mask
 
-Table 3.7: Delay constants. These are the named flags for the tty-info record'soutput-flags field. These flags control the output delays associated with printing
-special characters. They are non-POSIX, and have non-#f values only on SVR4systems.
+Table 3.7: Delay constants. These are the named flags for the tty-info record'soutput-flags field. These flags control the output delays associated with printing special characters. They are non-POSIX, and have non-#f values only on SVR4systems.
 
 91
 
@@ -4233,10 +4145,8 @@ ttyl/case-map XCASE Canonical case presentation
 Table 3.9: Local-flags. These are the named flags for the tty-info record'slocal-flags field. These flags generally control the details of the line-editting
 user interface. Only the POSIX entries are guaranteed to be non-#f.
 
-93
+@chapter Networking
 
-Chapter 4
-Networking
 The Scheme Shell provides a BSD-style sockets interface. There is not an of-ficial standard for a network interface for scsh to adopt (this is the subject of
 the forthcoming Posix.8 standard). However, Berkeley sockets are a de factostandard, being found on most Unix workstations and PC operating systems.
 
@@ -4244,7 +4154,8 @@ It is fairly straightforward to add higher-level network protocols such assmtp, 
 The Scheme Underground has also released a network library with many ofthese protocols as a companion to the current release of scsh. See this code for
 examples showing the use of the sockets interface.
 
-4.1 High-level interface
+@section High-level interface
+
 For convenience, and to avoid some of the messy details of the socket interface,we provide a high level socket interface. These routines attempt to make it easy
 to write simple clients and servers without having to think of many of the de-tails of initiating socket connections. We welcome suggested improvements to
 this interface, including better names, which right now are solely descriptionsof the procedure's action. This might be fine for people who already understand sockets, but does not help the new networking programmer.
@@ -4284,7 +4195,8 @@ Same as bind-listen-accept-loop but runs the thunk prepare after bind-ing the ad
 
 prepare procedure is to change the user id from the superuser to someunprivileged id once the address has been bound.
 
-4.2 Sockets
+@section Sockets
+
 (create-socket protocol-family type [protocol]) -! socket procedure
 (create-socket-pair type) -! [socket1 socket2] procedure
 (close-socket socket) -! undefined procedure
@@ -4348,7 +4260,8 @@ inetd: after receiving a connection inetd creates a socket and passesit as stand
 
 96
 
-4.3 Socket addresses
+@section Socket addresses
+
 The format of a socket-address depends on the address family of the socket.Address-family-specific routines are provided to convert protocol-specific addresses to socket addresses. The value returned by these routines is a socket-address record, defined to have the following visible structure:
 
 (define-record socket-address
@@ -4391,7 +4304,8 @@ socket-address->unix-address return the address-family-specificaddresses. Be awa
 
 97
 
-4.4 Socket primitives
+@section Socket primitives
+
 The procedures in this section are presented in the order in which a typicalprogram will use them. Consult a text on network systems programming for
 more information on sockets.1 The last two tutorials are freely available as partof BSD. In the absence of these, your Unix manual pages for socket might be a
 good starting point for information.
@@ -4464,7 +4378,8 @@ shutdown/receives
 shutdown/sends
 shutdown/sends+receives
 
-4.5 Performing input and output on sockets
+@section Performing input and output on sockets
+
 (receive-message socket length [flags]) -! [string-or-#f socket-address] procedure
 (receive-message! socket string [start] [end] [flags]) -! [count-or-#f socket-address] procedure
 (receive-message/partial socket length [flags]) -! [string-or-#f socket-address] procedure
@@ -4494,7 +4409,8 @@ message/dont-route
 
 See read-string and write-string for a more detailed description ofthe arguments and return values.
 
-4.6 Socket options
+@section Socket options
+
 (socket-option socket level option) -! value procedure
 (set-socket-option socket level option value) -! undefined procedure
 
@@ -4544,7 +4460,8 @@ The fourth and final option type of this time is a timeout option.There are two 
 socket/send-timeout and
 socket/receive-timeout. These are set with a real number of microsec-onds resolution and returns a value of the same type upon inspection.
 
-4.7 Database-information entries
+@section Database-information entries
+
 (host-info name-or-socket-address) -! host-info procedure
 (network-info name-or-socket-address) -! network-info or #f procedure
 (service-info name-or-number [protocol-name]) -! service-info or #f procedure
@@ -4600,8 +4517,9 @@ network-info, service-info and protocol-info return #fif the speci-fied entity w
 
 102
 
-Chapter 5
-Strings and characters
+
+@chapter Strings and characters
+
 Strings are the basic communication medium for Unix processes, so a Unix pro-gramming environment must have reasonable facilities for manipulating them.
 Scsh provides a powerful set of procedures for processing strings and charac-ters. Besides the the facilities described in this chapter, scsh also provides
 
@@ -4639,12 +4557,12 @@ More documentation on this library can be found at URLs
 http://srfi.schemers.org/srfi-14/srfi-14.html
 http://srfi.schemers.org/srfi-14/srfi-14.txt
 
-5.1 Manipulating file names
-These procedures do not access the file-system at all; they merely operate onfile-name strings. Much of this structure is patterned after the gnu emacs design. Perhaps a more sophisticated system would be better, something likethe pathname abstractions of C
+@section Manipulating file names
 
-OMMON LISP or MIT Scheme. However, beingUnix-specific, we can be a little less general.
+These procedures do not access the file-system at all; they merely operate onfile-name strings. Much of this structure is patterned after the gnu emacs design. Perhaps a more sophisticated system would be better, something likethe pathname abstractions of COMMON LISP or MIT Scheme. However, beingUnix-specific, we can be a little less general.
 
-5.1.1 Terminology
+@subsection Terminology
+
 These procedures carefully adhere to the POSIX standard for file-name reso-lution, which occasionally entails some slightly odd things. This section will
 describe these rules, and give some basic terminology.
 
@@ -4690,7 +4608,8 @@ file-name-directory,whose job it is to split out the directory portion of a file
 procedures that expect a directory argument will coerce a file-name in direc-tory form to file-name form if it does not have a trailing slash. Bear in mind
 that the ambiguous case, empty string, will be interpreted in file-name form,i.e., as root.
 
-5.1.2 Procedures
+@subsection Procedures
+
 (file-name-directory? fname) -! boolean procedure
 (file-name-non-directory? fname) -! boolean procedure
 
@@ -4912,7 +4831,8 @@ The general substitute-env-vars string procedure, defined in the previ-ous secti
 
 109
 
-5.2 Other string manipulation facilities
+@section Other string manipulation facilities
+
 (substitute-env-vars fname) -! string procedure
 
 Replace occurrences of environment variables with their values. An en-vironment variable is denoted by a dollar sign followed by alphanumeric
@@ -4924,7 +4844,8 @@ chars and underscores, or is surrounded by braces.
 "shivers/.login"
 (substitute-env-vars "${USER}_log") =) "shivers_log"
 
-5.3 ASCII encoding
+@section ASCII encoding
+
 (char->ascii character) -! integer procedure
 (ascii->char integer) -! character procedure
 
@@ -4932,7 +4853,8 @@ These are identical to char->integer and integer->char except thatthey use the A
 
 SCII encoding.
 
-5.4 Character predicates
+@section Character predicates
+
 (char-letter? character) -! boolean procedure
 (char-lower-case? character) -! boolean procedure
 (char-upper-case? character) -! boolean procedure
@@ -4959,7 +4881,8 @@ char-alphabetic? char-letter+digit?
 char-numeric? char-digit?
 char-alphanumeric? char-letter+digit?
 
-5.5 Deprecated character-set procedures
+@section Deprecated character-set procedures
+
 The SRFI-13 character-set library grew out of an earlier library developed forscsh. However, the SRFI standardisation process introduced incompatibilities
 with the original scsh bindings. The current version of scsh provides the library
 obsolete-char-set-lib, which contains the old bindings found in previousreleases of scsh. The following table lists the members of this library, along
@@ -4984,12 +4907,9 @@ char-set:numeric char-set:digit
 char-set:alphanumeric char-set:letter+digit
 char-set:control char-set:iso-control
 
-Note also that the ->char-set procedure no longer handles a predicate argu-ment.
+Note also that the ->char-set procedure no longer handles a predicate argument.
 
-111
-
-Chapter 6
-Pattern-matching strings withregular expressions
+@chapter Pattern-matching strings withregular expressions
 
 Scsh provides a rich facility for matching regular-expression patterns in strings.The system is composed of several pieces:
 
@@ -5033,7 +4953,7 @@ The regexp language supported is a complete superset of Posix functional-ity, pr
 
 * submatch-marking
 
-6.1 Summary SRE syntax
+@section Summary SRE syntax
 The following figures give a summary of the SRE syntax; the next section is afriendlier tutorial introduction.
 
 113
@@ -5133,7 +5053,8 @@ Figure 6.4: applied to SRE's that specify character sets. These are the "type-ch
 
 116
 
-6.2 Examples
+@section Examples
+
 (- alpha ("aeiouAEIOU")) ; Various forms of
 (- alpha ("aeiou") ("AEIOU")) ; non-vowel letter
 (w/nocase (- alpha ("aeiou")))
@@ -5171,7 +5092,8 @@ Figure 6.4: applied to SRE's that specify character sets. These are the "type-ch
 
 (csl (rx (| "John" "Paul" "George" "Ringo")))
 
-6.3 A short tutorial
+@section A short tutorial
+
 S-expression regexps are called "SRE"s. Keep in mind that they are not Schemeexpressions; they are another, separate notation that is expressed using the underlying framework of s-expression list structure: lists, symbols, etc. SRE'scan be embedded inside of Scheme expressions using special forms that extend
 Scheme's syntax (such as the rx macro); there are places in the SRE grammarwhere one may place a Scheme expression. In these ways, SRE's and Scheme
 expressions can be intertwined. But this isn't fundamental; SRE's may be usedin a completely Scheme-independent context. By simply restricting the nota117
@@ -5631,7 +5553,8 @@ can be simplified to
 
 (dsm 1 0 (submatch "bar"))
 
-6.3.1 Embedding regexps within Scheme programs
+@subsection Embedding regexps within Scheme programs
+
 SRE's can be placed in a Scheme program using the (rx sre ...) Schemeform, which evaluates to a Scheme regexp value.
 
 Static and dynamic regexps
@@ -5653,8 +5576,10 @@ code that constructs the regexp at run-time.
 
 128
 
-6.4 Regexp functions
-6.4.1 Obsolete, deprecated procedures
+@section Regexp functions
+
+@subsection Obsolete, deprecated procedures
+
 These two procedures are survivors from the previous, now-obsolete scsh reg-exp interface. Old code must open the
 
 re-old-funs package to access them.They should not be used in new code.
@@ -5669,7 +5594,8 @@ Note that the new release has no "regexp compiling" procedure at all--regexp val
 
 necessary data structures are cached inside the ADT values.
 
-6.4.2 Standard procedures and syntax
+@subsection Standard procedures and syntax
+
 (rx sre . . . ) -! regexp Syntax
 
 This allows you to describe a regexp value with SRE notation.
@@ -5950,7 +5876,8 @@ Note:
 
 [[:alnum:]]; the current implementation was written in inthree hours.
 
-6.5 The regexp ADT
+@section The regexp ADT
+
 The following functions may be used to construct and examine scsh's regexpabstract data type. They are in the following Scheme 48 packages: re-adt-lib
 re-lib scsh
 
@@ -6066,7 +5993,8 @@ procedure will be removed at a later date.
 
 137
 
-6.6 Syntax-hacking tools
+@section Syntax-hacking tools
+
 The Scheme 48 package sre-syntax-tools exports several tools for macrowriters that want to use SREs in their macros. In the functions defined below,
 compare and rename parameters are as passed to Clinger-Rees explicit-renaminglow-level macros.
 
@@ -6116,9 +6044,8 @@ If the regexp is static, it will be simplified and pre-translated to a Posixstri
 
 Is the regexp a static one?
 
-139
-Chapter 7
-Reading delimited strings
+@chapter Reading delimited strings
+
 Scsh provides a set of procedures that read delimited strings from input ports.There are procedures to read a single line of text (terminated by a newline character), a single paragraph (terminated by a blank line), and general delimitedstrings (terminated by a character belonging to an arbitrary character set).
 
 These procedures can be applied to any Scheme input port. However, thescsh virtual machine has native-code support for performing delimited reads
@@ -6205,10 +6132,7 @@ Skip characters occurring in the set skip-chars; return the number of char-acter
 
 character; it is coerced to a charset.
 
-142
-
-Chapter 8
-Awk, record I/O, and fieldparsing
+@chapter Awk, record I/O, and fieldparsing
 
 Unix programs frequently process streams of records, where each record isdelimited by a newline, and records are broken into fields with other delimiters (for example, the colon character in /etc/passwd). Scsh has proceduresthat allow the programmer to easily do this kind of processing. Scsh's field
 parsers can also be used to parse other kinds of delimited strings, such ascolon-separated
@@ -6217,7 +6141,8 @@ $PATH lists. These routines can be used with scsh's awk loopconstruct to conveni
 
 of records.
 
-8.1 Record I/O and field parsing
+@section Record I/O and field parsing
+
 The procedures in this section are used to read records from I/O streams andparse them into fields. A record is defined as text terminated by some delimiter
 (usually a newline). A record can be split into fields by using regular expres-sions in one of several ways: to match fields, to separate fields, or to terminate
 fields. The field parsers can be applied to arbitrary strings (one common useis splitting environment variables such as
@@ -6229,7 +6154,8 @@ strings terminated by specific characters.
 
 143
 
-8.1.1 Reading records
+@subsection Reading records
+
 (record-reader [delims elide-delims? handle-delim]) -! procedure procedure
 
 Returns a procedure that reads records from a port. The procedure isinvoked as follows:
@@ -6251,7 +6177,8 @@ The handle-delim argument controls what is done with the record's termi-nating d
 The reader procedure returned takes one optional argument, the portfrom which to read, which defaults to the current input port. It returns a
 string or eof.
 
-8.1.2 Parsing fields
+@subsection Parsing fields
+
 (field-splitter [field num-fields]) -! procedure procedure
 (infix-splitter [delim num-fields handle-delim]) -! procedure procedure
 (suffix-splitter [delim num-fields handle-delim]) -! procedure procedure
@@ -6409,7 +6336,8 @@ Example:
 
 "foo:bar:baz"
 
-8.1.3 Field readers
+@subsection Field readers
+
 (field-reader [field-parser rec-reader]) -! procedure procedure
 
 This utility returns a procedure that reads records with field structurefrom a port. The reader's interface is designed to make it useful in the
@@ -6441,7 +6369,8 @@ The field-parser defaults to the value of (field-splitter), a parser thatpicks o
 The rec-reader defaults to read-line.
 Figure 8.2 shows field-reader being used to read different kinds ofUnix records.
 
-8.1.4 Forward-progress guarantees and empty-string matches
+@subsection Forward-progress guarantees and empty-string matches
+
 A loop that pulls text off a string by repeatedly matching a regexp against thatstring can conceivably get stuck in an infinite loop if the regexp matches the
 empty string. For example, the SREs bos, eos, (* any), and (| "foo" (*
 ( "f"))) can all match the empty string.
@@ -6509,11 +6438,13 @@ Or, more efficiently,
 
 ((* (s) (map string (string->list s))) "foo")
 
-8.1.5 Reader limitations
+@subsection Reader limitations
+
 Since all of the readers in this package require the ability to peek ahead onechar in the input stream, they cannot be applied to raw integer file descriptors,
 only Scheme input ports. This is because Unix doesn't support peeking aheadinto input streams.
 
-8.2 Awk
+@section Awk
+
 Scsh provides a loop macro and a set of field parsers that can be used to per-form text processing very similar to the Awk programming language. The
 basic functionality of Awk is factored in scsh into its component parts. Thecontrol structure is provided by the
 
@@ -6533,17 +6464,12 @@ h clause1 i ...)
 The body of the loop is a series of clauses, each one representing a kind ofcondition/action pair. The loop repeatedly reads a record, and then executes
 each clause whose condition is satisfied by the record.
 
-Here's an example that reads lines from port p and prints the line numberand line of every line containing the string "
-
-Church-Rosser":
+Here's an example that reads lines from port p and prints the line numberand line of every line containing the string "Church-Rosser":
 
 (awk (read-line) (ln) lineno ()
-
 ("Church-Rosser" (format #t "~d: ~s~%" lineno ln)))
 
-This example has just one clause in the loop body, the one that tests for matchesagainst the regular expression "
-
-Church-Rosser".
+This example has just one clause in the loop body, the one that tests for matchesagainst the regular expression "Church-Rosser".
 
 The h next-record i form is an expression that is evaluated each time throughthe loop to produce a record to process. This expression can return multiple
 
@@ -6640,7 +6566,8 @@ returned by the regexp match routine.
 
 If there is no after clause, awk returns the loop's state variables as multi-ple values.
 
-8.2.1 Examples
+@subsection Examples
+
 Here are some examples of awk being used to process various types of inputstream.
 
 (define $ list-ref) ; Saves typing.
@@ -6747,16 +6674,14 @@ Here are some examples of awk being used to process various types of inputstream
 
 (#t (format #t "~d:\t~a~%" lineno line)))
 
-8.3 Backwards compatibility
+@section Backwards compatibility
+
 Previous scsh releases provided an awk form with a different syntax, designedaround regular expressions written in Posix notation as strings, rather than
 SREs.
 
 This form is still available in a separate module for old code. It'll be docu-mented in the next release of this manual. Dig around in the sources for it.
 
-155
-
-Chapter 9
-Concurrent systemprogramming
+@chapter Concurrent systemprogramming
 
 The Scheme Shell provides the user with support for concurrent programming.The interface consists of several parts:
 
@@ -6765,11 +6690,10 @@ The Scheme Shell provides the user with support for concurrent programming.The i
 * Synchronization vehicles
 
 * Process state abstractions
-Whereas the user deals with threads and synchronization explicitly, the processstate abstractions are built into the rest of the system, almost transparent for the
+Whereas the user deals with threads and synchronization explicitly, the processstate abstractions are built into the rest of the system, almost transparent for the user. Section 9.5 describes the interaction between process state and threads.
 
-user. Section 9.5 describes the interaction between process state and threads.
+@section Threads
 
-9.1 Threads
 A thread can be thought of as a procedure that can run independently of andconcurrent to the rest of the system. The calling procedure fires the thread up
 and forgets about it.
 
@@ -6822,7 +6746,8 @@ Name corresponds to the second parameter that was given to spawn whenthread was 
 
 Returns a unique identifier for the current thread.
 
-9.2 Locks
+@section Locks
+
 Locks are a simple mean for mutual exclusion. They implement a concept com-monly known as semaphores. Threads can obtain and release locks. If a thread
 tries to obtain a lock which is held by another thread, the first thread is blocked.To access the following procedures, you must open the structure
 
@@ -6854,8 +6779,9 @@ Releases lock. Returns true if the lock immediately got a new owner, falseotherw
 
 Returns the uid of the thread that currently holds lock or false if the lock isfree.
 
-9.3 Placeholders
-Placeholers combine synchronization with value delivery. They can be thoughtof as special variables. After creation the value of the placeholder is undefined.
+@section Placeholders
+
+Placeholders combine synchronization with value delivery. They can be thoughtof as special variables. After creation the value of the placeholder is undefined.
 If a thread tries to read the placeholders value this thread is blocked. Multi-ple threads are allowed to block on a single placeholder. They will continue
 running after another thread sets the value of the placeholder. Now all read-ing threads receive the value and continue executing. Setting a placeholder to
 two different values causes an error. The structure placeholders features thefollowing procedures:
@@ -6878,10 +6804,11 @@ Returns the value of the placeholder. If the placeholder is yet unset, thecurren
 
 placeholder-set!.
 
-9.4 The event interface to interrupts
+@section The event interface to interrupts
+
 Scsh provides an synchronous interface to the asynchronous signals deliveredby the operation system1. The key element in this system is an object called
 
-1Olin's paper "Automatic management of operation-system resources" describes this system in
+1 Olin's paper "Automatic management of operation-system resources" describes this system in
 detail.
 
 158
@@ -6935,7 +6862,8 @@ interrupt #f).
 
 159
 
-9.5 Interaction between threads and process state
+@section Interaction between threads and process state
+
 In Unix, a number of resources are global to the process: signal handlers, work-ing directory, umask, environment, user and group ids. Modular programming is difficult in the context of this global state and for concurrent program-ming things get even worse. Section 9.4 presents how scsh turns the global,
 asynchronous signals handlers into modular, synchronous sigevents. Concur-rent programming also benefit from sigevents as every thread may chase down
 the sigevent chain separately.
@@ -6970,11 +6898,10 @@ This is just an alias for fork-thread suggested by Alan Bawden.
 For user and group identities arbitrary changing is not possible. There-fore they remain global process state: If a thread changes one of these values, all other threads see the new value. Consequently, scsh does not provide
 with-uid and friends.
 
-160
+@chapter Miscellaneous routines
 
-Chapter 10
-Miscellaneous routines
-10.1 Integer bitwise ops
+@section Integer bitwise ops
+
 (arithmetic-shift i j) -! integer procedure
 (bitwise-and i j) -! integer procedure
 (bitwise-ior i j) -! integer procedure
@@ -6986,13 +6913,15 @@ These operations operate on integers representing semi-infinite bitstrings, usin
 arithmetic-shift shifts i by j bits. A left shift is j > 0; a right shift is
 j < 0.
 
-10.2 Password encryption
+@section Password encryption
+
 (crypt key salt) -! encrypted value procedure
 Decrypts key by directly calling the crypt function using salt to perturb thehashing algorithm. Salt must be a two-character string consisting of digits,
 
 alphabetic characters, "." or "\". The length of key may be at most eight.
 
-10.3 Dot-Locking
+@section Dot-Locking
+
 Section 3.2.8 already points out that POSIX's file locks are almost useless inpractice. To bypass this restriction other advisory locking mechanisms, based
 only on standard file operations, where invented. One of them is the so-called
 
@@ -7047,7 +6976,8 @@ with-dot-lock*. The with-dot-lock special form is equivalent syntac-tic sugar.
 
 162
 
-10.4 Syslog facility
+@section Syslog facility
+
 (Note: the functionality presented in this section is still somewhat experimentaland thus subject to interface changes.)
 
 The procedures in this section provide access to the 4.2BSD syslog facil-ity present in most POSIX systems. The functionality is in a structure called
@@ -7195,7 +7125,8 @@ Open-syslog-channel and close-syslog-channel create and destroy aconnection to t
 
 166
 
-10.5 MD5 interface
+@section MD5 interface
+
 Scsh provides a direct interface to the MD5 functions to compute the "finger-print" or "message digest" of a file or string. It uses the C library written by
 Colin Plum.
 (md5-digest-for-string string) -! md5-digest procedure
@@ -7234,7 +7165,8 @@ md5-context->md5-digest returns the md5-digest for themd5-context. With these pr
 
 strings to a md5-context before computing the digest.
 
-10.6 Configuration variables
+@section Configuration variables
+
 This section describes procedures to access the configuration parameters usedto compile scsh and flags needed to build C extensions for scsh.
 
 (host) -! string procedure
@@ -7276,14 +7208,10 @@ The procedure compiler-flags returns flags suitable for running the C com-piler 
 
 (linker-flags) -! string procedure
 
-Scsh also comes as a library that can be linked into other programs. Theprocedure linker-flags returns the appropriate flags to link the scsh library
+Scsh also comes as a library that can be linked into other programs. Theprocedure linker-flags returns the appropriate flags to link the scsh library to another program.
 
-to another program.
+@chapter Running scsh
 
-168
-
-Chapter 11
-Running scsh
 Scsh is currently implemented on top of Scheme 48, a freely-available Schemeimplementation written by Jonathan Rees and Richard Kelsey. Scheme 48 uses
 a byte-code interpreter for good code density, portability and medium effi-ciency. It is R5RS. It also has a module system designed by Jonathan Rees.
 
@@ -7315,12 +7243,14 @@ do not need to be loaded and linked at startup time. This reduces the program'ss
 
 This chapter will cover these various ways of invoking scsh programs.
 
-11.1 Scsh command-line switches
+@section Scsh command-line switches
+
 When the scsh top-level starts up, it scans the command line for switches thatcontrol its behaviour. These arguments are removed from the command line;
 the remaining arguments can be accessed as the value of the scsh variable
 command-line-arguments.
 
-11.1.1 Scripts and programs
+@subsection Scripts and programs
+
 The scsh command-line switches provide sophisticated support for the authorsof shell scripts and programs; they also allow the programmer to write programs that use the Scheme 48 module system.
 
 There is a difference between a script, which performs its action as it isloaded, and a program, which is loaded/linked, and then performs its action
@@ -7331,7 +7261,8 @@ A script, by the above definition, cannot be compiled by the simple mecha-nism o
 
 It is more flexible and useful to implement a system as a program than as ascript. Programs can be compiled straightforwardly; they can also export procedural interfaces for use by other Scheme packages. However, scsh supportsboth the script and the program style of programming.
 
-11.1.2 Inserting interpreter triggers into scsh programs
+@subsection Inserting interpreter triggers into scsh programs
+
 When Unix tries to execute an executable file whose first 16 bits are the charac-ter pair "
 
 #!", it treats the file not as machine-code to be directly executed by thenative processor, but as source code to be executed by some interpreter. The
@@ -7357,7 +7288,8 @@ In this way, the programmer can arrange for an initial
 
 header appearing in a Scheme program to be ignored when the program isloaded into scsh.
 
-11.1.3 Module system
+@subsection Module system
+
 Scsh uses the Scheme 48 module system, which defines packages, structures, andinterfaces.
 
 Package A package is an environment--that is, a set of variable/value bind-ings. You can evaluate Scheme forms inside a package, or load a file into a
@@ -7375,7 +7307,7 @@ module.ps in the doc directory of the Scheme 48 and scsh releases.
 Programming Scheme with a module system is different from program-ming in older Scheme implementations, and the associated development problems are consequently different. In Schemes that lack modular abstractionmechanisms, everything is accessible; the major problem is preventing namespace conflicts. In Scheme 48, name-space conflicts vanish; the major problemis that not all bindings are accessible from every place. It takes a little extra
 work to specify what packages export which values.
 
-1Why a block-comment instead of an end-of-line delimited comment? See the section on metaargs.
+1 Why a block-comment instead of an end-of-line delimited comment? See the section on metaargs.
 
 171
 
@@ -7413,7 +7345,8 @@ For programs which should run in versions of scsh prior to release 0.6.3,program
 
 scsh reference first.
 
-11.1.4 Library directories search facility
+@subsection Library directories search facility
+
 Scsh's command line switches allow loading of code not present in the scriptfile or the heap image at startup. To relief the user from specifying full path
 names and to improve flexibility, scsh offers the library directories path list.This list contains directories in which scsh searches automatically for a file
 name argument of the -ll or -le switch.
@@ -7487,7 +7420,8 @@ Set the library-directories path list to the empty list.
 
 Set the library-directories path list to system default, i.e. to the value ofdefault-lib-dirs.
 
-11.1.5 Switches
+@subsection Switches
+
 The scsh top-level takes command-line switches in the following format:
 
 scsh [meta-arg] [switchi ...] [end-option arg1 ... argn]
@@ -7525,9 +7459,7 @@ end-option: -s script
 -c exp
 --
 
-These command-line switches essentially provide a little linker language forlinking a shell script or a program together with Scheme 48 modules or Scheme
-
-48 exec programs 2. The command-line processor serially opens structures andloads code into a given package. Switches that side-effect a package operate
+These command-line switches essentially provide a little linker language forlinking a shell script or a program together with Scheme 48 modules or Scheme 48 exec programs 2. The command-line processor serially opens structures andloads code into a given package. Switches that side-effect a package operate
 on a particular "current" package; there are switches to change this package.(These switches provide functionality equivalent to the interactive
 
 ,open ,load
@@ -7809,7 +7741,7 @@ would produce the arguments
 
 ("foo" "bar" "" "quux yow")
 
-11.1.7 Examples
+@subsection Examples
 
 * scsh -dm -m myprog -e top -s myprog.scmLoad
 
@@ -7928,7 +7860,8 @@ top. Even ifwe don't want to export the sort's functionality as a subroutine lib
 useful to write the sort program with the module language. The command linedesign allows us to run this program as either an interpreted script (given the
 #! args in the header) or as a compiled heap image.
 
-11.1.8 Process exit values
+@subsection Process exit values
+
 Scsh ignores the value produced by its top-level computation when determin-ing its exit status code. If the top-level computation completed with no errors,
 scsh dies with exit code 0. For example, a scsh process whose top-level is spec-ified by a
 
@@ -7949,7 +7882,7 @@ up an interactive scsh from a command line, as well as write shell scripts thatb
 #!/usr/local/bin/scsh -s
 You can also directly execute the virtual machine, which takes its own setof command-line switches.. For example, this command starts the vm up with
 
-a 1Mword heap (split into two semispaces):
+a 1 Mword heap (split into two semispaces):
 
 184
 
@@ -7961,7 +7894,8 @@ command-line-arguments.
 
 Directly executing the vm can be useful to specify non-standard switches,or invoke the virtual machine on special heap images, which can contain precompiled scsh programs with their own top-level procedures.
 
-11.2.1 VM arguments
+@subsection VM arguments
+
 The vm takes arguments in the following form:
 
 scshvm [meta-arg] [vm-options+] [end-option scheme-args]
@@ -8002,7 +7936,8 @@ Notice that you are not allowed to pass arguments to the heap image's top-level 
 
 -i or -- flags.
 
-11.2.2 Stripped image
+@subsection Stripped image
+
 Besides the standard image scsh.image scsh also ships with the muchsmaller image
 
 stripped-scsh.image. This image contains the same codeas the standard image but has almost all debugging information removed.
@@ -8012,7 +7947,8 @@ is not that important. To use the image the VM has to be called directly and the
 
 -i argument.
 
-11.2.3 Inserting interpreter triggers into heap images
+@subsection Inserting interpreter triggers into heap images
+
 Scheme 48's heap image format allows for an informational header: when thevm loads in a heap image, it ignores all data occurring before the first control-L
 character (ASCII 12). This means that you can insert a "#!" trigger line into aheap image, making it a form of executable "shell script." Since the vm requires
 multiple arguments to be given on the command line, you must use the meta-switch. Here's an example heap-image header:
@@ -8021,7 +7957,8 @@ multiple arguments to be given on the command line, you must use the meta-switch
 -o /usr/local/lib/scsh/scshvm -i
 ... Your heap image goes here ...
 
-11.2.4 Inserting a double-level trigger into Scheme programs
+@subsection Inserting a double-level trigger into Scheme programs
+
 If you're a nerd, you may enjoy doing a double-level machine shift in the trig-ger line of your Scheme programs with the following magic:
 
 186
@@ -8031,7 +7968,8 @@ If you're a nerd, you may enjoy doing a double-level machine shift in the trig-g
 !#
 ... Your Scheme program goes here ...
 
-11.3 Compiling scsh programs
+@section Compiling scsh programs
+
 Scsh allows you to create a heap image with your own top-level procedure.Adding the pair of lines
 
 #!/usr/local/lib/scsh/scshvm \
@@ -8064,7 +8002,8 @@ dump out a heap image. One occasionally hears rumours that this is beingaddresse
 
 187
 
-11.4 Standard file locations
+@section Standard file locations
+
 Because the scshvm binary is intended to be used for writing shell scripts, it isimportant that the binary be installed in a standard place, so that shell scripts
 can dependably refer to it. The standard directory for the scsh tree should be
 /usr/local/lib/scsh/. Whenever possible, the vm should be located in
