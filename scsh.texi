@@ -356,7 +356,7 @@ descriptor''.
 
 Procedures that call their argument, and special forms that execute their
 bodies in some special dynamic context frequently have names of the form
-@code{with-...}. For example, @code{(with-env env body1 ...)} and
+@code{with-...}. For example, @code{(with-env env @math{body_1} ...)} and
 @code{(with-env* env thunk)}. These forms set the process environment
 body, execute their body or thunk, and then return after resetting the
 environment to its original state.
@@ -389,7 +389,7 @@ fre-quently end in ...@code{-info}. Examples: @code{user-info},
 @code{file-info}, @code{group-info}, and @code{host-info}.
 
 Enumerated constants from some set @code{s} are usually named
-@code{s/const1}, @code{s/const2}, .... For example, the various Unix
+@code{s/@math{const_1}}, @code{s/@math{const_2}}, .... For example, the various Unix
 signal integers have the names @code{signal/cont}, @code{signal/kill},
 @code{signal/int}, @code{signal/hup}, and so forth.
 
@@ -472,40 +472,57 @@ character-delimited and line-delimited; they are both introduced by the
 
 A character-delimited here-string has the form
 
+@example
 #<x...stuff...x
-where x is any single character (except <, see below), which is used to delimitthe string bounds. Some examples:
+@end example
 
-Here-string syntax Ordinary string syntax
-#<|Hello, world.| "Hello, world."
-#<!"Ouch," he said.! "\"Ouch,\" he said."
+where x is any single character (except @code{<}, see below), which is
+used to delimit the string bounds. Some examples:
 
-There is no interpretation of characters within the here-string; the charactersare all copied verbatim.
+@float Table
+Here-string syntax      Ordinary string syntax
+#<|Hello, world.|       "Hello, world."
+#<!"Ouch," he said.!    "\"Ouch,\" he said."
+@end float
+
+There is no interpretation of characters within the here-string; the
+characters are all copied verbatim.
 
 @unnumberedsubsec Line-delimited here-strings
 
-If the sequence begins "#<<" then it introduces a line-delimited here-string.These are similar to the "here documents" of sh and csh. Line-delimited herestrings are delimited by the rest of the text line that follows the "#<<" sequence.For example:
+If the sequence begins @code{#<<} then it introduces a line-delimited
+here-string. These are similar to the ``here documents'' of sh and
+csh. Line-delimited here-strings are delimited by the rest of the text
+line that follows the @code{#<<} sequence.For example:
 
+@example
 #<<FOO
 Hello, there.
 This is read by Scheme as a string,
 terminated by the first occurrence
 of newline-F-O-O-newline or newline-F-O-O-eof.
 FOO
+@end example
 
 Thus,
 
+@example
 #<<foo
 Hello, world.
 foo
+@end example
 
 is the same thing as
 
+@example
 "Hello, world."
+@end example
 
-Line-delimited here-strings are useful for writing down long, constantstrings--such as long, multi-line
+Line-delimited here-strings are useful for writing down long, constant
+strings--such as long, multi-line format strings, or arguments to Unix
+programs, e.g.,
 
-format strings, or arguments to Unix pro-grams, e.g.,
-
+@example
 ;; Free up some disk space for my netnews files.
 (run (csh -c #<<EOF
 cd /urops
@@ -514,230 +531,301 @@ echo All done.
 
 EOF
 ))
+@end example
 
 The advantage they have over the double-quote syntax (e.g., "Hello,
-world.") is that there is no need to backslash-quote special characters inter-nal to the string, such as the double-quote or backslash characters.
+world.") is that there is no need to backslash-quote special characters
+internal to the string, such as the double-quote or backslash
+characters.
 
-The detailed syntax of line-delimited here-strings is as follows. The charac-ters "
-
-#<<" begin the here-string. The characters between the "#<<" and the nextnewline are the delimiter line. All characters between the "
-
-#<<" and the nextnewline comprise the delimiter line--including any white space. The body
-
-of the string begins on the following line, and is terminated by a line of textwhich exactly matches the delimiter line. This terminating line can be ended
-by either a newline or end-of-file. Absolutely no interpretation is done on theinput string. Control characters, white space, quotes, backslash--everything
-is copied as-is. The newline immediately preceding the terminating delimiterline is not included in the result string (leave an extra blank line if you need
-to put a final newline in the here-string--see the example above). If EOF isencountered before reading the end of the here-string, an error is signalled.
+The detailed syntax of line-delimited here-strings is as follows. The
+characters ``@code{#<<}'' begin the here-string. The characters between
+the ``@code{#<<} '' and the next newline are the delimiter line. All
+characters between the ``@code{#<<}'' and the next newline comprise the
+delimiter line -- including any white space. The body of the string
+begins on the following line, and is terminated by a line of text which
+exactly matches the delimiter line. This terminating line can be ended
+by either a newline or end-of-file. Absolutely no interpretation is done
+on the input string. Control characters, white space, quotes, backslash
+-- everything is copied as-is. The newline immediately preceding the
+terminating delimiter line is not included in the result string (leave
+an extra blank line if you need to put a final newline in the
+here-string -- see the example above). If EOF is encountered before
+reading the end of the here-string, an error is signalled.
 
 @subsection Dot
 
-It is unfortunate that the single-dot token, ".", is both a fundamental Unix filename and a deep, primitive syntactic token in Scheme--it means the following
-will not parse correctly in scsh:
+It is unfortunate that the single-dot token, ``.'', is both a
+fundamental Unix filename and a deep, primitive syntactic token in
+Scheme -- it means the following will not parse correctly in scsh:
 
+@example
 (run/strings (find . -name *.c -print))
+@end example
+
 You must instead quote the dot:
 
+@example
 (run/strings (find "." -name *.c -print))
+@end example
 
-When you write shell scripts that manipulate the file system, keep in mindthe special status of the dot token.
+When you write shell scripts that manipulate the file system, keep in
+mind the special status of the dot token.
 
 @section Record types and the define-record form
-Scsh's interfaces occasionally provide data in structured record types; an exam-ple is the
 
-file-info record whose various fields describe the size, protection,
+Scsh's interfaces occasionally provide data in structured record types;
+an example is the @code{file-info} record whose various fields describe
+the size, protection, last date of modification, and other pertinent
+data for a particular file. These record types are described in this
+manual using the @code{define-record} notation, which looks like the
+following:
 
-last date of modification, and other pertinent data for a particular file. Theserecord types are described in this manual using the
-
-define-record notation,which looks like the following:
-
+@example
 (define-record ship
+  x
+  y
+  (size 100))
+@end example
 
-x
-y
-(size 100))
+This form defines a @emph{ship} record, with three fields: its x and y
+coordinates, andits size. The values of the @code{x} and @code{y} fields
+are specified as parameters to the ship building procedure,
+@code{(make-ship x y)}, and the @emph{size} field is initialised to
+100. All told, the @code{define-record} form above defines the following
+procedures:
 
-This form defines a ship record, with three fields: its x and y coordinates, andits size. The values of the x and y fields are specified as parameters to the shipbuilding procedure, (make-ship x y), and the size field is initialised to 100.All told, the
+@float Table
+Procedure                       Definition
+(make-ship x y)                 Create a new ship record.
+(ship:x ship)                   Retrieve the x field.(ship:y ship) Retrieve the y field.
+(ship:size ship)                Retrieve the size field.
+(set-ship:x ship new-x)         Assign the x field.
+(set-ship:y ship new-y)         Assign the y field.
+(set-ship:size ship new-size)   Assign the size field.
+(modify-ship:x ship xfun)       Modify x field with xfun.
+(modify-ship:y ship yfun)       Modify y field with yfun.
+(modify-ship:size ship sizefun) Modify size field with sizefun.
+(ship? object)                  Type predicate.
+(copy-ship ship)                Shallow-copy of the record.
+@end float
 
-define-record form above defines the following procedures:
+An implementation of @code{define-record} is available as a macro for
+Scheme programmers to define their own record types; the syntax is
+accessed by opening the package @code{defrec-package}, which exports the
+single syntax form @code{define-record}. See the source code for the
+@code{defrec-package} module for further details of the macro.
 
-Procedure Definition(make-ship x y) Create a new ship record.
-
-(ship:x ship) Retrieve the x field.(ship:y ship) Retrieve the y field.
-(ship:size ship) Retrieve the size field.(set-ship:x ship new-x) Assign the x field.
-(set-ship:y ship new-y) Assign the y field.(set-ship:size ship new-size) Assign the size field.
-(modify-ship:x ship xfun) Modify x field with xfun.(modify-ship:y ship yfun) Modify y field with yfun.
-(modify-ship:size ship sizefun) Modify size field with sizefun.(ship? object) Type predicate.
-(copy-ship ship) Shallow-copy of the record.
-An implementation of define-record is available as a macro for Schemeprogrammers to define their own record types; the syntax is accessed by
-opening the package defrec-package, which exports the single syntax form
-define-record. See the source code for the defrec-package module for fur-ther details of the macro.
-
-You must open this package to access the form. Scsh does not exporta record-definition package by default as there are several from which to
-choose. Besides the define-record macro, which Shivers prefers1, you mightinstead wish to employ the notationally-distinct
-
-define-record-type macrothat Jonathan Rees prefers2. It can be found in the
-define-record-types struc-ture.
+You must open this package to access the form. Scsh does not export a
+record-definition package by default as there are several from which to
+choose. Besides the @code{define-record} macro, which Shivers
+prefers@footnote{He wrote it.}, you might instead wish to employ the
+notationally-distinct @code{define-record-type} macro that Jonathan Rees
+prefers@footnote{He wrote it.}. It can be found in the
+@code{define-record-types} structure.
 
 Alternatively, you may define your own, of course.
-1He wrote it.
-2He wrote it.
 
 @section A word about Unix standards
 
-"The wonderful thing about Unix standards is that there are so many to choosefrom." You may be totally bewildered about the multitude of various standards that exist. Rest assured that nowhere in this manual will you encounteran attempt to spell it all out for you; you could not read and internalise such a
-twisted account without bleeding from the nose and ears.
+``The wonderful thing about Unix standards is that there are so many to
+choose from''. You may be totally bewildered about the multitude of
+various standards that exist. Rest assured that nowhere in this manual
+will you encounter an attempt to spell it all out for you; you could not
+read and internalise such a twisted account without bleeding from the
+nose and ears.
 
-However, you might keep in mind the following simple fact: of all thestandards, P
-
-OSIX is the least common denominator. So when this manual re-peatedly refers to P
-
-OSIX, the point is "the thing we are describing should beportable just about anywhere." Scsh sticks to P
-
-OSIX when at all possible; itsmajor departure is symbolic links, which aren't in P
-
-OSIX (see--it really is aleast common denominator).
+However, you might keep in mind the following simple fact: of all the
+standards, @acronym{POSIX} is the least common denominator. So when this
+manual repeatedly refers to @acronym{POSIX}, the point is ``the thing we
+are describing should be portable just about anywhere''. Scsh sticks to
+@acronym{POSIX} when at all possible; its major departure is symbolic
+links, which aren't in @acronym{POSIX} (see -- it really is a least
+common denominator).
 
 @node Process notation, System Calls, Introduction, top
 @chapter Process notation
 
-Scsh has a notation for controlling Unix processes that takes the form of s-expressions; this notation can then be embedded inside of standard Scheme
-code. The basic elements of this notation are process forms, extended process forms,and redirections.
+Scsh has a notation for controlling Unix processes that takes the form
+of s-expressions; this notation can then be embedded inside of standard
+Scheme code. The basic elements of this notation are process forms,
+extended process forms, and redirections.
 
 @section Extended process forms and I/O redirections
 
-An extended process form is a specification of a Unix process to run, in a particu-lar I/O environment:
+An extended process form is a specification of a Unix process to run, in
+a particular I/O environment:
 
-epf ::= (pf redir1 ... redirn)
-where pf is a process form and the rediri are redirection specs. A redirection specis one of:
+@example
+epf ::= (pf @math{redir_1 ... redir_n})
+@end example
 
-(< [fdes] file-name) ; Open file for read.
-(> [fdes] file-name) ; Open file create/truncate.
-(<< [fdes] object) ; Use object's printed rep.
-(>> [fdes] file-name) ; Open file for append.
-(= fdes fdes/port) ; Dup2
-(- fdes/port) ; Close fdes/port.
-stdports ; 0,1,2 dup'd from standard ports.
+where @emph{pf} is a process form and the @math{redir_i} are redirection
+specs. A redirection spec is one of:
 
-The input redirections default to file descriptor 0; the output redirections de-fault to file descriptor 1.
+@float Table
+(< [fdes] file-name)    ; Open file for read.
+(> [fdes] file-name)    ; Open file create/truncate.
+(<< [fdes] object)      ; Use object's printed rep.
+(>> [fdes] file-name)   ; Open file for append.
+(= fdes fdes/port)      ; Dup2
+(- fdes/port)           ; Close fdes/port.
+stdports                ; 0,1,2 dup'd from standard ports.
+@end float
 
-The subforms of a redirection are implicitly backquoted, and symbolsstand for their print-names. So
+The input redirections default to file descriptor 0; the output
+redirections default to file descriptor 1.
 
-(> ,x) means "output to the file namedby Scheme variable
-x," and (< /usr/shivers/.login) means "read from
-/usr/shivers/.login."
+The subforms of a redirection are implicitly backquoted, and
+symbolsstand for their print-names. So @code{(> ,x)} means ``output to
+the file named by Scheme variable @emph{x}'', and @code{(<
+/usr/shivers/.login)} means ``read from @code{/usr/shivers/.login}''.
 
 Here are two more examples of I/O redirection:
 
+@example
 (< ,(vector-ref fv i))
 (>> 2 /tmp/buf)
+@end example
 
-These two redirections cause the file fv[i] to be opened on stdin, and
-/tmp/buf to be opened for append writes on stderr.
+These two redirections cause the file @code{fv[i]} to be opened on
+stdin, and @code{/tmp/buf} to be opened for append writes on stderr.
 
-The redirection (<< object) causes input to come from the printed represen-tation of object. For example,
+The redirection @code{(<< object)} causes input to come from the printed representation of @emph{object}. For example,
 
+@example
 (<< "The quick brown fox jumped over the lazy dog.")
-causes reads from stdin to produce the characters of the above string. Theobject is converted to its printed representation using the
+@end example
 
-display procedure,so
+causes reads from stdin to produce the characters of the above string. The object is converted to its printed representation using the @code{display} procedure, so
 
+@example
 (<< (A five element list))
+@end example
+
 is the same as
 
+@example
 (<< "(A five element list)")
+@end example
+
 is the same as
 
+@example
 (<< ,(reverse '(list element five A))).
+@end example
+
 (Here we use the implicit backquoting feature to compute the list to be printed.)
 
-The redirection (= fdes fdes/port) causes fdes/port to be dup'd into file de-scriptor fdes. For example, the redirection
+The redirection @code{(= fdes fdes/port)} causes @emph{fdes/port} to be dup'd into file descriptor @emph{fdes}. For example, the redirection
 
+@example
 (= 2 1)
-causes stderr to be the same as stdout. fdes/port can also be a port, for example:
+@end example
 
+causes stderr to be the same as stdout. @emph{fdes/port} can also be a port, for example:
+
+@example
 (= 2 ,(current-output-port))
-causes stderr to be dup'd from the current output port. In this case, it is anerror if the port is not a file port (e.g., a string port). More complex redirections
+@end example
 
-can be accomplished using the begin process form, discussed below, whichgives the programmer full control of I/O redirection from Scheme.
+causes stderr to be dup'd from the current output port. In this case, it
+is an error if the port is not a file port (e.g., a string port). More
+complex redirections can be accomplished using the @code{begin} process
+form, discussed below, which gives the programmer full control of I/O
+redirection from Scheme.
 
 @subsection Port and file descriptor sync
 
-It's important to remember that rebinding Scheme's current I/O ports (e.g.,using
+It's important to remember that rebinding Scheme's current I/O ports
+(e.g.,using @code{call-with-input-file} to rebind the value of
+@code{(current-input-port)} )does not automatically ``rebind'' the file
+referenced by the Unix stdio file descriptors 0, 1, and 2. This is
+impossible to do in general, since some Scheme ports are not
+representable as Unix file descriptors. For example, many Scheme
+implementations provide ``string ports'', that is, ports that collect
+characters sent to them into memory buffers. The accumulated string can
+later be retrieved from the port as a string. If a user were to bind
+@code{(current-output-port)} to such a port, it would be impossible to
+associate file descriptor 1 with this port, as it cannot be represented
+in Unix. So, if the user subsequently forked off some other program as a
+subprocess, that program would of course not see the Scheme string port
+as its standard output.
 
-call-with-input-file to rebind the value of (current-input-port))does not automatically "rebind" the file referenced by the Unix stdio file
+To keep stdio synced with the values of Scheme's current I/O ports,
+usethe special redirection @code{stdports} . This causes 0, 1, 2 to be
+redirected from thecurrent Scheme standard ports. It is equivalent to
+the three redirections:
 
-descriptors 0, 1, and 2. This is impossible to do in general, since someScheme ports are not representable as Unix file descriptors. For example,
-many Scheme implementations provide "string ports," that is, ports that col-lect characters sent to them into memory buffers. The accumulated string
-
-11
-
-can later be retrieved from the port as a string. If a user were to bind
-(current-output-port) to such a port, it would be impossible to associatefile descriptor 1 with this port, as it cannot be represented in Unix. So, if the
-
-user subsequently forked off some other program as a subprocess, that pro-gram would of course not see the Scheme string port as its standard output.
-
-To keep stdio synced with the values of Scheme's current I/O ports, usethe special redirection
-
-stdports. This causes 0, 1, 2 to be redirected from thecurrent Scheme standard ports. It is equivalent to the three redirections:
-
+@example
 (= 0 ,(current-input-port))
 (= 1 ,(current-output-port))
 (= 2 ,(error-output-port))
+@end example
 
-The redirections are done in the indicated order. This will cause an error ifone of the current I/O ports isn't a Unix port (e.g., if one is a string port). This
-Scheme/Unix I/O synchronisation can also be had in Scheme code (as opposedto a redirection spec) with the
-
-(stdports->stdio) procedure.
+The redirections are done in the indicated order. This will cause an
+error if one of the current I/O ports isn't a Unix port (e.g., if one is
+a string port). This Scheme/Unix I/O synchronisation can also be had in
+Scheme code (as opposed to a redirection spec) with the
+@code{(stdports->stdio)} procedure.
 
 @section Process forms
 
-A process form specifies a computation to perform as an independent Unix pro-cess. It can be one of the following:
+A process form specifies a computation to perform as an independent Unix
+process. It can be one of the following:
 
-(begin . scheme-code)
-(| pf1 ... pfn)
-(|+ connect-list pf1 ... pfn)
-(epf . epf)
-(prog arg1 ... argn)
+@float Table
+(begin . scheme-code)           ; Run scheme-code in a fork.
+(| pf1 ... pfn)                 ; Simple pipeline
+(|+ connect-list pf1 ... pfn)   ; Complex pipeline
+(epf . epf)                     ; An extended process form.
+(prog arg1 ... argn)            ; Default: exec the program.
+@end float
 
-; Run scheme-code in a fork.
-; Simple pipeline
-; Complex pipeline
-; An extended process form.
-; Default: exec the program.
+The default case @code{(prog @math{arg_1} ... @math{arg_n})} is also
+implicitly backquoted. That is, it is equivalent to:
 
-The default case (prog arg1 ... argn) is also implicitly backquoted. That is, itis equivalent to:
-
+@example
 (begin (apply exec-path `(prog arg1 ... argn)))
-Exec-path is the version of the exec() system call that uses scsh's path listto search for an executable. The program and the arguments must be either
+@end example
 
-strings, symbols, or integers. Symbols and integers are coerced to strings. Asymbol's print-name is used. Integers are converted to strings in base 10. Using
-symbols instead of strings is convenient, since it suppresses the clutter of thesurrounding
+@code{Exec-path} is the version of the @emph{exec()} system call that
+uses scsh's path list to search for an executable. The program and the
+arguments must be either strings, symbols, or integers. Symbols and
+integers are coerced to strings. A symbol's print-name is used. Integers
+are converted to strings in base 10. Using symbols instead of strings is
+convenient, since it suppresses the clutter of thesurrounding ``...''
+quotation marks. To aid this purpose, scsh reads symbols in a
+case-sensitive manner, so that you can say
 
-"..." quotation marks. To aid this purpose, scsh reads symbolsin a case-sensitive manner, so that you can say
-
+@example
 (more Readme)
-
-12
+@end example
 
 and get the right file.
 
-A connect-list is a specification of how two processes are to be wired to-gether by pipes. It has the form
+A @emph{connect-list} is a specification of how two processes are to be
+wired together by pipes. It has the form @code{((@math{from_1}
+@math{from_2} ... to) ...)} and is implicitly backquoted. For example,
 
-((from1 from2 ... to) ...) and is implicitlybackquoted. For example,
-
+@example
 (|+ ((1 2 0) (3 1)) pf1 pf2)
-runs pf1 and pf2. The first clause (1 2 0) causes pf1's stdout (1) and stderr (2)to be connected via pipe to pf
+@end example
 
-2's stdin (0). The second clause (3 1) causes pf1'sfile descriptor 3 to be connected to pf
+runs @math{pf_1} and @math{pf_2}. The first clause @code{(1 2 0)} causes
+@math{pf_1}'s stdout (1) and stderr (2) to be connected via pipe to
+@math{pf_2}'s stdin (0). The second clause @code{(3 1)} causes
+@math{pf_1}'s file descriptor 3 to be connected to @math{pf_2}'s file
+descriptor 1.The @code{begin} process form does a @code{stdio->stdports}
+synchronisation in the child process before executing the body of the
+form. This guarantees that the @code{begin} form, like all other process
+forms, "sees" the effects of any associated I/O redirections.
 
-2's file descriptor 1.The
-begin process form does a stdio->stdports synchronisation in thechild process before executing the body of the form. This guarantees that the
+Note that R5RS does not specify whether or not @code{|} and @code{|+}
+are readable symbols. Scsh does.
 
-begin form, like all other process forms, "sees" the effects of any associatedI/O redirections.
+@section Using extended process forms in Scheme
 
-Note that R5RS does not specify whether or not | and |+ are readable sym-bols. Scsh does.
-
-2.3 Using extended process forms in Scheme
 Process forms and extended process forms are not Scheme. They are a dif-ferent notation for expressing computation that, like Scheme, is based upon
 s-expressions. Extended process forms are used in Scheme programs by em-bedding them inside special Scheme forms. There are three basic Scheme forms
 that use extended process forms: exec-epf, &, and run.
@@ -1048,7 +1136,7 @@ to a string longer than buflen chars. The default buflen value is 1024.
 @chapter System Calls
 
 Scsh provides (almost) complete access to the basic Unix kernel services: pro-cesses, files, signals and so forth. These procedures comprise a Scheme binding
-for POSIX, with a few of the more standard extensions thrown in (e.g., symboliclinks,
+for @acronym{POSIX}, with a few of the more standard extensions thrown in (e.g., symboliclinks,
 
 fchown, fstat, sockets).
 
@@ -1519,7 +1607,7 @@ Returns a file descriptor.
 (fdes-flags fd/port) -! integer procedure
 (set-fdes-flags fd/port integer) -! undefined procedure
 
-These procedures allow reading and writing of an open file's flags. Theonly such flag defined by POSIX is fdflags/close-on-exec; your Uniximplementation may provide others.
+These procedures allow reading and writing of an open file's flags. Theonly such flag defined by @acronym{POSIX} is fdflags/close-on-exec; your Uniximplementation may provide others.
 
 These procedures should not be particularly useful to the programmer, asthe scsh runtime already provides automatic control of the close-on-exec
 property. Unrevealed ports always have their file descriptors markedclose-on-exec, as they can be closed when the scsh process execs a new
@@ -1532,8 +1620,8 @@ set-fdes-status calls.
 
 open/append
 open/non-blocking
-open/async (Non-POSIX)
-open/fsync (Non-POSIX)Open+Get These flags can be used
+open/async (Non-@acronym{POSIX})
+open/fsync (Non-@acronym{POSIX})Open+Get These flags can be used
 
 in open-file and
 fdes-status calls, butare ignored by
@@ -1557,7 +1645,7 @@ open/exclusive
 open/no-control-tty
 open/truncate
 
-Table 3.1: Status flags for open-file, fdes-status and set-fdes-status.Only POSIX flags are guaranteed to be present; your operating system may de-fine others. The
+Table 3.1: Status flags for open-file, fdes-status and set-fdes-status.Only @acronym{POSIX} flags are guaranteed to be present; your operating system may de-fine others. The
 
 open/access-mask value is not an actual flag, but a bit maskused to select the field for the
 
@@ -1646,7 +1734,7 @@ problematic for buffered output ports.
 The select! procedure is similar, but indicates the subset of active I/Ochannels by side-effecting the argument vectors. Non-active I/O channels in the argument vectors are overwritten with #f values. The callreturns the number of active elements remaining in each vector. As a
 convenience, the vectors passed in to select! are allowed to contain #fvalues as well as integers and ports.
 
-Remark: Select and select! do not call their POSIX counter-parts directly--there is a POSIX
+Remark: Select and select! do not call their @acronym{POSIX} counter-parts directly--there is a @acronym{POSIX}
 
 select sitting at the very heart of theScheme 48/scsh I/O system, so all multiplexed I/O is really
 
@@ -1775,12 +1863,12 @@ This procedure flushes all open output ports with buffered data.
 
 @subsection File locking
 
-Scsh provides POSIX advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
+Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
 a process has an exclusive lock on a region of a file, other processes will not beable to obtain locks on that region of the file, but they will still be able to read
 and write the file with no hindrance. Using advisory locks requires cooperationamongst the agents accessing the shared resource.
 
-Remark: Unfortunately, POSIX file locks are associated with actual files,not with associated open file descriptors. Once a process locks a file, using
-some file descriptor fd, the next time any file descriptor referencing that fileis closed, all associated locks are released. This severely limits the utility of POSIX advisory file locks, and we'd recommend caution when using them.It is not without reason that the FreeBSD man pages refer to POSIX filelocking as "completely stupid."
+Remark: Unfortunately, @acronym{POSIX} file locks are associated with actual files,not with associated open file descriptors. Once a process locks a file, using
+some file descriptor fd, the next time any file descriptor referencing that fileis closed, all associated locks are released. This severely limits the utility of @acronym{POSIX} advisory file locks, and we'd recommend caution when using them.It is not without reason that the FreeBSD man pages refer to @acronym{POSIX} filelocking as "completely stupid."
 
 Scsh moves Scheme ports from file descriptor to file descriptor with dup()and
 
@@ -1793,7 +1881,7 @@ Note that once a Scheme port is revealed in scsh, the runtime will not shiftthe 
 
 dup() and close(). This means the file-locking pro-cedures can then be applied to the port's associated file descriptor.
 
-POSIX allows the user to lock a region of a file with either an exclusive orshared lock. Locked regions are described by the lock-region record:
+@acronym{POSIX} allows the user to lock a region of a file with either an exclusive orshared lock. Locked regions are described by the lock-region record:
 
 (define-record lock-region
 
@@ -1844,7 +1932,7 @@ Return the first lock region on fdes that would conflict with lock regionlock. I
 
 the proc field of the returned lock region, and is the only procedure thathas anything to do with this field. (See section @ref{3.4.1} for a description of
 process objects.) Note that if you apply this procedure to a file systemthat is shared across multiple operating systems (i.e., an NFS file system),
-the proc field may be ambiguous. We note, again, that POSIX advisoryfile locking is not a terribly useful or well-designed facility.
+the proc field may be ambiguous. We note, again, that @acronym{POSIX} advisoryfile locking is not a terribly useful or well-designed facility.
 
 (unlock-region fdes lock) -! undefined procedure
 
@@ -1930,7 +2018,7 @@ Calling sync-file causes Unix to update the disk data structures for agiven file
 
 Calling sync-file-system synchronises the kernel's entire file systemwith the disk.
 
-These procedures are not POSIX. Interestingly enough, sync-filesystem doesn't actually do what it is claimed to do. We just threw itin for humor value. See the
+These procedures are not @acronym{POSIX}. Interestingly enough, sync-filesystem doesn't actually do what it is claimed to do. We just threw itin for humor value. See the
 
 sync(2) man page for Unix enlightenment.
 
@@ -2046,7 +2134,7 @@ Value meaning
 A file is considered writeable if either (1) it exists and is writeable or (2)it doesn't exist and the directory is writeable. Since symlink permission
 
 bits are ignored by the filesystem, these calls do not take a chase? flag.
-Note that these procedures use the process' effective user and group idsfor permission checking. POSIX defines an access() function that usesthe process' real uid and gids. This is handy for setuid programs that would like to find out if the actual user has specific rights; scsh ought toprovide this functionality (but doesn't at the current time).
+Note that these procedures use the process' effective user and group idsfor permission checking. @acronym{POSIX} defines an access() function that usesthe process' real uid and gids. This is handy for setuid programs that would like to find out if the actual user has specific rights; scsh ought toprovide this functionality (but doesn't at the current time).
 
 There are several problems with these procedures. First, there's an atom-icity issue. In between checking permissions for a file and then trying an
 operation on the file, another process could change the permissions, so areturn value from these functions guarantees nothing. Second, the code
@@ -2054,7 +2142,7 @@ special-cases permission checking when the uid is root--if the file exists, root
 In this case, file-not-writable? will lie, saying that root has write ac-cess, when in fact the opening the file for write access will fail. Finally,
 write permission confounds write access and create access. These shouldbe disentangled.
 
-Some of these problems could be avoided if POSIX had a real-uid vari-ant of the
+Some of these problems could be avoided if @acronym{POSIX} had a real-uid vari-ant of the
 
 access() call we could use, but the atomicity issue is still aproblem. In the final analysis, the only way to find out if you have the
 
@@ -2735,7 +2823,7 @@ a small integer that encodes information describing how the child terminated.The
 
 OSIX; you must usethe following three functions to decode one. However, if a child terminates
 
-normally with exit code 0, POSIX does require wait to return an exit status thatis exactly zero. So
+normally with exit code 0, @acronym{POSIX} does require wait to return an exit status thatis exactly zero. So
 
 (zero? status) is a correct way to test for non-error, normaltermination, e.g.,
 
@@ -2822,7 +2910,7 @@ set-priority and priority work, so no documentation, andbesides, they aren't imp
 (set-gid gid) -! undefined procedure
 
 These routines get and set the effective and real user and group ids. The
-set-uid and set-gid routines correspond to the POSIX setuid() and
+set-uid and set-gid routines correspond to the @acronym{POSIX} setuid() and
 setgid() procedures.
 
 (user-effective-uid) -! fixnum procedure
@@ -2990,7 +3078,7 @@ version
 machine)
 
 Each of the fields contains a string.
-Be aware that POSIX limits the length of all entries to 32 characters, andthat the node name does not necessarily correspond to the fully-qualified
+Be aware that @acronym{POSIX} limits the length of all entries to 32 characters, andthat the node name does not necessarily correspond to the fully-qualified
 
 domain name.
 
@@ -3036,17 +3124,17 @@ signal->interrupt procedure. If the signal does not have a definedScheme 48 inte
 67
 
 Interrupt Unix signal OS Variant
-interrupt/alrma signal/alrm POSIX
-interrupt/intb signal/int POSIX
+interrupt/alrma signal/alrm @acronym{POSIX}
+interrupt/intb signal/int @acronym{POSIX}
 interrupt/memory-shortage N/A
-interrupt/chld signal/chld POSIX
-interrupt/cont signal/cont POSIX
-interrupt/hup signal/hup POSIX
-interrupt/quit signal/quit POSIX
-interrupt/term signal/term POSIX
-interrupt/tstp signal/tstp POSIX
-interrupt/usr1 signal/usr1 POSIX
-interrupt/usr2 signal/usr2 POSIX
+interrupt/chld signal/chld @acronym{POSIX}
+interrupt/cont signal/cont @acronym{POSIX}
+interrupt/hup signal/hup @acronym{POSIX}
+interrupt/quit signal/quit @acronym{POSIX}
+interrupt/term signal/term @acronym{POSIX}
+interrupt/tstp signal/tstp @acronym{POSIX}
+interrupt/usr1 signal/usr1 @acronym{POSIX}
+interrupt/usr2 signal/usr2 @acronym{POSIX}
 
 interrupt/info signal/info BSD only
 interrupt/io signal/io BSD + SVR4
@@ -3069,16 +3157,16 @@ bAlso bound to Scheme 48 interrupt interrupt/keyboard.
 68
 
 Unix signal Type OS Variant
-signal/stop Uncatchable POSIX
-signal/kill Uncatchable POSIX
+signal/stop Uncatchable @acronym{POSIX}
+signal/kill Uncatchable @acronym{POSIX}
 
-signal/abrt Synchronous POSIX
-signal/fpe Synchronous POSIX
-signal/ill Synchronous POSIX
-signal/pipe Synchronous POSIX
-signal/segv Synchronous POSIX
-signal/ttin Synchronous POSIX
-signal/ttou Synchronous POSIX
+signal/abrt Synchronous @acronym{POSIX}
+signal/fpe Synchronous @acronym{POSIX}
+signal/ill Synchronous @acronym{POSIX}
+signal/pipe Synchronous @acronym{POSIX}
+signal/segv Synchronous @acronym{POSIX}
+signal/ttin Synchronous @acronym{POSIX}
+signal/ttou Synchronous @acronym{POSIX}
 
 signal/bus Synchronous BSD + SVR4
 signal/emt Synchronous BSD + SVR4
@@ -3170,7 +3258,7 @@ the complexity is optional, and defaulting all the optional arguments reducesthe
 
 "UTC" and "UCT" stand for "universal coordinated time," which is the officialname for what is colloquially referred to as "Greenwich Mean Time."
 
-POSIX allows a single time zone to specify two different offsets from UTC:one standard one, and one for "summer time." Summer time is frequently
+@acronym{POSIX} allows a single time zone to specify two different offsets from UTC:one standard one, and one for "summer time." Summer time is frequently
 some sort of daylight savings time.
 
 The scsh time package consistently uses this terminology: we never say"gmt" or "dst;" we always say "utc" and "summer time."
@@ -3213,7 +3301,7 @@ responsibility for calculations performed in non-ANSI standard light-cones.
 72
 
 If the tz-name field is given, it is a time-zone string such as "EST" or
-"HKT" understood by the OS. Since POSIX time-zone strings can specify dualstandard/summer time-zones (e.g., "EST5EDT" specifies U.S. Eastern Standard/Eastern Daylight Time), the value of the summer? field is used to resolvethe amiguous boundary cases. For example, on the morning of the Fall daylight savings change-over, 1:00am-2:00am happens twice. Hence the date 1:30am on this morning can specify two different seconds; the
+"HKT" understood by the OS. Since @acronym{POSIX} time-zone strings can specify dualstandard/summer time-zones (e.g., "EST5EDT" specifies U.S. Eastern Standard/Eastern Daylight Time), the value of the summer? field is used to resolvethe amiguous boundary cases. For example, on the morning of the Fall daylight savings change-over, 1:00am-2:00am happens twice. Hence the date 1:30am on this morning can specify two different seconds; the
 
 summer? flag sayswhich one.
 
@@ -3242,7 +3330,7 @@ Several time procedures take time zones as arguments. When optional, thetime zon
 
 #f Local timeInteger Seconds of offset from UTC. For example, New York City is -18000 (-5 hours), San Francisco is-28800 (-8 hours).
 
-String A POSIX time zone string understood by the OS(i.e.., the sort of time zone assigned to the $TZ environment variable).
+String A @acronym{POSIX} time zone string understood by the OS(i.e.., the sort of time zone assigned to the $TZ environment variable).
 
 An integer time zone gives the number of seconds you must add to UTC to gettime in that zone. It is not "seconds west" of UTC--that flips the sign.
 
@@ -3255,7 +3343,7 @@ To get UTC time, use a time zone of either 0 or "UCT0".
 (time+ticks) -! [secs ticks] procedure
 (ticks/sec) -! real procedure
 
-The current time, with sub-second resolution. Sub-second resolution is not provided by POSIX, but is available on many systems. The time isreturned as elapsed seconds since the Unix epoch, plus a number of subsecond "ticks." The length of a tick may vary from implementation toimplementation; it can be determined from
+The current time, with sub-second resolution. Sub-second resolution is not provided by @acronym{POSIX}, but is available on many systems. The time isreturned as elapsed seconds since the Unix epoch, plus a number of subsecond "ticks." The length of a tick may vary from implementation toimplementation; it can be determined from
 
 (ticks/sec).
 
@@ -3291,7 +3379,7 @@ Simple (date) returns the current date, in the local time zone.
 With the optional arguments, date converts the time to the date as spec-ified by the time zone tz. Time defaults to the current time; tz defaults to
 
 local time, and is as described in the time-zone section.
-If the tz argument is an integer, the date's tz-name field is a POSIX timezone of the form "
+If the tz argument is an integer, the date's tz-name field is a @acronym{POSIX} timezone of the form "
 
 UTC+hh :mm :ss "; the trailing :mm :ss portion is deletedif it is zeroes.
 
@@ -3595,15 +3683,15 @@ consult one of the standard Unix texts.
 @subsection Portability across OS variants
 
 Terminal-control software is inescapably complex, ugly, and low-level. Unixvariants each provide their own way of controlling terminal devices, making
-it difficult to provide interfaces that are portable across different Unix systems.Scsh's terminal support is based primarily upon the POSIX termios interface.Programs that can be written using only the POSIX interface are likely to bewidely portable.
+it difficult to provide interfaces that are portable across different Unix systems.Scsh's terminal support is based primarily upon the @acronym{POSIX} termios interface.Programs that can be written using only the @acronym{POSIX} interface are likely to bewidely portable.
 
 81
 
 The bulk of the documentation that follows consists of several pages worthof tables defining different named constants that enable and disable different
-features of the terminal driver. Some of these flags are POSIX; others are takenfrom the two common branches of Unix development, SVR4 and 4.3+ Berkeley.
-Scsh guarantees that the non-POSIX constants will be bound identifiers.
+features of the terminal driver. Some of these flags are @acronym{POSIX}; others are takenfrom the two common branches of Unix development, SVR4 and 4.3+ Berkeley.
+Scsh guarantees that the non-@acronym{POSIX} constants will be bound identifiers.
 
-* If your OS supports a particular non-POSIX flag, its named constant willbe bound to the flag's value.
+* If your OS supports a particular non-@acronym{POSIX} flag, its named constant willbe bound to the flag's value.
 
 * If your OS doesn't support the flag, its named constant will be present,but bound to
 
@@ -3612,7 +3700,7 @@ Scsh guarantees that the non-POSIX constants will be bound identifiers.
 This means that if you want to use SVR4 or Berkeley features in a program,your program can portably test the values of the flags before using them--the
 flags can reliably be referenced without producing OS-dependent "unboundvariable" errors.
 
-Finally, note that although POSIX, SVR4, and Berkeley cover the lion's shareof the terminal-driver functionality, each operating system inevitably has nonstandard extensions. While a particular scsh implementation may providethese extensions, they are not portable, and so are not documented here.
+Finally, note that although @acronym{POSIX}, SVR4, and Berkeley cover the lion's shareof the terminal-driver functionality, each operating system inevitably has nonstandard extensions. While a particular scsh implementation may providethese extensions, they are not portable, and so are not documented here.
 
 @subsection Miscellaneous procedures
 
@@ -3645,7 +3733,7 @@ time) ; Int: Raw-mode input policy
 The control-characters string
 The control-chars field is a character string; its characters may be indexed byinteger values taken from table 3.4.
 
-As discussed above, only the POSIX entries in table 3.4 are guaranteed tobe legal, integer indices. A program can reliably test the OS to see if the nonPOSIX characters are supported by checking the index constants. If the control-character function is supported by the terminal driver, then the corresponding
+As discussed above, only the @acronym{POSIX} entries in table 3.4 are guaranteed tobe legal, integer indices. A program can reliably test the OS to see if the non@acronym{POSIX} characters are supported by checking the index constants. If the control-character function is supported by the terminal driver, then the corresponding
 index will be bound to an integer; if it is not supported, the index will be boundto
 
 #f.
@@ -3661,15 +3749,15 @@ local-flags fields are all bit sets represented as two's-complement integers.The
 
 constants listed in tables 3.5 through 3.9.
 
-As discussed above, only the POSIX entries listed in these tables are guar-anteed to be legal, integer flag values. A program can reliably test the OS to see
+As discussed above, only the @acronym{POSIX} entries listed in these tables are guar-anteed to be legal, integer flag values. A program can reliably test the OS to see
 
-if the non-POSIX flags are supported by checking the named constants. If thefeature is supported by the terminal driver, then the corresponding flag will be
+if the non-@acronym{POSIX} flags are supported by checking the named constants. If thefeature is supported by the terminal driver, then the corresponding flag will be
 bound to an integer; if it is not supported, the flag will be bound to #f.
 
 83
 
 The speed fields
-The input-speed and output-speed fields determine the I/O rate of the ter-minal's line. The value of these fields is an integer giving the speed in bits-persecond. The following speeds are supported by POSIX:
+The input-speed and output-speed fields determine the I/O rate of the ter-minal's line. The value of these fields is an integer giving the speed in bits-persecond. The following speeds are supported by @acronym{POSIX}:
 
 0 134 600 480050 150 1200 9600
 
@@ -3682,7 +3770,7 @@ The min and time fields
 The integer min and time fields determine input blocking behaviour duringnon-canonical (raw) input; otherwise, they are ignored. See the termios(3) man
 page for further details.
 
-Be warned that POSIX allows the base system call's representation of the
+Be warned that @acronym{POSIX} allows the base system call's representation of the
 tty-info record to share storage for the min field and the ttychar/eof elementof the control-characters string, and for the
 
 time field and the ttychar/eolelement of the control-characters string. Many implementations in fact do this.
@@ -3709,7 +3797,7 @@ string. Similarly, the control-character string in the record produced by
 copy-tty-info does not share structure with the string in the record be-ing copied, so you may mutate it freely.
 
 6 Why? Because the length of the string varies from Unix to Unix. For example, the word-erase
-control character (typically control-w) is provided by most Unixes, but not part of the POSIX spec.
+control character (typically control-w) is provided by most Unixes, but not part of the @acronym{POSIX} spec.
 
 84
 
@@ -3806,7 +3894,7 @@ become-session-leader procedure.
 
 (become-session-leader) -! integer procedure
 
-This is the C setsid() call. POSIX job-control has a three-level hierarchy:session/process-group/process. Every session has an associated control
+This is the C setsid() call. @acronym{POSIX} job-control has a three-level hierarchy:session/process-group/process. Every session has an associated control
 
 terminal. This procedure places the current process into a brand newsession, and disassociates the process from any previous control terminal. You may subsequently use open-control-tty to open a new controlterminal.
 
@@ -3889,7 +3977,7 @@ returns #f every time it is called. Example:
 
 Scsh C Typical char
 
-POSIX
+@acronym{POSIX}
 ttychar/delete-char ERASE del
 ttychar/delete-line KILL ^U
 ttychar/eof EOF ^D
@@ -3919,7 +4007,7 @@ OSIX entriesare guaranteed to be non#f.
 
 Scsh C Meaning
 
-POSIX
+@acronym{POSIX}
 ttyin/check-parity INPCK Check parity.
 ttyin/ignore-bad-parity-chars IGNPAR Ignore chars with parity errors.
 ttyin/mark-parity-errors PARMRK Insert chars to mark parity errors.
@@ -3940,11 +4028,11 @@ SVR4
 ttyin/lowercase IUCLC Map upper case to lower case.
 
 Table 3.5: Input-flags. These are the named flags for the tty-info record'sinput-flags field. These flags generally control the processing of input chars.
-Only the POSIX entries are guaranteed to be non-#f.
+Only the @acronym{POSIX} entries are guaranteed to be non-#f.
 
 Scsh C Meaning
 
-POSIX
+@acronym{POSIX}
 ttyout/enable OPOST Enable output processing.
 
 SVR4 and 4.3+BSD
@@ -3963,7 +4051,7 @@ ttyout/fill-w/del OFDEL Fill char is ASCII DEL.
 ttyout/uppercase OLCUC Map lower to upper case.
 
 Table 3.6: Output-flags. These are the named flags for the tty-info record'soutput-flags field. These flags generally control the processing of output chars.
-Only the POSIX entries are guaranteed to be non-#f.
+Only the @acronym{POSIX} entries are guaranteed to be non-#f.
 
 90
 
@@ -3998,13 +4086,13 @@ ttyout/vtab-delay0
 ttyout/vtab-delay1All
 ttyout/all-delay Total bit-field mask
 
-Table 3.7: Delay constants. These are the named flags for the tty-info record'soutput-flags field. These flags control the output delays associated with printing special characters. They are non-POSIX, and have non-#f values only on SVR4systems.
+Table 3.7: Delay constants. These are the named flags for the tty-info record'soutput-flags field. These flags control the output delays associated with printing special characters. They are non-@acronym{POSIX}, and have non-#f values only on SVR4systems.
 
 91
 
 Scsh C Meaning
 
-POSIX
+@acronym{POSIX}
 ttyc/char-size CSIZE Character size mask
 ttyc/char-size5 CS5 5 bits
 ttyc/char-size6 CS6 6 bits
@@ -4024,13 +4112,13 @@ ttyc/RTS-input-flow-ctl CRTS_IFLOW RTS flow control of input
 ttyc/carrier-flow-ctl MDMBUF
 
 Table 3.8: Control-flags. These are the named flags for the tty-info record'scontrol-flags field. These flags generally control the details of the terminal's
-serial line. Only the POSIX entries are guaranteed to be non-#f.
+serial line. Only the @acronym{POSIX} entries are guaranteed to be non-#f.
 
 92
 
 Scsh C Meaning
 
-POSIX
+@acronym{POSIX}
 ttyl/canonical ICANON Canonical input processing.
 ttyl/echo ECHO Enable echoing.
 ttyl/echo-delete-line ECHOK Echo newline after line kill.
@@ -4056,7 +4144,7 @@ SVR4
 ttyl/case-map XCASE Canonical case presentation
 
 Table 3.9: Local-flags. These are the named flags for the tty-info record'slocal-flags field. These flags generally control the details of the line-editting
-user interface. Only the POSIX entries are guaranteed to be non-#f.
+user interface. Only the @acronym{POSIX} entries are guaranteed to be non-#f.
 
 @chapter Networking
 
@@ -4476,7 +4564,7 @@ These procedures do not access the file-system at all; they merely operate onfil
 
 @subsection Terminology
 
-These procedures carefully adhere to the POSIX standard for file-name reso-lution, which occasionally entails some slightly odd things. This section will
+These procedures carefully adhere to the @acronym{POSIX} standard for file-name reso-lution, which occasionally entails some slightly odd things. This section will
 describe these rules, and give some basic terminology.
 
 A file-name is either the file-system root ("/"), or a series of slash-terminateddirectory components, followed by a a file component. Root is the only filename that may end in slash. Some examples:
@@ -5214,7 +5302,7 @@ preceding this one for a complete listing of these rules.{
 
 Note There is no way to include the ASCII NUL character in a characterset or search for it in any other way using regular expression. This is because
 
-the POSIX regexp facility is based on the C language which uses ASCII NULto terminate strings.}
+the @acronym{POSIX} regexp facility is based on the C language which uses ASCII NULto terminate strings.}
 
 122
 
@@ -6835,7 +6923,7 @@ alphabetic characters, "." or "\". The length of key may be at most eight.
 
 @section Dot-Locking
 
-Section @ref{3.2.8} already points out that POSIX's file locks are almost useless inpractice. To bypass this restriction other advisory locking mechanisms, based
+Section @ref{3.2.8} already points out that @acronym{POSIX}'s file locks are almost useless inpractice. To bypass this restriction other advisory locking mechanisms, based
 only on standard file operations, where invented. One of them is the so-called
 
 161
@@ -6893,7 +6981,7 @@ with-dot-lock*. The with-dot-lock special form is equivalent syntac-tic sugar.
 
 (Note: the functionality presented in this section is still somewhat experimentaland thus subject to interface changes.)
 
-The procedures in this section provide access to the 4.2BSD syslog facil-ity present in most POSIX systems. The functionality is in a structure called
+The procedures in this section provide access to the 4.2BSD syslog facil-ity present in most @acronym{POSIX} systems. The functionality is in a structure called
 syslog. There's an additional structure syslog-channels documented below.The scsh interface to the syslog facility differs significantly from that of the
 Unix library functionality in order to support multiple simultaneous connec-tions to the syslog facility.
 
