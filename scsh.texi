@@ -826,138 +826,175 @@ are readable symbols. Scsh does.
 
 @section Using extended process forms in Scheme
 
-Process forms and extended process forms are not Scheme. They are a dif-ferent notation for expressing computation that, like Scheme, is based upon
-s-expressions. Extended process forms are used in Scheme programs by em-bedding them inside special Scheme forms. There are three basic Scheme forms
-that use extended process forms: exec-epf, &, and run.
-(exec-epf . epf) -! no return value syntax
-(& . epf) -! proc syntax
-(run . epf) -! status syntax
+Process forms and extended process forms are not Scheme. They are a
+different notation for expressing computation that, like Scheme, is
+based upon s-expressions. Extended process forms are used in Scheme
+programs by embedding them inside special Scheme forms. There are three
+basic Scheme forms that use extended process forms: @code{exec-epf},
+@code{&}, and @code{run}.
 
-The (exec-epf . epf) form nukes the current process: it establishes theI/O redirections and then overlays the current process with the requested
+@float Table
+(exec-epf . epf) -> no return value     (syntax)
+(& . epf)        -> proc                (syntax)
+(run . epf)      -> status              (syntax)
+@end float
 
-computation.
-The (& . epf) form is similar, except that the process is forked off in back-ground. The form returns the subprocess' process object.
+The @code{(exec-epf . epf)} form nukes the current process: it
+establishes the I/O redirections and then overlays the current process
+with the requested computation.
 
-The (run . epf) form runs the process in foreground: after forking offthe computation, it waits for the subprocess to exit, and returns its exit
-status.
-These special forms are macros that expand into the equivalent series ofsystem calls. The definition of the
+The @code{(& . epf)} form is similar, except that the process is forked
+off in background. The form returns the subprocess' process object.
 
-exec-epf macro is non-trivial, as itproduces the code to handle I/O redirections and set up pipelines. However, the definitions of the & and run macros are very simple:
+The @code{(run . epf)} form runs the process in foreground: after
+forking off the computation, it waits for the subprocess to exit, and
+returns its exit status.
 
-(& . epf) j (fork (* () (exec-epf . epf)))
-(run . epf) j (wait (& . epf))
+These special forms are macros that expand into the equivalent series of
+system calls. The definition of the @code{exec-epf} macro is
+non-trivial, as it produces the code to handle I/O redirections and set
+up pipelines. However, the definitions of the @code{&} and @code{run}
+macros are very simple:
 
-13
+@example
+(& . epf)       (fork (lambda () (exec-epf . epf)))
+(run . epf)     (wait (& . epf))
+@end example
 
 @subsection Procedures and special forms
 
-It is a general design principle in scsh that all functionality made availablethrough special syntax is also available in a straightforward procedural form.
-So there are procedural equivalents for all of the process notation. In this way,the programmer is not restricted by the particular details of the syntax. Here
-are some of the syntax/procedure equivalents:
+It is a general design principle in scsh that all functionality made
+available through special syntax is also available in a straightforward
+procedural form.  So there are procedural equivalents for all of the
+process notation. In this way, the programmer is not restricted by the
+particular details of the syntax. Here are some of the syntax/procedure
+equivalents:
 
-Notation Procedure
-| fork/pipe
-|+ fork/pipe+
-exec-epf exec-pathredirection
+@float Table
+Notation                Procedure
+|                       fork/pipe
+|+                      fork/pipe+
+exec-epf                exec-path
+redirection             open, dup
+&                       fork
+run                     wait + fork
+@end float
 
-open, dup
-& fork
-run wait + fork
-
-Having a solid procedural foundation also allows for general notational experi-mentation using Scheme's macros. For example, the programmer can build his
-own pipeline notation on top of the fork and fork/pipe procedures. Chapter 3gives the full story on all the procedures in the syscall library.
+Having a solid procedural foundation also allows for general notational
+experimentation using Scheme's macros. For example, the programmer can
+build his own pipeline notation on top of the @code{fork} and
+@code{fork/pipe} procedures. @ref{System Calls} gives the full story on
+all the procedures in the syscall library.
 
 @subsection Interfacing process output to Scheme
 
-There is a family of procedures and special forms that can be used to capturethe output of processes as Scheme data.
-(run/port . epf) -! port syntax
-(run/file . epf) -! string syntax
-(run/string . epf) -! string syntax
-(run/strings . epf) -! string list syntax
-(run/sexp . epf) -! object syntax
-(run/sexps . epf) -! list syntax
+There is a family of procedures and special forms that can be used to capture the output of processes as Scheme data.
 
-These forms all fork off subprocesses, collecting the process' output tostdout in some form or another. The subprocess runs with file descriptor
+@float Table
+(run/port . epf)        -> port         (syntax)
+(run/file . epf)        -> string       (syntax)
+(run/string . epf)      -> string       (syntax)
+(run/strings . epf)     -> string list  (syntax)
+(run/sexp . epf)        -> object       (syntax)
+(run/sexps . epf)       -> list         (syntax)
+@end float
+
+These forms all fork off subprocesses, collecting the process' output to
+stdout in some form or another. The subprocess runs with file descriptor
 1 and the current output port bound to a pipe.
 
-14
+@float Table
+run/port        Value is a port open on process' stdout. Returns immediately after forking child.
+run/file        Value is name of a temp file containing process' output. Returns when process exits.
+run/string      Value is a string containing process' output. Returns when eof read.
+run/strings     Splits process' output into a list of newline-delimited strings. Returns when eof read.
+run/sexp        Reads a single object from process' stdout with @code{read}. Returns as soon as the read completes.
+run/sexps       Repeatedly reads objects from process' stdout with @code{read}. Returns accumulated list upon eof.
+@end float
 
-run/port Value is a port open on process's stdout. Re-turns immediately after forking child.
-run/file Value is name of a temp file containing pro-cess's output. Returns when process exits.
-run/string Value is a string containing process' output.Returns when eof read.
-run/strings Splits process' output into a list of newline-delimited strings. Returns when eof read.
-run/sexp Reads a single object from process' stdoutwith
+The delimiting newlines are not included in the strings returned by @code{run/strings}.
 
-read. Returns as soon as the readcompletes.
+These special forms just expand into calls to the following analogous procedures.
 
-run/sexps Repeatedly reads objects from process' std-out with
+@float Table
+(run/port* thunk)       -> port         (procedure)
+(run/file* thunk)       -> string       (procedure)
+(run/string* thunk)     -> string       (procedure)
+(run/strings* thunk)    -> string list  (procedure)
+(run/sexp* thunk)       -> object       (procedure)
+(run/sexps* thunk)      -> object list  (procedure)
+@end float
 
-read. Returns accumulated listupon eof.
+For example, @code{(run/port . epf)} expands into
 
-The delimiting newlines are not included in the strings returned by
-run/strings.
-
-These special forms just expand into calls to the following analogous pro-cedures.
-
-(run/port* thunk) -! port procedure
-(run/file* thunk) -! string procedure
-(run/string* thunk) -! string procedure
-(run/strings* thunk) -! string list procedure
-(run/sexp* thunk) -! object procedure
-(run/sexps* thunk) -! object list procedure
-
-For example, (run/port . epf) expands into
-
+@example
 (run/port* (* () (exec-epf . epf))).
+@end example
 
-The following procedures are also of utility for generally parsing inputstreams in scsh:
+The following procedures are also of utility for generally parsing input
+streams in scsh:
 
-(port->string port) -! string procedure
-(port->sexp-list port) -! list procedure
-(port->string-list port) -! string list procedure
-(port->list reader port) -! list procedure
+@float Table
+(port->string port)             -> string       (procedure)
+(port->sexp-list port)          -> list         (procedure)
+(port->string-list port)        -> string list  (procedure)
+(port->list reader port)        -> list         (procedure)
+@end float
 
-Port->string reads the port until eof, then returns the accumulatedstring.
+@code{Port->string} reads the port until eof, then returns the
+accumulated string. @code{Port->sexp-list} repeatedly reads data from
+the port until eof, then returns the accumulated list of
+items. @code{Port->string-list} repeatedly reads newline-terminated
+strings from the port until eof, then returns the accumulated list of
+strings. The delimiting newlines are not part of the returned
+strings. @code{Port->list} generalises these two procedures. It uses
+@emph{reader} to repeatedly read objects from a port. It accumulates
+these objects into a list, which is returned upon eof. The
+@code{port->string-list} and @code{port->sexp-list} procedures are
+trivial to define, being merely @code{port->list} curried with the
+appropriate parsers:
 
-Port->sexp-list repeatedly reads data from the port until eof,then returns the accumulated list of items.
-
-Port->string-list repeat-edly reads newline-terminated strings from the port until eof, then returns the accumulated list of strings. The delimiting newlines are not
-
-15
-
-part of the returned strings. Port->list generalises these two pro-cedures. It uses reader to repeatedly read objects from a port. It accumulates these objects into a list, which is returned upon eof. The
-port->string-list and port->sexp-list procedures are trivial to de-fine, being merely
-
-port->list curried with the appropriate parsers:
-
-(port->string-list port) j (port->list read-line port)
-(port->sexp-list port) j (port->list read port)
+@float Table
+(port->string-list port)        (port->list read-line port)
+(port->sexp-list port)          (port->list read port)
+@end float
 
 The following compositions also hold:
 
-run/string* j port->string ffi run/port*
-run/strings* j port->string-list ffi run/port*
-run/sexp* j read ffi run/port*
-run/sexps* j port->sexp-list ffi run/port*
+@float Table
+run/string*             port->string            run/port*
+run/strings*            port->string-list       run/port*
+run/sexp*               read                    run/port*
+run/sexps*              port->sexp-list         run/port*
+@end float
 
-(port-fold port reader op . seeds) -! object* procedure
+@example
+(port-fold port reader op . seeds)      -> object*      (procedure)
+@end example
 
-This procedure can be used to perform a variety of iterative operationsover an input stream. It repeatedly uses reader to read an object from port.
+This procedure can be used to perform a variety of iterative operations
+over an input stream. It repeatedly uses @emph{reader} to read an object
+from port. If the first read returns eof, then the entire
+@code{port-fold} operation returns the seeds as multiple values. If the
+first read operation returns some other value @emph{v} , then @emph{op}
+is applied to @emph{v} and the seeds: @code{(op v . seeds)}. This should
+return a new set of seed values, and the reduction then loops, reading a
+new value from the port, and so forth. (If multiple seed values are
+used, then @emph{op} must return multiple values.)
 
-If the first read returns eof, then the entire port-fold operation returnsthe seeds as multiple values. If the first read operation returns some other
-value v, then op is applied to v and the seeds: (op v . seeds). This shouldreturn a new set of seed values, and the reduction then loops, reading a
-new value from the port, and so forth. (If multiple seed values are used,then op must return multiple values.)
+For example, @code{(port->list reader port)} could be defined as
 
-For example, (port->list reader port) could be defined as
-
+@example
 (reverse (port-fold port reader cons '()))
+@end example
 
-An imperative way to look at port-fold is to say that it abstracts theidea of a loop over a stream of values read from some port, where the
+An imperative way to look at @code{port-fold} is to say that it
+abstracts the idea of a loop over a stream of values read from some
+port, where the seed values express the loop state.
 
-seed values express the loop state.
-
-Remark: This procedure was formerly named reduce-port . The oldbinding is still provided, but is deprecated and will probably vanish
-in a future release.
+@emph{Remark}: This procedure was formerly named @code{reduce-port}. The
+old binding is still provided, but is deprecated and will probably
+vanish in a future release.
 
 @section More complex process operations
 
