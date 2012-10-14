@@ -22,6 +22,7 @@ Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler,
 
 @titlepage
 @title Scsh Reference Manual
+@subtitle For scsh release 0.6.7
 
 @author Olin Shivers
 @author Brian D. Carlstrom
@@ -207,12 +208,9 @@ September 4, 1994
 @node Introduction
 @chapter Introduction
 
-@cindex first chapter
-@cindex chapter, first
-
 This is the reference manual for scsh, a Unix shell that is embedded
 within Scheme. Scsh is a Scheme system designed for writing useful
-standalone Unix programs and shell scripts -- it spans a wide range of
+standalone Unix programs and shell scripts--it spans a wide range of
 application, from ``script'' applications usually handled with perl or
 sh, to more standard systems applications usually written in C.
 
@@ -224,30 +222,28 @@ general discussion of the design principles behind scsh can be found in
 a companion paper, ``A Scheme Shell''.
 
 @section Copyright & source-code license
-
 Scsh is open source. The complete sources come with the standard
 distribution, which can be downloaded off the net. Scsh has an
 ideologically hip, BSD-style license.
 
-We note that the code is a rich source for other Scheme
-implementations to mine. Not only the code, but the APIs are available
-for implementors working on Scheme environments for systems
-programming. These APIs represent years of work, and should provide a big
-head-start on any related effort. (Just don't call it ``scsh'', unless
-it's exactly compliant with the scsh interfaces.)
+We note that the code is a rich source for other Scheme implementations
+to mine. Not only the @emph{code}, but the @emph{APIs} are available for
+implementors working on Scheme environments for systems
+programming. These APIs represent years of work, and should provide a
+big head-start on any related effort. (Just don't call it ``scsh'',
+unless it's @emph{exactly} compliant with the scsh interfaces.)
 
 Take all the code you like; we'll just write more.
 
 @section Obtaining scsh
-
 Scsh is distributed via net publication. We place new releases at
 well-known network sites, and allow them to propagate from there. We
 currently release scsh to the following Internet sites:
 
-@example
-ftp://ftp.scsh.net/pub/scsh
-http://prdownloads.sourceforge.net/scsh/
-@end example
+@flushleft
+@url{ftp://ftp.scsh.net/pub/scsh}
+@url{http://prdownloads.sourceforge.net/scsh/}
+@end flushleft
 
 Each should have a compressed tar file of the entire scsh release, which
 includes all the source code and the manual, and a separate file
@@ -281,9 +277,9 @@ make                    # Build system.
 When you are done, you should have a virtual machine compiled in file
 scshvm, and a heap image in file scsh/scsh.image. Typing
 
-@example
+@code
 make install
-@end example
+@end code
 
 will install these programs in your installation directory (by default,
 /usr/local), along with a small stub startup binary, scsh.
@@ -291,13 +287,12 @@ will install these programs in your installation directory (by default,
 If you don't have the patience to do this, you can start up a Scheme
 shell immediately after the initial make by simply saying
 
-@example
+@code
 ./scshvm -o ./scshvm -i scsh/scsh.image
-@end example
+@end code
 
-For full details on installation locations and startup options.
-
-@xref{Running scsh}.
+See @xref{Running scsh} for full details on installation locations and
+startup options.
 
 It is not too difficult to port scsh to another Unix platform if your OS
 is not supported by the current release. See the release notes for more
@@ -581,6 +576,7 @@ When you write shell scripts that manipulate the file system, keep in
 mind the special status of the dot token.
 
 @section Record types and the define-record form
+@cindex define-record
 
 Scsh's interfaces occasionally provide data in structured record types;
 an example is the @code{file-info} record whose various fields describe
@@ -589,12 +585,12 @@ data for a particular file. These record types are described in this
 manual using the @code{define-record} notation, which looks like the
 following:
 
-@example
+@code
 (define-record ship
   x
   y
   (size 100))
-@end example
+@end code
 
 This form defines a @emph{ship} record, with three fields: its x and y
 coordinates, andits size. The values of the @code{x} and @code{y} fields
