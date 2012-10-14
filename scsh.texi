@@ -179,7 +179,7 @@ bitmaps off of netnews? My parents, who are still waiting for me to quit
 radiologist? My department chairman, a manager who gives one new insight
 into and sympathy for disgruntled postal workers?
 
-My God, no one could blame me -- no one! -- if I went off the edge and
+My God, no one could blame me--no one!--if I went off the edge and
 just lost it completely one day. I couldn't get through the day as it is
 without the Prozac and Jack Daniels I keep on the shelf, behind my
 Tops-20 JSYS manuals. I start getting the shakes real bad around 10am,
@@ -195,14 +195,14 @@ this, I'd probably make an effort to keep up appearances until the last
 possible moment. But no one does, and no one will. So I can pretty much
 say exactly what I think.
 
-Oh, yes, the acknowledgements. I think not. I did it. I did it all, by
+Oh, yes, the @emph{acknowledgements}. I think not. I did it. I did it all, by
 myself.
 
-@example
+@flushright
 Olin Shivers
 Cambridge
 September 4, 1994
-@end example
+@end flushright
 
 @node Introduction
 @chapter Introduction
