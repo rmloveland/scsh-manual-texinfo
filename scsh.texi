@@ -1,6 +1,6 @@
 \input texinfo  @c -*-texinfo-*-
 @c %**start of header
-@setfilename scsh.texi
+@setfilename scsh.info
 @settitle Scsh Reference Manual
 @defindex cm
 @synindex vr fn
@@ -23,7 +23,10 @@ Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler,
 @titlepage
 @title Scsh Reference Manual
 
-@author Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
+@author Olin Shivers
+@author Brian D. Carlstrom
+@author Martin Gasbichler
+@author Mike Sperber
 
 @c The following two commands start the copyright page.
 @page
@@ -195,9 +198,11 @@ say exactly what I think.
 Oh, yes, the acknowledgements. I think not. I did it. I did it all, by
 myself.
 
+@example
 Olin Shivers
 Cambridge
 September 4, 1994
+@end example
 
 @node Introduction
 @chapter Introduction
@@ -239,8 +244,10 @@ Scsh is distributed via net publication. We place new releases at
 well-known network sites, and allow them to propagate from there. We
 currently release scsh to the following Internet sites:
 
+@example
 ftp://ftp.scsh.net/pub/scsh
 http://prdownloads.sourceforge.net/scsh/
+@end example
 
 Each should have a compressed tar file of the entire scsh release, which
 includes all the source code and the manual, and a separate file
@@ -263,13 +270,13 @@ different OS variants. This means that if you use one of the common Unix
 implementations, building scsh should require exactly the following
 steps:
 
-@float Table
-gunzip scsh.tar.gz      Uncompress the release tar file.
-untar xfv scsh.tar      Unpack the source code.
-cd scsh-0.6.x           Move to the source directory.
-./configure             Examine host; build Makefile.
-make                    Build system.
-@end float
+@example
+gunzip scsh.tar.gz      # Uncompress the release tar file.
+untar xfv scsh.tar      # Unpack the source code.
+cd scsh-0.6.x           # Move to the source directory.
+./configure             # Examine host; build Makefile.
+make                    # Build system.
+@end example
 
 When you are done, you should have a virtual machine compiled in file
 scshvm, and a heap image in file scsh/scsh.image. Typing
@@ -288,8 +295,9 @@ shell immediately after the initial make by simply saying
 ./scshvm -o ./scshvm -i scsh/scsh.image
 @end example
 
-See @ref{Running scsh} for full details on installation locations and
-startup options.
+For full details on installation locations and startup options.
+
+@xref{Running scsh}.
 
 It is not too difficult to port scsh to another Unix platform if your OS
 is not supported by the current release. See the release notes for more
@@ -479,7 +487,7 @@ A character-delimited here-string has the form
 where x is any single character (except @code{<}, see below), which is
 used to delimit the string bounds. Some examples:
 
-@float Table
+@float 
 Here-string syntax      Ordinary string syntax
 #<|Hello, world.|       "Hello, world."
 #<!"Ouch," he said.!    "\"Ouch,\" he said."
@@ -595,7 +603,7 @@ are specified as parameters to the ship building procedure,
 100. All told, the @code{define-record} form above defines the following
 procedures:
 
-@float Table
+@float 
 Procedure                       Definition
 (make-ship x y)                 Create a new ship record.
 (ship:x ship)                   Retrieve the x field.(ship:y ship) Retrieve the y field.
@@ -663,7 +671,7 @@ epf ::= (pf @math{redir_1 ... redir_n})
 where @emph{pf} is a process form and the @math{redir_i} are redirection
 specs. A redirection spec is one of:
 
-@float Table
+@float 
 (< [fdes] file-name)    ; Open file for read.
 (> [fdes] file-name)    ; Open file create/truncate.
 (<< [fdes] object)      ; Use object's printed rep.
@@ -774,7 +782,7 @@ Scheme code (as opposed to a redirection spec) with the
 A process form specifies a computation to perform as an independent Unix
 process. It can be one of the following:
 
-@float Table
+@float 
 (begin . scheme-code)           ; Run scheme-code in a fork.
 (| pf1 ... pfn)                 ; Simple pipeline
 (|+ connect-list pf1 ... pfn)   ; Complex pipeline
@@ -833,7 +841,7 @@ programs by embedding them inside special Scheme forms. There are three
 basic Scheme forms that use extended process forms: @code{exec-epf},
 @code{&}, and @code{run}.
 
-@float Table
+@float 
 (exec-epf . epf) -> no return value     (syntax)
 (& . epf)        -> proc                (syntax)
 (run . epf)      -> status              (syntax)
@@ -870,7 +878,7 @@ process notation. In this way, the programmer is not restricted by the
 particular details of the syntax. Here are some of the syntax/procedure
 equivalents:
 
-@float Table
+@float 
 Notation                Procedure
 |                       fork/pipe
 |+                      fork/pipe+
@@ -890,7 +898,7 @@ all the procedures in the syscall library.
 
 There is a family of procedures and special forms that can be used to capture the output of processes as Scheme data.
 
-@float Table
+@float 
 (run/port . epf)        -> port         (syntax)
 (run/file . epf)        -> string       (syntax)
 (run/string . epf)      -> string       (syntax)
@@ -903,7 +911,7 @@ These forms all fork off subprocesses, collecting the process' output to
 stdout in some form or another. The subprocess runs with file descriptor
 1 and the current output port bound to a pipe.
 
-@float Table
+@float 
 run/port        Value is a port open on process' stdout. Returns immediately after forking child.
 run/file        Value is name of a temp file containing process' output. Returns when process exits.
 run/string      Value is a string containing process' output. Returns when eof read.
@@ -916,7 +924,7 @@ The delimiting newlines are not included in the strings returned by @code{run/st
 
 These special forms just expand into calls to the following analogous procedures.
 
-@float Table
+@float 
 (run/port* thunk)       -> port         (procedure)
 (run/file* thunk)       -> string       (procedure)
 (run/string* thunk)     -> string       (procedure)
@@ -934,7 +942,7 @@ For example, @code{(run/port . epf)} expands into
 The following procedures are also of utility for generally parsing input
 streams in scsh:
 
-@float Table
+@float 
 (port->string port)             -> string       (procedure)
 (port->sexp-list port)          -> list         (procedure)
 (port->string-list port)        -> string list  (procedure)
@@ -954,14 +962,14 @@ these objects into a list, which is returned upon eof. The
 trivial to define, being merely @code{port->list} curried with the
 appropriate parsers:
 
-@float Table
+@float 
 (port->string-list port)        (port->list read-line port)
 (port->sexp-list port)          (port->list read port)
 @end float
 
 The following compositions also hold:
 
-@float Table
+@float 
 run/string*             port->string            run/port*
 run/strings*            port->string-list       run/port*
 run/sexp*               read                    run/port*
@@ -1005,7 +1013,7 @@ facilities for manipulating processes.
 
 @subsection Pids and ports together
 
-@float Table
+@float 
 (run/port+proc . epf)   -> [port proc]          (syntax)
 (run/port+proc* thunk)  -> [port proc]          (procedure)
 @end float
@@ -1041,7 +1049,7 @@ stdout and stderr streams into two distinct strings. This is
 accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
-@float Table
+@float 
 (run/collecting fds . epf )     -> [status port. . . ]  (syntax)
 (run/collecting* fds thunk)     -> [status port. . . ]  (procedure)
 @end float
@@ -4211,6 +4219,7 @@ ttyl/case-map XCASE Canonical case presentation
 Table 3.9: Local-flags. These are the named flags for the tty-info record'slocal-flags field. These flags generally control the details of the line-editting
 user interface. Only the @acronym{POSIX} entries are guaranteed to be non-#f.
 
+@node Networking
 @chapter Networking
 
 The Scheme Shell provides a BSD-style sockets interface. There is not an of-ficial standard for a network interface for scsh to adopt (this is the subject of
@@ -4583,7 +4592,7 @@ network-info, service-info and protocol-info return #fif the speci-fied entity w
 
 102
 
-
+@node Strings and characters
 @chapter Strings and characters
 
 Strings are the basic communication medium for Unix processes, so a Unix pro-gramming environment must have reasonable facilities for manipulating them.
@@ -4975,7 +4984,8 @@ char-set:control char-set:iso-control
 
 Note also that the ->char-set procedure no longer handles a predicate argument.
 
-@chapter Pattern-matching strings withregular expressions
+@node Pattern-matching strings with regular expressions
+@chapter Pattern-matching strings with regular expressions
 
 Scsh provides a rich facility for matching regular-expression patterns in strings.The system is composed of several pieces:
 
@@ -6110,6 +6120,7 @@ If the regexp is static, it will be simplified and pre-translated to a Posixstri
 
 Is the regexp a static one?
 
+@node Reading delimited strings
 @chapter Reading delimited strings
 
 Scsh provides a set of procedures that read delimited strings from input ports.There are procedures to read a single line of text (terminated by a newline character), a single paragraph (terminated by a blank line), and general delimitedstrings (terminated by a character belonging to an arbitrary character set).
@@ -6198,7 +6209,8 @@ Skip characters occurring in the set skip-chars; return the number of char-acter
 
 character; it is coerced to a charset.
 
-@chapter Awk, record I/O, and fieldparsing
+@node Awk, record I/O, and field parsing
+@chapter Awk, record I/O, and field parsing
 
 Unix programs frequently process streams of records, where each record isdelimited by a newline, and records are broken into fields with other delimiters (for example, the colon character in /etc/passwd). Scsh has proceduresthat allow the programmer to easily do this kind of processing. Scsh's field
 parsers can also be used to parse other kinds of delimited strings, such ascolon-separated
@@ -6747,7 +6759,8 @@ SREs.
 
 This form is still available in a separate module for old code. It'll be docu-mented in the next release of this manual. Dig around in the sources for it.
 
-@chapter Concurrent systemprogramming
+@node Concurrent system programming
+@chapter Concurrent system programming
 
 The Scheme Shell provides the user with support for concurrent programming.The interface consists of several parts:
 
@@ -6964,6 +6977,7 @@ This is just an alias for fork-thread suggested by Alan Bawden.
 For user and group identities arbitrary changing is not possible. There-fore they remain global process state: If a thread changes one of these values, all other threads see the new value. Consequently, scsh does not provide
 with-uid and friends.
 
+@node Miscellaneous routines
 @chapter Miscellaneous routines
 
 @section Integer bitwise ops
@@ -7276,6 +7290,7 @@ The procedure compiler-flags returns flags suitable for running the C com-piler 
 
 Scsh also comes as a library that can be linked into other programs. Theprocedure linker-flags returns the appropriate flags to link the scsh library to another program.
 
+@node Running scsh
 @chapter Running scsh
 
 Scsh is currently implemented on top of Scheme 48, a freely-available Schemeimplementation written by Jonathan Rees and Richard Kelsey. Scheme 48 uses
