@@ -2,8 +2,7 @@
 @c %**start of header
 @setfilename scsh.info
 @settitle Scsh Reference Manual
-@defindex cm
-@synindex vr fn
+@synindex vr fn @c Use `@vindex' and `@findex', respectively.
 @c %**end of header
 
 
@@ -471,7 +470,7 @@ provided by sh and csh. There are two kinds of here-string,
 character-delimited and line-delimited; they are both introduced by the
 @code{#<} sequence.
 
-@unnumberedsubsec Character-delimited here-strings
+@subsubsection Character-delimited here-strings
 
 A character-delimited here-string has the form
 
@@ -491,7 +490,7 @@ Here-string syntax      Ordinary string syntax
 There is no interpretation of characters within the here-string; the
 characters are all copied verbatim.
 
-@unnumberedsubsec Line-delimited here-strings
+@subsubsection Line-delimited here-strings
 
 If the sequence begins @code{#<<} then it introduces a line-delimited
 here-string. These are similar to the ``here documents'' of sh and
