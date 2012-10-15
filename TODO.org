@@ -1,0 +1,15 @@
+
+* TODO Add `@cindex' entries to all chapters/nodes
+
+  #+BEGIN_EXAMPLE
+  @node    Ending a File, Structuring, Beginning a File, Top
+  @comment node-name,     next,        previous,         up
+  @chapter Ending a Texinfo File
+  @cindex Ending a Texinfo file
+  @cindex Texinfo file ending
+  @cindex File ending
+  #+END_EXAMPLE
+
+* TODO Add nodes for each section, subsection of chapters
+
+  These will have to have their node pointers written out by hand.
