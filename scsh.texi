@@ -205,6 +205,7 @@ September 4, 1994
 @end flushright
 
 @node Introduction
+@c    Node name, Next, Previous, Up
 @chapter Introduction
 
 This is the reference manual for scsh, a Unix shell that is embedded
@@ -647,6 +648,7 @@ links, which aren't in @acronym{POSIX} (see -- it really is a least
 common denominator).
 
 @node Process notation, System Calls, Introduction, top
+@c    Node name, Next, Previous, Up
 @chapter Process notation
 
 Scsh has a notation for controlling Unix processes that takes the form
@@ -1201,6 +1203,7 @@ The optional buflen argument controls the number of characters each in-ternal re
 to a string longer than buflen chars. The default buflen value is 1024.
 
 @node System Calls, next, Process notation, top
+@c    Node name, Next, Previous, Up
 @chapter System Calls
 
 Scsh provides (almost) complete access to the basic Unix kernel services: pro-cesses, files, signals and so forth. These procedures comprise a Scheme binding
@@ -4215,6 +4218,7 @@ Table 3.9: Local-flags. These are the named flags for the tty-info record'slocal
 user interface. Only the @acronym{POSIX} entries are guaranteed to be non-#f.
 
 @node Networking
+@c    Node name, Next, Previous, Up
 @chapter Networking
 
 The Scheme Shell provides a BSD-style sockets interface. There is not an of-ficial standard for a network interface for scsh to adopt (this is the subject of
@@ -4588,6 +4592,7 @@ network-info, service-info and protocol-info return #fif the speci-fied entity w
 102
 
 @node Strings and characters
+@c    Node name, Next, Previous, Up
 @chapter Strings and characters
 
 Strings are the basic communication medium for Unix processes, so a Unix pro-gramming environment must have reasonable facilities for manipulating them.
@@ -4980,6 +4985,7 @@ char-set:control char-set:iso-control
 Note also that the ->char-set procedure no longer handles a predicate argument.
 
 @node Pattern-matching strings with regular expressions
+@c    Node name, Next, Previous, Up
 @chapter Pattern-matching strings with regular expressions
 
 Scsh provides a rich facility for matching regular-expression patterns in strings.The system is composed of several pieces:
@@ -6116,6 +6122,7 @@ If the regexp is static, it will be simplified and pre-translated to a Posixstri
 Is the regexp a static one?
 
 @node Reading delimited strings
+@c    Node name, Next, Previous, Up
 @chapter Reading delimited strings
 
 Scsh provides a set of procedures that read delimited strings from input ports.There are procedures to read a single line of text (terminated by a newline character), a single paragraph (terminated by a blank line), and general delimitedstrings (terminated by a character belonging to an arbitrary character set).
@@ -6205,6 +6212,7 @@ Skip characters occurring in the set skip-chars; return the number of char-acter
 character; it is coerced to a charset.
 
 @node Awk, record I/O, and field parsing
+@c    Node name, Next, Previous, Up
 @chapter Awk, record I/O, and field parsing
 
 Unix programs frequently process streams of records, where each record isdelimited by a newline, and records are broken into fields with other delimiters (for example, the colon character in /etc/passwd). Scsh has proceduresthat allow the programmer to easily do this kind of processing. Scsh's field
@@ -6755,6 +6763,7 @@ SREs.
 This form is still available in a separate module for old code. It'll be docu-mented in the next release of this manual. Dig around in the sources for it.
 
 @node Concurrent system programming
+@c    Node name, Next, Previous, Up
 @chapter Concurrent system programming
 
 The Scheme Shell provides the user with support for concurrent programming.The interface consists of several parts:
@@ -6973,6 +6982,7 @@ For user and group identities arbitrary changing is not possible. There-fore the
 with-uid and friends.
 
 @node Miscellaneous routines
+@c    Node name, Next, Previous, Up
 @chapter Miscellaneous routines
 
 @section Integer bitwise ops
@@ -7286,6 +7296,7 @@ The procedure compiler-flags returns flags suitable for running the C com-piler 
 Scsh also comes as a library that can be linked into other programs. Theprocedure linker-flags returns the appropriate flags to link the scsh library to another program.
 
 @node Running scsh
+@c    Node name, Next, Previous, Up
 @chapter Running scsh
 
 Scsh is currently implemented on top of Scheme 48, a freely-available Schemeimplementation written by Jonathan Rees and Richard Kelsey. Scheme 48 uses
@@ -8105,6 +8116,7 @@ scsh.image should have a #! trigger of the following form:
 ... heap image goes here ...
 
 @node Index
+@c    Node name, Next, Previous, Up
 @unnumbered Index
 
 @printindex cp
