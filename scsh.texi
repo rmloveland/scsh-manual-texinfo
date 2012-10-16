@@ -171,13 +171,14 @@ Running scsh
 @node Acknowledgements
 @chapter Acknowledgements
 
-Who should I thank? My so-called ``colleagues'', who laugh at me behind
-my back, all the while becoming famous on my work? My worthless graduate
-students, whose computer skills appear to be limited to downloading
-bitmaps off of netnews? My parents, who are still waiting for me to quit
-``fooling around with computers'', go to med school, and become a
-radiologist? My department chairman, a manager who gives one new insight
-into and sympathy for disgruntled postal workers?
+Who should I thank? My so-called ``colleagues'', who laugh at me
+behind my back, all the while becoming famous on @emph{my} work? My
+worthless graduate students, whose computer skills appear to be
+limited to downloading bitmaps off of netnews? My parents, who are
+still waiting for me to quit ``fooling around with computers'', go to
+med school, and become a radiologist? My department chairman, a
+manager who gives one new insight into and sympathy for disgruntled
+postal workers?
 
 My God, no one could blame me--no one!--if I went off the edge and
 just lost it completely one day. I couldn't get through the day as it is
@@ -281,7 +282,7 @@ make install
 @end code
 
 will install these programs in your installation directory (by default,
-/usr/local), along with a small stub startup binary, scsh.
+@code{/usr/local}), along with a small stub startup binary, @code{scsh}.
 
 If you don't have the patience to do this, you can start up a Scheme
 shell immediately after the initial make by simply saying
@@ -300,7 +301,7 @@ details on how to do this.
 @section Caveats
 It is important to note what scsh is not, as well as what it is. Scsh,
 in the current release, is primarily designed for the writing of shell
-scripts -- programming.  It is not a very comfortable system for
+scripts---programming.  It is not a very comfortable system for
 interactive command use: the current release lacks job control,
 command-line editing, a terse, convenient command syntax, and it does
 not read in an initialisation file analogous to @code{.login} or
@@ -313,13 +314,12 @@ Scsh follows a general naming scheme that consistently employs a set of
 abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
 
-@code{fdes}
-
+@defvr {Scsh Abbreviation} fdes
 Means ``file descriptor'', a small integer used in Unix to represent I/O
 channels.
+@end defvr
 
-@code{...*}
-
+@defvr {Scsh Abbreviation} @dots{}*
 A given bit of functionality sometimes comes in two related forms,
 the first being a special form that contains a body of Scheme code to be
 executed in some context, and the other being a procedure that takes a
@@ -339,59 +339,64 @@ appending an asterisk. For example:
     (for-each print-file (directory-files))
     (display "All done")))
 @end example
+@end defvr
 
-@code{action/modifier}
+@defvr {Scsh Abbreviation} action/modifier
+The infix ``/'' is pronounced ``with'', as in @code{exec/env}---
+``exec with environment''.
+@end defvr
 
-The infix ``/'' is pronounced ``with'', as in exec/env -- ``execwith environment''.
-
-@code{call/...}
-
-Procedures that call their argument on some computed value areusually
-named @codecall/...}, e.g., @code{(call/fdes port proc)}, which calls
-@code{proc} on @code{port}'s file descriptor, returning whatever
+@defvr {Scsh Abbreviation} call/@dots{}
+Procedures that call their argument on some computed value are usually
+named @code{call/@dots{}}, e.g., @code{(call/fdes port proc)}, which
+calls @code{proc} on @code{port}'s file descriptor, returning whatever
 @code{proc} returns. The abbreviated name means ``call with file
 descriptor''.
+@defvr
 
-@code{with-...}
+@defvr {Scsh Abbreviation} with-@dots{}
+Procedures that call their argument, and special forms that execute
+their bodies in some special dynamic context frequently have names of
+the form @code{with-@dots{}}. For example, @code{(with-env env
+@math{body_1} @dots{})} and @code{(with-env* env thunk)}. These forms
+set the process environment body, execute their body or thunk, and
+then return after resetting the environment to its original state.
+@end defvr
 
-Procedures that call their argument, and special forms that execute their
-bodies in some special dynamic context frequently have names of the form
-@code{with-...}. For example, @code{(with-env env @math{body_1} ...)} and
-@code{(with-env* env thunk)}. These forms set the process environment
-body, execute their body or thunk, and then return after resetting the
-environment to its original state.
-
-@code{create-}
-
+@defvr {Scsh Abbreviation} create-
 Procedures that create objects in the file system (files,
-directories,temp files, fifos, etc.), begin with @code{create-...}.
+directories,temp files, fifos, etc.), begin with
+@code{create-@dots{}}.
+@end defvr
 
-@code{delete-}
-
+@defvr {Scsh Abbreviation} delete-
 Procedures that delete objects from the file system (files,
-directories,temp files, fifos, etc.), begin with @code{delete-...}.
+directories,temp files, fifos, etc.), begin with
+@code{delete-@dots{}}.
+@end defvr
 
-@code{record:field}
-
-Procedures that access fields of a record are usually written witha
+@defvr {Scsh Abbreviation} record:field
+Procedures that access fields of a record are usually written with a
 colon between the name of the record and the name of the field, as in
 @code{user-info:home-dir}.
+@end defvr
 
-@code{%...}
-
+@defvr {Scsh Abbreviation} %@dots{}
 A percent sign is used to prefix lower-level scsh primitives that are
 not commonly used.
+@end defvr
 
-@code{-info}
-
+@defvr {Scsh Abbreviation} -info
 Data structures packaging up information about various OS entities
-fre-quently end in ...@code{-info}. Examples: @code{user-info},
+frequently end in @dots{}@code{-info}. Examples: @code{user-info},
 @code{file-info}, @code{group-info}, and @code{host-info}.
+@end defvr
 
 Enumerated constants from some set @code{s} are usually named
-@code{s/@math{const_1}}, @code{s/@math{const_2}}, .... For example, the various Unix
-signal integers have the names @code{signal/cont}, @code{signal/kill},
-@code{signal/int}, @code{signal/hup}, and so forth.
+@code{s/@math{const_1}}, @code{s/@math{const_2}}, @dots{}. For
+example, the various Unix signal integers have the names
+@code{signal/cont}, @code{signal/kill}, @code{signal/int},
+@code{signal/hup}, and so forth.
 
 @section Lexical issues
 Scsh's lexical syntax is just R5RS Scheme, with the following exceptions.
@@ -401,22 +406,20 @@ Scsh's symbol syntax differs from R5RS Scheme in the following ways:
 
 @itemize @bullet
 @item
-In scsh, symbol case is preserved by read and is significant on
+In scsh, symbol case is preserved by @code{read} and is significant on
 symbol comparison. This means
-
-@example
+@code
 (run (less Readme))
-@end example
+@end code
 
 displays the right file.
 
 @item
 ``-'' and ``+'' are allowed to begin symbols. So the following are
 legitimate symbols:
-
-@example
+@code
 -O2 -geometry +Wn
-@end example
+@end code
 
 @item
 ``|'' and ``.'' are symbol constituents. This allows @code{|} for the
@@ -425,33 +428,31 @@ pipe symbol, and @code{..} for the parent-directory symbol. (Of course,
 
 @item
 A symbol may begin with a digit. So the following are legitimate symbols:
-
-@example
+@code
 9x15 80x36-3+440
-@end example
-
+@end code
 @end itemize
 
 @subsection Extended string syntax
-Scsh strings are allowed to contain the ANSI C escape sequences such as
+Scsh strings are allowed to contain the @acronym{ANSI} C escape sequences such as
 @code{\n} and @code{\161}.
 
 @subsection Block comments and executable interpreter-triggers
 Scsh allows source files to begin with a header of the form
 
-@example
+@code
 #!/usr/local/bin/scsh -s
-@end example
+@end code
 
 The Unix operating system treats source files beginning with the headers
 of this form specially; they can be directly executed by the operating
 system (see @ref{Running scsh} for information on how to use this
 feature). The scsh interpreter ignores this special header by treating
-@code{#!} as a comment marker similar to @code{;} . When the scsh reader
+@code{#!} as a comment marker similar to @code{;}. When the scsh reader
 encounters @code{#!}, it skips characters until it finds the closing
 sequence newline/exclamation-point/sharp-sign/newline.
 
-Although the form of the @code{#!}  read-macro was chosen to support
+Although the form of the @code{#!} read-macro was chosen to support
 interpreter-triggers for executable Unix scripts, it is a general
 block-comment sequence and can be used as such anywhere in a scsh
 program.
@@ -466,12 +467,12 @@ character-delimited and line-delimited; they are both introduced by the
 @subsubsection Character-delimited here-strings
 A character-delimited here-string has the form
 
-@example
-#<x...stuff...x
-@end example
+@code
+#<x @dots{} stuff @dots{} x
+@end code
 
-where x is any single character (except @code{<}, see below), which is
-used to delimit the string bounds. Some examples:
+where @emph{x} is any single character (except @code{<}, see below),
+which is used to delimit the string bounds. Some examples:
 
 @float 
 Here-string syntax      Ordinary string syntax
@@ -3324,7 +3325,7 @@ If the tz-secs field is given, it specifies the time-zone's offset from UTC inse
 tz-name and summer? fields are ignored whenusing the date structure to determine a specific instant in time.
 
 4Physics pedants please note: The scsh authors live in a Newtonian universe. We disclaim
-responsibility for calculations performed in non-ANSI standard light-cones.
+responsibility for calculations performed in non-@acronym{ANSI} standard light-cones.
 
 72
 
@@ -7763,7 +7764,7 @@ you believe you have six space characters, but you really have a tab char-acter,
 line parses to the singleton list whose one element is the empty string:
 (""). The grammar doesn't admit the empty list.
 
-* The backslash character is the escape character. It escapes backslash,space, tab, and newline, turning off their special functions, and allowing them to be included in arguments. The ANSI C escape sequences(
+* The backslash character is the escape character. It escapes backslash,space, tab, and newline, turning off their special functions, and allowing them to be included in arguments. The @acronym{ANSI} C escape sequences(
 
 \b, \n, \r and \t) are also supported; these also produce argument-constituents--
 
