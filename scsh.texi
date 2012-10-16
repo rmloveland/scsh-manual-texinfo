@@ -195,8 +195,8 @@ this, I'd probably make an effort to keep up appearances until the last
 possible moment. But no one does, and no one will. So I can pretty much
 say exactly what I think.
 
-Oh, yes, the @emph{acknowledgements}. I think not. I did it. I did it all, by
-myself.
+Oh, yes, the @emph{acknowledgements}. I think not. I did it. I did it
+all, by myself.
 
 @flushright
 Olin Shivers
@@ -210,7 +210,7 @@ September 4, 1994
 
 This is the reference manual for scsh, a Unix shell that is embedded
 within Scheme. Scsh is a Scheme system designed for writing useful
-standalone Unix programs and shell scripts--it spans a wide range of
+standalone Unix programs and shell scripts---it spans a wide range of
 application, from ``script'' applications usually handled with perl or
 sh, to more standard systems applications usually written in C.
 
@@ -257,7 +257,6 @@ sites storing the most recent release of scsh, choose one close to your
 site, and download the tar file.
 
 @section Building scsh
-
 Scsh currently runs on a fairly large set of Unix systems, including
 Linux, FreeBSD, OpenBSD, NetBSD, MacOS X, SunOS, Solaris, AIX, NeXTSTEP,
 Irix, and HP-UX. We use the Gnu project's autoconfig tool to generate
@@ -275,7 +274,7 @@ make                    # Build system.
 @end example
 
 When you are done, you should have a virtual machine compiled in file
-scshvm, and a heap image in file scsh/scsh.image. Typing
+`scshvm', and a heap image in file `scsh/scsh.image'. Typing
 
 @code
 make install
@@ -291,7 +290,7 @@ shell immediately after the initial make by simply saying
 ./scshvm -o ./scshvm -i scsh/scsh.image
 @end code
 
-See @xref{Running scsh} for full details on installation locations and
+See @ref{Running scsh} for full details on installation locations and
 startup options.
 
 It is not too difficult to port scsh to another Unix platform if your OS
@@ -299,7 +298,6 @@ is not supported by the current release. See the release notes for more
 details on how to do this.
 
 @section Caveats
-
 It is important to note what scsh is not, as well as what it is. Scsh,
 in the current release, is primarily designed for the writing of shell
 scripts -- programming.  It is not a very comfortable system for
@@ -311,7 +309,6 @@ releases; we even have designs for several of these features; but the
 system as-released does not currently provide these features.
 
 @section Naming conventions
-
 Scsh follows a general naming scheme that consistently employs a set of
 abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
@@ -397,11 +394,9 @@ signal integers have the names @code{signal/cont}, @code{signal/kill},
 @code{signal/int}, @code{signal/hup}, and so forth.
 
 @section Lexical issues
-
 Scsh's lexical syntax is just R5RS Scheme, with the following exceptions.
 
 @subsection Extended symbol syntax
-
 Scsh's symbol syntax differs from R5RS Scheme in the following ways:
 
 @itemize @bullet
@@ -438,12 +433,10 @@ A symbol may begin with a digit. So the following are legitimate symbols:
 @end itemize
 
 @subsection Extended string syntax
-
 Scsh strings are allowed to contain the ANSI C escape sequences such as
 @code{\n} and @code{\161}.
 
 @subsection Block comments and executable interpreter-triggers
-
 Scsh allows source files to begin with a header of the form
 
 @example
@@ -464,7 +457,6 @@ block-comment sequence and can be used as such anywhere in a scsh
 program.
 
 @subsection Here-strings
-
 The read macro @code{#<} is used to introduce ``here-strings'' in
 programs, similar to the @code{<<} ``here document'' redirections
 provided by sh and csh. There are two kinds of here-string,
@@ -472,7 +464,6 @@ character-delimited and line-delimited; they are both introduced by the
 @code{#<} sequence.
 
 @subsubsection Character-delimited here-strings
-
 A character-delimited here-string has the form
 
 @example
@@ -492,7 +483,6 @@ There is no interpretation of characters within the here-string; the
 characters are all copied verbatim.
 
 @subsubsection Line-delimited here-strings
-
 If the sequence begins @code{#<<} then it introduces a line-delimited
 here-string. These are similar to the ``here documents'' of sh and
 csh. Line-delimited here-strings are delimited by the rest of the text
@@ -557,7 +547,6 @@ here-string -- see the example above). If EOF is encountered before
 reading the end of the here-string, an error is signalled.
 
 @subsection Dot
-
 It is unfortunate that the single-dot token, ``.'', is both a
 fundamental Unix filename and a deep, primitive syntactic token in
 Scheme -- it means the following will not parse correctly in scsh:
@@ -631,7 +620,6 @@ prefers@footnote{He wrote it.}. It can be found in the
 Alternatively, you may define your own, of course.
 
 @section A word about Unix standards
-
 ``The wonderful thing about Unix standards is that there are so many to
 choose from''. You may be totally bewildered about the multitude of
 various standards that exist. Rest assured that nowhere in this manual
@@ -657,7 +645,6 @@ Scheme code. The basic elements of this notation are process forms,
 extended process forms, and redirections.
 
 @section Extended process forms and I/O redirections
-
 An extended process form is a specification of a Unix process to run, in
 a particular I/O environment:
 
@@ -741,7 +728,6 @@ form, discussed below, which gives the programmer full control of I/O
 redirection from Scheme.
 
 @subsection Port and file descriptor sync
-
 It's important to remember that rebinding Scheme's current I/O ports
 (e.g.,using @code{call-with-input-file} to rebind the value of
 @code{(current-input-port)} )does not automatically ``rebind'' the file
@@ -775,7 +761,6 @@ Scheme code (as opposed to a redirection spec) with the
 @code{(stdports->stdio)} procedure.
 
 @section Process forms
-
 A process form specifies a computation to perform as an independent Unix
 process. It can be one of the following:
 
@@ -830,7 +815,6 @@ Note that R5RS does not specify whether or not @code{|} and @code{|+}
 are readable symbols. Scsh does.
 
 @section Using extended process forms in Scheme
-
 Process forms and extended process forms are not Scheme. They are a
 different notation for expressing computation that, like Scheme, is
 based upon s-expressions. Extended process forms are used in Scheme
@@ -867,7 +851,6 @@ macros are very simple:
 @end example
 
 @subsection Procedures and special forms
-
 It is a general design principle in scsh that all functionality made
 available through special syntax is also available in a straightforward
 procedural form.  So there are procedural equivalents for all of the
@@ -892,7 +875,6 @@ build his own pipeline notation on top of the @code{fork} and
 all the procedures in the syscall library.
 
 @subsection Interfacing process output to Scheme
-
 There is a family of procedures and special forms that can be used to capture the output of processes as Scheme data.
 
 @float 
@@ -1002,14 +984,12 @@ old binding is still provided, but is deprecated and will probably
 vanish in a future release.
 
 @section More complex process operations
-
 The procedures and special forms in the previous section provide for the
 common case, where the programmer is only interested in the output of
 the process. These special forms and procedures provide more complicated
 facilities for manipulating processes.
 
 @subsection Pids and ports together
-
 @float 
 (run/port+proc . epf)   -> [port proc]          (syntax)
 (run/port+proc* thunk)  -> [port proc]          (procedure)
@@ -1039,7 +1019,6 @@ Note that you must @emph{first} do the @code{port->string} and
 the @code{zcat} fills up its output pipe buffer.
 
 @subsection Multiple stream capture
-
 Occasionally, the programmer may want to capture multiple distinct
 output streams from a process. For instance, he may wish to read the
 stdout and stderr streams into two distinct strings. This is
@@ -1154,7 +1133,6 @@ See @code{temp-file-channel} for more information on creating temp files
 as communication channels.
 
 @section Conditional process sequencing forms
-
 These forms allow conditional execution of a sequence of processes.
 
 (|| pf1 . . . pfn) -! boolean syntax
@@ -1172,7 +1150,6 @@ Run each proc until one fails (i.e., exit status non-zero). Return true if allpr
 #f.
 
 @section Process filters
-
 These procedures are useful for forking off processes to filter text streams.
 (make-char-port-filter filter) -! procedure procedure
 
@@ -1212,7 +1189,6 @@ for @acronym{POSIX}, with a few of the more standard extensions thrown in (e.g.,
 fchown, fstat, sockets).
 
 @section Errors
-
 Scsh syscalls never return error codes, and do not use a global errno variableto report errors. Errors are consistently reported by raising exceptions. This
 frees up the procedures to return useful values, and allows the programmer toassume that if a syscall returns, it succeeded. This greatly simplifies the flow of
 the code from the programmer's point of view.
@@ -1296,7 +1272,6 @@ Note that Scsh system calls always retry when interrupted, so that the
 errno/intr exception is never raised. If the programmer wishes to aborta system call on an interrupt, he should have the interrupt handler explicitly raise an exception or invoke a stored continuation to throw out ofthe system call.
 
 @subsection Interactive mode and error handling
-
 Scsh runs in two modes: interactive and script mode. It starts up in interac-tive mode if the scsh interpreter is started up with no script argument. Otherwise, scsh starts up in script mode. The mode determines whether scsh printsprompts in between reading and evaluating forms, and it affects the default error handler. In interactive mode, the default error handler will report the error,and generate an interactive breakpoint so that the user can interact with the
 system to examine, fix, or dismiss from the error. In script mode, the defaulterror handler causes the scsh process to exit.
 
@@ -1304,9 +1279,7 @@ When scsh forks a child with (fork), the child resets to script mode. Thiscan be
 
 
 @section I/O
-
 @subsection Standard R5RS I/O procedures
-
 In scsh, most standard R5RS I/O operations (such as display or read-char)work on both integer file descriptors and Scheme ports. When doing I/O with
 a file descriptor, the I/O operation is done directly on the file, bypassing anybuffered data that may have accumulated in an associated port. Note that
 character-at-a-time operations such as read-char are likely to be quite slowwhen performed directly upon file descriptors.
@@ -1322,7 +1295,6 @@ The procedures peek-char and read do not accept file descriptor argu-ments, sinc
 stream, a feature not supported by Unix I/O.
 
 @subsection Port manipulation and standard ports
-
 (close-after port consumer) -! value(s) of consumer procedure
 
 Returns (consumer port), but closes the port on return. No dynamic-wind magic.
@@ -1408,7 +1380,6 @@ with-stdio-ports* binds the standard ports (current-input-port),
 The with-stdio-ports special form is merely syntactic sugar.
 
 @subsection String ports
-
 Scheme 48 has string ports, which you can use. Scsh has not committed tothe particular interface or names that Scheme 48 uses, so be warned that the
 interface described herein may be liable to change.
 (make-string-input-port string) -! port procedure
@@ -1427,7 +1398,6 @@ The procedure value is called on a port. When it returns,
 call-with-string-output-port returns a string containing the charac-ters that were written to that port during the execution of procedure.
 
 @subsection Revealed ports and file descriptors
-
 The material in this section and the following one is not critical for most appli-cations. You may safely skim or completely skip this section on a first reading.
 
 Dealing with Unix file descriptors in a Scheme environment is difficult. InUnix, open files are part of the process environment, and are referenced by small integers called file descriptors. Open file descriptors are the fundamen-tal way I/O redirections are passed to subprocesses, since file descriptors are
@@ -1543,7 +1513,6 @@ about it is when he starts accessing file descriptors from ports, which he shoul
 allocated to what ports, he has to take responsibility for managing this infor-mation.
 
 @subsection Port-mapping machinery
-
 The procedures provided in this section are almost never needed. You maysafely skim or completely skip this section on a first reading.
 
 Here are the routines for manipulating ports in scsh. The important pointsto remember are:
@@ -1890,7 +1859,6 @@ and is an error (the problem is the subsequent flush operation).
 Oops: write-string/partial is currently not implemented. Con-sider using threads to achive the same functionality.
 
 @subsection Buffered I/O
-
 Scheme 48 ports use buffered I/O--data is transferred to or from the OS inblocks. Scsh provides control of this mechanism: the programmer may force
 saved-up output data to be transferred to the OS when he chooses, and mayalso choose which I/O buffering policy to employ for a given port (or turn
 buffering off completely).
@@ -1933,7 +1901,6 @@ port, and raises a write-error exception on error. Returns no value.
 This procedure flushes all open output ports with buffered data.
 
 @subsection File locking
-
 Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
 a process has an exclusive lock on a region of a file, other processes will not beable to obtain locks on that region of the file, but they will still be able to read
 and write the file with no hindrance. Using advisory locks requires cooperationamongst the agents accessing the shared resource.
@@ -2020,7 +1987,6 @@ After a normal return from thunk, its return values are returned by
 with-region-lock*. The with-region-lock special form is equivalentsyntactic sugar.
 
 @section File system
-
 Besides the following procedures, which allow access to the computer's filesystem, scsh also provides a set of procedures which manipulate file names.
 These string-processing procedures are documented in section @ref{5.1}.
 (create-directory fname [perms override?]) -! undefined procedure
@@ -2595,7 +2561,6 @@ In order to ensure that an end-of-file returned to the reader is legit-imate, th
 way to do this is for the reader to delay doing input until the writerhas completely finished doing output, or exited.
 
 @section Processes
-
 (exec prog arg1 . . . argn) -! no return value procedure
 (exec-path prog arg1 . . . argn) -! no return value procedure
 (exec/env prog env arg1 . . . argn) -! no return value procedure
@@ -2745,7 +2710,6 @@ Like fork/pipe, but the pipe connections between the child and parentare specifi
 process form for a description of connection lists.
 
 @subsection Process objects and process reaping
-
 Scsh uses process objects to represent Unix processes. They are created by the
 fork procedure, and have the following exposed structure:
 
@@ -2842,7 +2806,6 @@ procedures out of the kernel's process table. If a program doesn't use processre
 wait-any to wait for thechildren to exit.
 
 @subsection Process waiting
-
 (wait proc/pid [flags]) -! status procedure
 
 This procedure waits until a child process exits, and returns its exit code.The proc/pid argument is either a process object (section @ref{3.4.1}) or an integer process id. Wait returns the child's exit status code (or suspensioncode, if the
@@ -2888,7 +2851,6 @@ Note that if the programmer wishes to wait for exited processes by pro-cess grou
 (section @ref{3.4.1}), as this loses process group information. However, mostprocess-group waiting is for stopped processes (to implement job control), so this is rarely an issue, as stopped processes are not subject toreaping.
 
 @subsection Analysing process status codes
-
 When a child process dies (or is suspended), its parent can call the wait pro-cedure to recover the exit (or suspension) status of the child. The exit status is
 a small integer that encodes information describing how the child terminated.The bit-level format of the exit status is not defined by P
 
@@ -2920,7 +2882,6 @@ false.
 If the child process terminated abnormally, status:term-sig returns thesignal that terminated the child. Otherwise, this function returns false.
 
 @section Process state
-
 (umask) -! fixnum procedure
 (set-umask perms) -! undefined procedure
 (with-umask* perms thunk) -! value(s) of thunk procedure
@@ -3014,7 +2975,6 @@ Returns the resolution of the CPU timer in clock ticks per second. Thiscan be us
 process-times to seconds.
 
 @section User and group database access
-
 These procedures are used to access the user and group databases (e.g., theones traditionally stored in
 
 /etc/passwd and /etc/group.)
@@ -3045,7 +3005,6 @@ name gid members)
 The gid/name argument is either an integer gid or a string group-name.
 
 @section Accessing command-line arguments
-
 command-line-arguments string list
 (command-line) -! string list procedure
 
@@ -3130,7 +3089,6 @@ heap-image executable by the Scheme 48 virtual machine, its semanticswill be unc
 is not part of the program; it's a specification for the machine to executethe program on, so it is not properly part of the program's argument list.
 
 @section System parameters
-
 (system-name) -! string procedure
 
 Returns the name of the host on which we are executing. This may be alocal name, such as "solar," as opposed to a fully-qualified domain name
@@ -3156,7 +3114,6 @@ domain name.
 66
 
 @section Signal system
-
 Signal numbers are bound to the variables signal/hup, signal/int, . . . . Seetables 3.9 and 3.3 for the full list.
 
 (signal-process proc sig) -! undefined procedure
