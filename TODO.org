@@ -10,6 +10,10 @@
   @cindex File ending
   #+END_EXAMPLE
 
+* TODO replace all ellipses with `@dots{}'
+
+* TODO double-check all `@math{}' expressions
+
 * TODO Add nodes for each section, subsection of chapters
 
   These will have to have their node pointers written out by hand.

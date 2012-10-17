@@ -474,49 +474,53 @@ A character-delimited here-string has the form
 where @emph{x} is any single character (except @code{<}, see below),
 which is used to delimit the string bounds. Some examples:
 
-@float 
+@c You may need to remove the table's ``header'' descriptions into the
+@c text above.
+@table @code
 Here-string syntax      Ordinary string syntax
-#<|Hello, world.|       "Hello, world."
-#<!"Ouch," he said.!    "\"Ouch,\" he said."
-@end float
+@item #<|Hello, world.|
+@code{"Hello, world."}
+@item #<!"Ouch," he said.!
+@code{"\"Ouch,\" he said."}
+@end table
 
 There is no interpretation of characters within the here-string; the
 characters are all copied verbatim.
 
 @subsubsection Line-delimited here-strings
-If the sequence begins @code{#<<} then it introduces a line-delimited
-here-string. These are similar to the ``here documents'' of sh and
-csh. Line-delimited here-strings are delimited by the rest of the text
-line that follows the @code{#<<} sequence.For example:
+If the sequence begins ``@code{#<<}'' then it introduces a line-delimited
+here-string. These are similar to the ``here documents'' of @code{sh} and
+@code{csh}. Line-delimited here-strings are delimited by the rest of the text
+line that follows the @code{#<<} sequence. For example:
 
-@example
+@code
 #<<FOO
 Hello, there.
 This is read by Scheme as a string,
 terminated by the first occurrence
 of newline-F-O-O-newline or newline-F-O-O-eof.
 FOO
-@end example
+@end code
 
 Thus,
 
-@example
+@code
 #<<foo
 Hello, world.
 foo
-@end example
+@end code
 
 is the same thing as
 
-@example
+@code
 "Hello, world."
-@end example
+@end code
 
 Line-delimited here-strings are useful for writing down long, constant
-strings--such as long, multi-line format strings, or arguments to Unix
-programs, e.g.,
+strings---such as long, multi-line @code{format} strings, or arguments
+to Unix programs, e.g.,
 
-@example
+@code
 ;; Free up some disk space for my netnews files.
 (run (csh -c #<<EOF
 cd /urops
@@ -525,42 +529,43 @@ echo All done.
 
 EOF
 ))
-@end example
+@end code
 
-The advantage they have over the double-quote syntax (e.g., "Hello,
-world.") is that there is no need to backslash-quote special characters
+The advantage they have over the double-quote syntax (e.g., "@code{Hello,
+world.}") is that there is no need to backslash-quote special characters
 internal to the string, such as the double-quote or backslash
 characters.
 
 The detailed syntax of line-delimited here-strings is as follows. The
-characters ``@code{#<<}'' begin the here-string. The characters between
-the ``@code{#<<} '' and the next newline are the delimiter line. All
-characters between the ``@code{#<<}'' and the next newline comprise the
-delimiter line -- including any white space. The body of the string
-begins on the following line, and is terminated by a line of text which
-exactly matches the delimiter line. This terminating line can be ended
-by either a newline or end-of-file. Absolutely no interpretation is done
-on the input string. Control characters, white space, quotes, backslash
--- everything is copied as-is. The newline immediately preceding the
-terminating delimiter line is not included in the result string (leave
-an extra blank line if you need to put a final newline in the
-here-string -- see the example above). If EOF is encountered before
-reading the end of the here-string, an error is signalled.
+characters ``@code{#<<}'' begin the here-string. The characters
+between the ``@code{#<<} '' and the next newline are the delimiter
+line. All characters between the ``@code{#<<}'' and the next newline
+comprise the delimiter line---including any white space. The body of
+the string begins on the following line, and is terminated by a line
+of text which exactly matches the delimiter line. This terminating
+line can be ended by either a newline or end-of-file. Absolutely no
+interpretation is done on the input string. Control characters, white
+space, quotes, backslash---everything is copied as-is. The newline
+immediately preceding the terminating delimiter line is not included
+in the result string (leave an extra blank line if you need to put a
+final newline in the here-string---see the example above). If EOF is
+encountered before reading the end of the here-string, an error is
+signalled.
 
 @subsection Dot
 It is unfortunate that the single-dot token, ``.'', is both a
 fundamental Unix filename and a deep, primitive syntactic token in
 Scheme -- it means the following will not parse correctly in scsh:
 
-@example
+@code
 (run/strings (find . -name *.c -print))
-@end example
+@end code
 
 You must instead quote the dot:
 
-@example
+@code
 (run/strings (find "." -name *.c -print))
-@end example
+@end code
 
 When you write shell scripts that manipulate the file system, keep in
 mind the special status of the dot token.
@@ -583,26 +588,38 @@ following:
 @end code
 
 This form defines a @emph{ship} record, with three fields: its x and y
-coordinates, andits size. The values of the @code{x} and @code{y} fields
-are specified as parameters to the ship building procedure,
+coordinates, and its size. The values of the @code{x} and @code{y} fields
+are specified as parameters to the ship-building procedure,
 @code{(make-ship x y)}, and the @emph{size} field is initialised to
 100. All told, the @code{define-record} form above defines the following
 procedures:
 
-@float 
-Procedure                       Definition
-(make-ship x y)                 Create a new ship record.
-(ship:x ship)                   Retrieve the x field.(ship:y ship) Retrieve the y field.
-(ship:size ship)                Retrieve the size field.
-(set-ship:x ship new-x)         Assign the x field.
-(set-ship:y ship new-y)         Assign the y field.
-(set-ship:size ship new-size)   Assign the size field.
-(modify-ship:x ship xfun)       Modify x field with xfun.
-(modify-ship:y ship yfun)       Modify y field with yfun.
-(modify-ship:size ship sizefun) Modify size field with sizefun.
-(ship? object)                  Type predicate.
-(copy-ship ship)                Shallow-copy of the record.
-@end float
+@table @code
+@item (make-ship x y)
+Create a new @emph{ship} record.
+@item (ship:x ship)
+Retrieve the @emph{x} field.
+@item (ship:y ship)
+Retrieve the @emph{y} field.
+@item (ship:size ship)
+Retrieve the @emph{size} field.
+@item (set-ship:x ship new-x)
+Assign the @emph{x} field.
+@item (set-ship:y ship new-y)
+Assign the @emph{y} field.
+@item (set-ship:size ship new-size)
+Assign the @emph{size} field.
+@item (modify-ship:x ship xfun)
+Modify @emph{x} field with @emph{xfun}.
+@item (modify-ship:y ship yfun)
+Modify @emph{y} field with @emph{yfun}.
+@item (modify-ship:size ship sizefun)
+Modify @emph{size} field with @emph{sizefun}.
+@item (ship? object)
+Type predicate.
+@item (copy-ship ship)
+Shallow-copy of the record.
+@end table
 
 An implementation of @code{define-record} is available as a macro for
 Scheme programmers to define their own record types; the syntax is
@@ -629,98 +646,112 @@ read and internalise such a twisted account without bleeding from the
 nose and ears.
 
 However, you might keep in mind the following simple fact: of all the
-standards, @acronym{POSIX} is the least common denominator. So when this
-manual repeatedly refers to @acronym{POSIX}, the point is ``the thing we
-are describing should be portable just about anywhere''. Scsh sticks to
-@acronym{POSIX} when at all possible; its major departure is symbolic
-links, which aren't in @acronym{POSIX} (see -- it really is a least
-common denominator).
+standards, @acronym{POSIX} is the least common denominator. So when
+this manual repeatedly refers to @acronym{POSIX}, the point is ``the
+thing we are describing should be portable just about anywhere''. Scsh
+sticks to @acronym{POSIX} when at all possible; its major departure is
+symbolic links, which aren't in @acronym{POSIX} (see---it really is a
+least common denominator).
 
-@node Process notation, System Calls, Introduction, top
-@c    Node name, Next, Previous, Up
+@node Process notation, System Calls, Introduction, Top
+@c    Current,          Next,         Previous,     Up
 @chapter Process notation
 
 Scsh has a notation for controlling Unix processes that takes the form
-of s-expressions; this notation can then be embedded inside of standard
-Scheme code. The basic elements of this notation are process forms,
-extended process forms, and redirections.
+of s-expressions; this notation can then be embedded inside of
+standard Scheme code. The basic elements of this notation are process
+forms, extended process forms, and redirections.
 
 @section Extended process forms and I/O redirections
-An extended process form is a specification of a Unix process to run, in
-a particular I/O environment:
+An extended process form is a specification of a Unix process to run,
+in a particular I/O environment:
 
 @example
-epf ::= (pf @math{redir_1 ... redir_n})
+@emph{epf} ::= (@emph{pf} @math{redir_1 ... redir_n})
 @end example
 
-where @emph{pf} is a process form and the @math{redir_i} are redirection
-specs. A redirection spec is one of:
+where @emph{pf} is a process form and the @math{redir_i} are
+redirection specs. A @emph{redirection spec} is one of:
 
-@float 
-(< [fdes] file-name)    ; Open file for read.
-(> [fdes] file-name)    ; Open file create/truncate.
-(<< [fdes] object)      ; Use object's printed rep.
-(>> [fdes] file-name)   ; Open file for append.
-(= fdes fdes/port)      ; Dup2
-(- fdes/port)           ; Close fdes/port.
-stdports                ; 0,1,2 dup'd from standard ports.
-@end float
+@table @code
+@item (< @emph{[fdes]} @emph{file-name})
+Open file for read.
+@item (> @emph{[fdes]} @emph{file-name})
+Open file create/truncate.
+@item (<< @emph{[fdes]} @emph{object})
+Use @emph{object}'s printed representation.
+@item (>> @emph{[fdes]} @emph{file-name})
+Open file for append.
+@item (= @emph{fdes} @emph{fdes/port})
+Dup2
+@item (- fdes/port)
+Close @emph{fdes/port}.
+@item stdports
+0,1,2 dup'd from standard ports.
+@end table
 
 The input redirections default to file descriptor 0; the output
 redirections default to file descriptor 1.
 
-The subforms of a redirection are implicitly backquoted, and
-symbolsstand for their print-names. So @code{(> ,x)} means ``output to
-the file named by Scheme variable @emph{x}'', and @code{(<
+The subforms of a redirection are implicitly backquoted, and symbols
+stand for their print-names. So @code{(> ,x)} means ``output to the
+file named by Scheme variable @emph{x}'', and @code{(<
 /usr/shivers/.login)} means ``read from @code{/usr/shivers/.login}''.
 
 Here are two more examples of I/O redirection:
 
-@example
+@code
 (< ,(vector-ref fv i))
 (>> 2 /tmp/buf)
-@end example
+@end code
 
 These two redirections cause the file @code{fv[i]} to be opened on
 stdin, and @code{/tmp/buf} to be opened for append writes on stderr.
 
-The redirection @code{(<< object)} causes input to come from the printed representation of @emph{object}. For example,
+The redirection @code{(<< @emph{object})} causes input to come from
+the printed representation of @emph{object}. For example,
 
-@example
+@code
 (<< "The quick brown fox jumped over the lazy dog.")
-@end example
+@end code
 
-causes reads from stdin to produce the characters of the above string. The object is converted to its printed representation using the @code{display} procedure, so
+causes reads from stdin to produce the characters of the above
+string. The object is converted to its printed representation using
+the @code{display} procedure, so
 
-@example
+@code
 (<< (A five element list))
-@end example
+@end code
 
 is the same as
 
-@example
+@code
 (<< "(A five element list)")
-@end example
+@end code
 
 is the same as
 
-@example
+@code
 (<< ,(reverse '(list element five A))).
-@end example
+@end code
 
-(Here we use the implicit backquoting feature to compute the list to be printed.)
+(Here we use the implicit backquoting feature to compute the list to
+be printed.)
 
-The redirection @code{(= fdes fdes/port)} causes @emph{fdes/port} to be dup'd into file descriptor @emph{fdes}. For example, the redirection
+The redirection @code{(= @emph{fdes} @emph{fdes/port})} causes
+@emph{fdes/port} to be dup'd into file descriptor @emph{fdes}. For
+example, the redirection
 
-@example
+@code
 (= 2 1)
-@end example
+@end code
 
-causes stderr to be the same as stdout. @emph{fdes/port} can also be a port, for example:
+causes stderr to be the same as stdout. @emph{Fdes/port} can also be a
+port, for code:
 
-@example
+@code
 (= 2 ,(current-output-port))
-@end example
+@end code
 
 causes stderr to be dup'd from the current output port. In this case, it
 is an error if the port is not a file port (e.g., a string port). More
@@ -731,29 +762,29 @@ redirection from Scheme.
 @subsection Port and file descriptor sync
 It's important to remember that rebinding Scheme's current I/O ports
 (e.g.,using @code{call-with-input-file} to rebind the value of
-@code{(current-input-port)} )does not automatically ``rebind'' the file
-referenced by the Unix stdio file descriptors 0, 1, and 2. This is
-impossible to do in general, since some Scheme ports are not
-representable as Unix file descriptors. For example, many Scheme
+@code{(current-input-port)}) does @emph{not} automatically ``rebind''
+the file referenced by the Unix stdio file descriptors 0, 1, and
+2. This is impossible to do in general, since some Scheme ports are
+not representable as Unix file descriptors. For example, many Scheme
 implementations provide ``string ports'', that is, ports that collect
-characters sent to them into memory buffers. The accumulated string can
-later be retrieved from the port as a string. If a user were to bind
-@code{(current-output-port)} to such a port, it would be impossible to
-associate file descriptor 1 with this port, as it cannot be represented
-in Unix. So, if the user subsequently forked off some other program as a
-subprocess, that program would of course not see the Scheme string port
-as its standard output.
+characters sent to them into memory buffers. The accumulated string
+can later be retrieved from the port as a string. If a user were to
+bind @code{(current-output-port)} to such a port, it would be
+impossible to associate file descriptor 1 with this port, as it cannot
+be represented in Unix. So, if the user subsequently forked off some
+other program as a subprocess, that program would of course not see
+the Scheme string port as its standard output.
 
 To keep stdio synced with the values of Scheme's current I/O ports,
-usethe special redirection @code{stdports} . This causes 0, 1, 2 to be
-redirected from thecurrent Scheme standard ports. It is equivalent to
+use the special redirection @code{stdports}. This causes 0, 1, 2 to be
+redirected from the current Scheme standard ports. It is equivalent to
 the three redirections:
 
-@example
+@code
 (= 0 ,(current-input-port))
 (= 1 ,(current-output-port))
 (= 2 ,(error-output-port))
-@end example
+@end code
 
 The redirections are done in the indicated order. This will cause an
 error if one of the current I/O ports isn't a Unix port (e.g., if one is
@@ -762,55 +793,63 @@ Scheme code (as opposed to a redirection spec) with the
 @code{(stdports->stdio)} procedure.
 
 @section Process forms
-A process form specifies a computation to perform as an independent Unix
-process. It can be one of the following:
+A @emph{process form} specifies a computation to perform as an
+independent Unix process. It can be one of the following:
 
-@float 
-(begin . scheme-code)           ; Run scheme-code in a fork.
-(| pf1 ... pfn)                 ; Simple pipeline
-(|+ connect-list pf1 ... pfn)   ; Complex pipeline
-(epf . epf)                     ; An extended process form.
-(prog arg1 ... argn)            ; Default: exec the program.
-@end float
+@table @code 
+@item (begin . @emph{scheme-code})
+Run @emph{scheme-code} in a fork.
+@item (| @math{pf_1} @dots{} @math{pf_n})
+Simple pipeline.
+@item (|+ @emph{connect-list} @math{pf_1} @dots{} @math{pf_n})
+Complex pipeline.
+@item (epf . @emph{epf})
+An extended process form.
+@item (prog @math{arg_1} @dots{} @math{arg_n})
+Default: exec the program.
+@end table
 
-The default case @code{(prog @math{arg_1} ... @math{arg_n})} is also
-implicitly backquoted. That is, it is equivalent to:
+The default case @code{(@emph{prog} @math{arg_1} @dots{}
+@math{arg_n})} is also implicitly backquoted. That is, it is
+equivalent to:
 
-@example
-(begin (apply exec-path `(prog arg1 ... argn)))
-@end example
+@code
+(begin (apply exec-path `(@emph{prog} @math{arg_1} @dots{} @math{arg_n})))
+@end code
 
-@code{Exec-path} is the version of the @emph{exec()} system call that
+@code{Exec-path} is the version of the @code{exec(3)} system call that
 uses scsh's path list to search for an executable. The program and the
 arguments must be either strings, symbols, or integers. Symbols and
-integers are coerced to strings. A symbol's print-name is used. Integers
-are converted to strings in base 10. Using symbols instead of strings is
-convenient, since it suppresses the clutter of thesurrounding ``...''
-quotation marks. To aid this purpose, scsh reads symbols in a
-case-sensitive manner, so that you can say
+integers are coerced to strings. A symbol's print-name is
+used. Integers are converted to strings in base 10. Using symbols
+instead of strings is convenient, since it suppresses the clutter of
+the surrounding ``@dots{}''  quotation marks. To aid this purpose,
+scsh reads symbols in a case-sensitive manner, so that you can say
 
-@example
+@code
 (more Readme)
-@end example
+@end code
 
 and get the right file.
 
-A @emph{connect-list} is a specification of how two processes are to be
-wired together by pipes. It has the form @code{((@math{from_1}
-@math{from_2} ... to) ...)} and is implicitly backquoted. For example,
+A @emph{connect-list} is a specification of how two processes are to
+be wired together by pipes. It has the form @code{((@math{from_1}
+@math{from_2} @dots{} @emph{to}) @dots{})} and is implicitly
+backquoted. For example,
 
-@example
-(|+ ((1 2 0) (3 1)) pf1 pf2)
-@end example
+@code
+(|+ ((1 2 0) (3 1)) @math{pf_1} @math{pf_2})
+@end code
 
-runs @math{pf_1} and @math{pf_2}. The first clause @code{(1 2 0)} causes
-@math{pf_1}'s stdout (1) and stderr (2) to be connected via pipe to
-@math{pf_2}'s stdin (0). The second clause @code{(3 1)} causes
+runs @math{pf_1} and @math{pf_2}. The first clause @code{(1 2 0)}
+causes @math{pf_1}'s stdout (1) and stderr (2) to be connected via
+pipe to @math{pf_2}'s stdin (0). The second clause @code{(3 1)} causes
 @math{pf_1}'s file descriptor 3 to be connected to @math{pf_2}'s file
-descriptor 1.The @code{begin} process form does a @code{stdio->stdports}
-synchronisation in the child process before executing the body of the
-form. This guarantees that the @code{begin} form, like all other process
-forms, "sees" the effects of any associated I/O redirections.
+descriptor 1.The @code{begin} process form does a
+@code{stdio->stdports} synchronisation in the child process before
+executing the body of the form. This guarantees that the @code{begin}
+form, like all other process forms, "sees" the effects of any
+associated I/O redirections.
 
 Note that R5RS does not specify whether or not @code{|} and @code{|+}
 are readable symbols. Scsh does.
@@ -819,86 +858,104 @@ are readable symbols. Scsh does.
 Process forms and extended process forms are not Scheme. They are a
 different notation for expressing computation that, like Scheme, is
 based upon s-expressions. Extended process forms are used in Scheme
-programs by embedding them inside special Scheme forms. There are three
-basic Scheme forms that use extended process forms: @code{exec-epf},
-@code{&}, and @code{run}.
+programs by embedding them inside special Scheme forms. There are
+three basic Scheme forms that use extended process forms:
+@code{exec-epf}, @code{&}, and @code{run}.
 
-@float 
-(exec-epf . epf) -> no return value     (syntax)
-(& . epf)        -> proc                (syntax)
-(run . epf)      -> status              (syntax)
-@end float
+@table @code 
+@item (exec-epf . @emph{epf})
+@emph{no return value} (syntax)
+@item (& . @emph{epf})
+@emph{proc} (syntax)
+@item (run . @emph{epf})
+@emph{status} (syntax)
+@end table
 
-The @code{(exec-epf . epf)} form nukes the current process: it
+The @code{(exec-epf . @emph{epf})} form nukes the current process: it
 establishes the I/O redirections and then overlays the current process
 with the requested computation.
 
-The @code{(& . epf)} form is similar, except that the process is forked
-off in background. The form returns the subprocess' process object.
+The @code{(& . @emph{epf})} form is similar, except that the process is
+forked off in background. The form returns the subprocess' process
+object.
 
-The @code{(run . epf)} form runs the process in foreground: after
+The @code{(run . @emph{epf})} form runs the process in foreground: after
 forking off the computation, it waits for the subprocess to exit, and
 returns its exit status.
 
-These special forms are macros that expand into the equivalent series of
-system calls. The definition of the @code{exec-epf} macro is
-non-trivial, as it produces the code to handle I/O redirections and set
-up pipelines. However, the definitions of the @code{&} and @code{run}
-macros are very simple:
+These special forms are macros that expand into the equivalent series
+of system calls. The definition of the @code{exec-epf} macro is
+non-trivial, as it produces the code to handle I/O redirections and
+set up pipelines. However, the definitions of the @code{&} and
+@code{run} macros are very simple:
 
-@example
-(& . epf)       (fork (lambda () (exec-epf . epf)))
-(run . epf)     (wait (& . epf))
-@end example
+@table @code
+@item (& . @emph{epf})
+@code{(fork (lambda () (exec-epf . @emph{epf})))}
+@item (run . @emph{epf})
+@code{(wait (& . @emph{epf}))}
+@end table
 
 @subsection Procedures and special forms
 It is a general design principle in scsh that all functionality made
-available through special syntax is also available in a straightforward
-procedural form.  So there are procedural equivalents for all of the
-process notation. In this way, the programmer is not restricted by the
-particular details of the syntax. Here are some of the syntax/procedure
-equivalents:
+available through special syntax is also available in a
+straightforward procedural form.  So there are procedural equivalents
+for all of the process notation. In this way, the programmer is not
+restricted by the particular details of the syntax. Here are some of
+the syntax/procedure equivalents:
 
-@float 
-Notation                Procedure
-|                       fork/pipe
-|+                      fork/pipe+
-exec-epf                exec-path
-redirection             open, dup
-&                       fork
-run                     wait + fork
-@end float
+@table @code
+@item |
+@code{fork/pipe}
+@item |+
+@code{fork/pipe+}
+@item exec-epf
+@code{exec-path}
+@item @emph{redirection}
+@code{open}, @code{dup}
+@item &
+@code{fork}
+@item run
+@code{wait} + @code{fork}
+@end table
 
-Having a solid procedural foundation also allows for general notational
-experimentation using Scheme's macros. For example, the programmer can
-build his own pipeline notation on top of the @code{fork} and
-@code{fork/pipe} procedures. @ref{System Calls} gives the full story on
-all the procedures in the syscall library.
+Having a solid procedural foundation also allows for general
+notational experimentation using Scheme's macros. For example, the
+programmer can build his own pipeline notation on top of the
+@code{fork} and @code{fork/pipe} procedures. @ref{System Calls} gives
+the full story on all the procedures in the syscall library.
 
 @subsection Interfacing process output to Scheme
-There is a family of procedures and special forms that can be used to capture the output of processes as Scheme data.
+There is a family of procedures and special forms that can be used to
+capture the output of processes as Scheme data.
 
-@float 
-(run/port . epf)        -> port         (syntax)
-(run/file . epf)        -> string       (syntax)
-(run/string . epf)      -> string       (syntax)
-(run/strings . epf)     -> string list  (syntax)
-(run/sexp . epf)        -> object       (syntax)
-(run/sexps . epf)       -> list         (syntax)
-@end float
+@ftable @code
+@item (run/port . @emph{epf})        
+-> @emph{port}         (syntax)
+@item (run/file . @emph{epf})        
+-> @emph{string}       (syntax)
+@item (run/string . @emph{epf})      
+-> @emph{string}       (syntax)
+@item (run/strings . @emph{epf})     
+-> @emph{string list}  (syntax)
+@item (run/sexp . @emph{epf})        
+-> @emph{object}       (syntax)
+@item (run/sexps . @emph{epf})       
+-> @emph{list}         (syntax)
+@end ftable
 
 These forms all fork off subprocesses, collecting the process' output to
 stdout in some form or another. The subprocess runs with file descriptor
 1 and the current output port bound to a pipe.
 
-@float 
+@table @code 
 run/port        Value is a port open on process' stdout. Returns immediately after forking child.
 run/file        Value is name of a temp file containing process' output. Returns when process exits.
 run/string      Value is a string containing process' output. Returns when eof read.
 run/strings     Splits process' output into a list of newline-delimited strings. Returns when eof read.
 run/sexp        Reads a single object from process' stdout with @code{read}. Returns as soon as the read completes.
 run/sexps       Repeatedly reads objects from process' stdout with @code{read}. Returns accumulated list upon eof.
-@end float
+@end table
 
 The delimiting newlines are not included in the strings returned by @code{run/strings}.
 
