@@ -700,10 +700,10 @@ file named by Scheme variable @emph{x}'', and @code{(<
 
 Here are two more examples of I/O redirection:
 
-@code
+@example
 (< ,(vector-ref fv i))
 (>> 2 /tmp/buf)
-@end code
+@end example
 
 These two redirections cause the file @code{fv[i]} to be opened on
 stdin, and @code{/tmp/buf} to be opened for append writes on stderr.
@@ -891,9 +891,9 @@ set up pipelines. However, the definitions of the @code{&} and
 
 @table @code
 @item (& . @emph{epf})
-@code{(fork (lambda () (exec-epf . @emph{epf})))}
+@equiv{} @code{(fork (lambda () (exec-epf . @emph{epf})))}
 @item (run . @emph{epf})
-@code{(wait (& . @emph{epf}))}
+@equiv{} @code{(wait (& . @emph{epf}))}
 @end table
 
 @subsection Procedures and special forms
@@ -944,47 +944,70 @@ capture the output of processes as Scheme data.
 -> @emph{list}         (syntax)
 @end ftable
 
-These forms all fork off subprocesses, collecting the process' output to
-stdout in some form or another. The subprocess runs with file descriptor
-1 and the current output port bound to a pipe.
+These forms all fork off subprocesses, collecting the process' output
+to stdout in some form or another. The subprocess runs with file
+descriptor 1 and the current output port bound to a pipe.
 
-@table @code 
-run/port        Value is a port open on process' stdout. Returns immediately after forking child.
-run/file        Value is name of a temp file containing process' output. Returns when process exits.
-run/string      Value is a string containing process' output. Returns when eof read.
-run/strings     Splits process' output into a list of newline-delimited strings. Returns when eof read.
-run/sexp        Reads a single object from process' stdout with @code{read}. Returns as soon as the read completes.
-run/sexps       Repeatedly reads objects from process' stdout with @code{read}. Returns accumulated list upon eof.
+@table @code
+@item run/port        
+Value is a port open on process' stdout. Returns immediately after
+forking child.
+@item run/file        
+Value is name of a temp file containing process' output. Returns when
+process exits.
+@item run/string      
+Value is a string containing process' output. Returns when eof read.
+@item run/strings     
+Splits process' output into a list of newline-delimited
+strings. Returns when eof read. 
+@item run/sexp        
+Reads a single object from process' stdout with @code{read}. Returns
+as soon as the read completes.
+@item run/sexps       
+Repeatedly reads objects from process' stdout with
+@code{read}. Returns accumulated list upon eof.
 @end table
 
-The delimiting newlines are not included in the strings returned by @code{run/strings}.
+The delimiting newlines are not included in the strings returned by
+@code{run/strings}.
 
-These special forms just expand into calls to the following analogous procedures.
+These special forms just expand into calls to the following analogous
+procedures.
 
-@float 
-(run/port* thunk)       -> port         (procedure)
-(run/file* thunk)       -> string       (procedure)
-(run/string* thunk)     -> string       (procedure)
-(run/strings* thunk)    -> string list  (procedure)
-(run/sexp* thunk)       -> object       (procedure)
-(run/sexps* thunk)      -> object list  (procedure)
-@end float
+@ftable @code
+@item (run/port* @emph{thunk})       
+-> @code{port} (procedure)
+@item (run/file* @emph{thunk})       
+-> @code{string} (procedure)
+@item (run/string* @emph{thunk})     
+-> @code{string} (procedure)
+@item (run/strings* @emph{thunk})    
+-> @code{string list} (procedure)
+@item (run/sexp* @emph{thunk})       
+-> @code{object} (procedure)
+@item (run/sexps* @emph{thunk})      
+-> @code{object list} (procedure)
+@end ftable
 
 For example, @code{(run/port . epf)} expands into
 
-@example
+@code
 (run/port* (* () (exec-epf . epf))).
-@end example
+@end code
 
-The following procedures are also of utility for generally parsing input
-streams in scsh:
+The following procedures are also of utility for generally parsing
+input streams in scsh:
 
-@float 
-(port->string port)             -> string       (procedure)
-(port->sexp-list port)          -> list         (procedure)
-(port->string-list port)        -> string list  (procedure)
-(port->list reader port)        -> list         (procedure)
-@end float
+@ftable @code
+@item (@emph{port}->string @emph{port})             
+-> @emph{string} (procedure)
+@item (@emph{port}->sexp-list @emph{port})          
+-> @emph{list} (procedure)
+@item (@emph{port}->string-list @emph{port})        
+-> @emph{string list}  (procedure)
+@item (@emph{port}->list @emph{reader} @emph{port})        
+-> @emph{list} (procedure)
+@end ftable
 
 @code{Port->string} reads the port until eof, then returns the
 accumulated string. @code{Port->sexp-list} repeatedly reads data from
@@ -999,82 +1022,87 @@ these objects into a list, which is returned upon eof. The
 trivial to define, being merely @code{port->list} curried with the
 appropriate parsers:
 
-@float 
-(port->string-list port)        (port->list read-line port)
-(port->sexp-list port)          (port->list read port)
-@end float
+@example
+(port->string-list port) @equiv{} (port->list read-line port)
+(port->sexp-list port)   @equiv{} (port->list read port)
+@end example
 
 The following compositions also hold:
 
-@float 
-run/string*             port->string            run/port*
-run/strings*            port->string-list       run/port*
-run/sexp*               read                    run/port*
-run/sexps*              port->sexp-list         run/port*
-@end float
-
 @example
-(port-fold port reader op . seeds)      -> object*      (procedure)
+run/string*     @equiv{} port->string            run/port*
+run/strings*    @equiv{} port->string-list       run/port*
+run/sexp*       @equiv{} read                    run/port*
+run/sexps*      @equiv{} port->sexp-list         run/port*
 @end example
 
-This procedure can be used to perform a variety of iterative operations
-over an input stream. It repeatedly uses @emph{reader} to read an object
-from port. If the first read returns eof, then the entire
-@code{port-fold} operation returns the seeds as multiple values. If the
-first read operation returns some other value @emph{v} , then @emph{op}
-is applied to @emph{v} and the seeds: @code{(op v . seeds)}. This should
-return a new set of seed values, and the reduction then loops, reading a
-new value from the port, and so forth. (If multiple seed values are
-used, then @emph{op} must return multiple values.)
+@ftable @code
+@item (port-fold @emph{port} @emph{reader} @emph{op} . @emph{seeds})
+-> @emph{object*}      (procedure)
+@end ftable
 
-For example, @code{(port->list reader port)} could be defined as
+This procedure can be used to perform a variety of iterative
+operations over an input stream. It repeatedly uses @emph{reader} to
+read an object from @emph{port}. If the first read returns eof, then
+the entire @code{port-fold} operation returns the seeds as multiple
+values. If the first read operation returns some other value @emph{v},
+then @emph{op} is applied to @emph{v} and the seeds:
+@code{(@emph{op} @emph{v} . @emph{seeds})}. This should return a new
+set of seed values, and the reduction then loops, reading a new value
+from the port, and so forth. (If multiple seed values are used, then
+@emph{op} must return multiple values.)
 
-@example
-(reverse (port-fold port reader cons '()))
-@end example
+For example, @code{(port->list @emph{reader} @emph{port})} could be
+defined as
+
+@code
+(reverse (port-fold @emph{port} @emph{reader} cons '()))
+@end code
 
 An imperative way to look at @code{port-fold} is to say that it
 abstracts the idea of a loop over a stream of values read from some
 port, where the seed values express the loop state.
 
-@emph{Remark}: This procedure was formerly named @code{reduce-port}. The
-old binding is still provided, but is deprecated and will probably
-vanish in a future release.
+@emph{Remark}: This procedure was formerly named
+@code{reduce-port}. The old binding is still provided, but is
+deprecated and will probably vanish in a future release.
 
 @section More complex process operations
-The procedures and special forms in the previous section provide for the
-common case, where the programmer is only interested in the output of
-the process. These special forms and procedures provide more complicated
-facilities for manipulating processes.
+The procedures and special forms in the previous section provide for
+the common case, where the programmer is only interested in the output
+of the process. These special forms and procedures provide more
+complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
-@float 
-(run/port+proc . epf)   -> [port proc]          (syntax)
-(run/port+proc* thunk)  -> [port proc]          (procedure)
-@end float
+@ftable @code 
+@item (run/port+proc . @emph{epf})
+-> @emph{[port proc]}          (syntax)
+@item (run/port+proc* @emph{thunk})
+-> @emph{[port proc]}          (procedure)
+@end ftable
 
 This special form and its analogous procedure can be used if the
-programmer also wishes access to the process' pid, exit status, or other
-information. They both fork off a subprocess, returning two values: a
-port open on the process' stdout (and current output port), and the
-subprocess's process object. A process object encapsulates the
+programmer also wishes access to the process' pid, exit status, or
+other information. They both fork off a subprocess, returning two
+values: a port open on the process' stdout (and current output port),
+and the subprocess's process object. A process object encapsulates the
 subprocess' process id and exit code; it is the value passed to the
 @code{wait} system call.
 
-For example, to uncompress a tech report, reading the uncompressed data
-into scsh, and also be able to track the exit status of the
+For example, to uncompress a tech report, reading the uncompressed
+data into scsh, and also be able to track the exit status of the
 decompression process, use the following:
 
-@example
+@code
 (receive (port child) (run/port+proc (zcat tr91-145.tex.Z))
   (let* ((paper (port->string port))
     (status (wait child)))
-      . . . use paper, status, and child here. . . ))
-@end example
+      @dots{} @emph{use paper, status, and child here} @dots{} ))
+@end code
 
 Note that you must @emph{first} do the @code{port->string} and
-@emph{then} do the @code{wait} -- the other way around may lock up when
-the @code{zcat} fills up its output pipe buffer.
+@emph{then} do the @code{wait} -- the other way around may lock up
+when the @code{zcat} fills up its output pipe buffer.
 
 @subsection Multiple stream capture
 Occasionally, the programmer may want to capture multiple distinct
@@ -1083,10 +1111,12 @@ stdout and stderr streams into two distinct strings. This is
 accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
-@float 
-(run/collecting fds . epf )     -> [status port. . . ]  (syntax)
-(run/collecting* fds thunk)     -> [status port. . . ]  (procedure)
-@end float
+@ftable @code
+@item (run/collecting @emph{fds . epf} )
+-> @emph{[status port @dots{}]}  (syntax)
+@item (run/collecting* @emph{fds thunk})
+-> @emph{[status port @dots{}]}  (procedure)
+@end ftable
 
 @code{Run/collecting} and @code{run/collecting*} run processes that
 produce multiple output streams and return ports open on these
@@ -1094,57 +1124,62 @@ streams. To avoid issues of deadlock, @code{run/collecting} doesn't use
 pipes. Instead, it first runs the process with output to temp files,
 then returns ports open on the temp files. For example,
 
-@example
+@code
 (run/collecting (1 2) (ls))
-@end example
+@end code
 
-runs @code{ls} with stdout @code{(fd 1)} and stderr @code{(fd 2)}
+runs @code{ls} with stdout (fd 1) and stderr (fd 2)
 redirected to temporary files. When the @code{ls} is done,
 @code{run/collecting} returns three values: the @code{ls} process' exit
 status, and two ports open on the temporary files. The files are deleted
-before run/collecting returns, so when the ports are closed, they
+before @code{run/collecting} returns, so when the ports are closed, they
 vanish. The @emph{fds} list of file descriptors is implicitly backquoted
-bythe special-form version.
+by the special-form version.
 
 For example, if Kaiming has his mailbox protected, then
 
-@example
+@code
 (receive (status out err)
          (run/collecting (1 2) (cat /usr/kmshea/mbox))
    (list status (port->string out) (port->string err)))
-@end example
+@end code
 
 might produce the list
 
-@example
+@code
 (256 "" "cat: /usr/kmshea/mbox: Permission denied")
-@end example
+@end code
 
 What is the deadlock hazard that causes @code{run/collecting} to use
 tempfiles? Processes with multiple output streams can lock up if they
 use pipes to communicate with Scheme I/O readers. For example, suppose
 some Unix program @code{myprog} does the following:
 
-1. First, outputs a single "(" to stderr.
-2. Then, outputs a megabyte of data to stdout.
-3. Finally, outputs a single ")" to stderr, and exits.
+@enumerate
+@item
+First, outputs a single "(" to stderr.
+@item
+Then, outputs a megabyte of data to stdout.
+@item
+Finally, outputs a single ")" to stderr, and exits.
+@end enumerate
 
-Our scsh programmer decides to run @code{myprog} with stdout and stderr
-redirected via Unix pipes to the ports @code{port1} and @code{port2},
-respectively. He gets into trouble when he subsequently says @code{(read
-port2)}. The Scheme @code{read} routine reads the open paren, and then
-hangs in a @code{read()} system call trying to read a matching close
-paren. But before @code{myprog} sends the close paren down the stderr
-pipe, it first tries to write a megabyte of data to the stdout
-pipe. However, Scheme is not reading that pipe -- it's stuck waiting for
-input on stderr. So the stdout pipe quickly fills up, and @code{myprog}
-hangs, waiting for the pipe to drain. The @code{myprog} child is stuckin
-a stdout/@code{port1} write; the Scheme parent is stuck in a
-stderr/@code{port2} read. Deadlock.
+Our scsh programmer decides to run @code{myprog} with stdout and
+stderr redirected via Unix pipes to the ports @emph{port1} and
+@emph{port2}, respectively. He gets into trouble when he subsequently
+says @code{(read @emph{port2})}. The Scheme @code{read} routine reads
+the open paren, and then hangs in a @code{read(2)} system call trying
+to read a matching close paren. But before @code{myprog} sends the
+close paren down the stderr pipe, it first tries to write a megabyte
+of data to the stdout pipe. However, Scheme is not reading that pipe
+-- it's stuck waiting for input on stderr. So the stdout pipe quickly
+fills up, and @code{myprog} hangs, waiting for the pipe to drain. The
+@code{myprog} child is stuck in a stdout/@emph{port1} write; the
+Scheme parent is stuck in a stderr/@emph{port2} read. Deadlock.
 
 Here's a concrete example that does exactly the above:
 
-@example
+@code
 (receive (status port1 port2)
          (run/collecting (1 2)
          (begin
@@ -1161,63 +1196,68 @@ Here's a concrete example that does exactly the above:
          ;; subproc's stderr.
          (read port2) ; Should return the empty list.
          (port->string port1)) ; Should return a big string.
-@end example
+@end code
 
 In order to avoid this problem, @code{run/collecting} and
 @code{run/collecting*} first run the child process to completion,
 buffering all the output streams in temp files (using the
 @code{temp-file-channel} procedure, see below). When the child process
-exits, ports open on the buffered output are returned.  This approach
+exits, ports open on the buffered output are returned. This approach
 has two disadvantages over using pipes:
 
 @itemize @bullet
-
 @item
 The total output from the child output is temporarily written to the
-disk before returning from @code{run/collecting}. If this output is some
-large intermediate result, the disk could fill up.
-
+disk before returning from @code{run/collecting}. If this output is
+some large intermediate result, the disk could fill up.
 @item
 The child producer and Scheme consumer are serialised; there is no
 concurrency overlap in their execution.
-
 @end itemize
 
 However, it remains a simple solution that avoids deadlock. More
-sophisticated solutions can easily be programmed up as needed --
-@code{run/collecting*} itself is only 12 lines of simple code.
+sophisticated solutions can easily be programmed up as
+needed---@code{run/collecting*} itself is only 12 lines of simple
+code.
 
-See @code{temp-file-channel} for more information on creating temp files
-as communication channels.
+See @code{temp-file-channel} for more information on creating temp
+files as communication channels.
 
 @section Conditional process sequencing forms
 These forms allow conditional execution of a sequence of processes.
 
-(|| pf1 . . . pfn) -! boolean syntax
+@ftable @code
+@item (|| @math{pf_1} @dots{} @math{pf_n})
+-> @emph{boolean} (syntax)
+@end ftable
 
-Run each proc until one completes successfully (i.e., exit status zero). Re-turn true if some proc completes successfully; otherwise
+Run each proc until one completes successfully (i.e., exit status
+zero). Return true if some proc completes successfully; otherwise
+@code{#f}.
 
-#f.
+@ftable @code
+@item (&& pf1 . . . pfn)
+-> @emph{boolean} (syntax)
+@end ftable
 
-19
-
-(&& pf1 . . . pfn) -! boolean syntax
-
-Run each proc until one fails (i.e., exit status non-zero). Return true if allprocs complete successfully; otherwise
-
-#f.
+Run each proc until one fails (i.e., exit status non-zero). Return
+true if allprocs complete successfully; otherwise @code{#f}.
 
 @section Process filters
 These procedures are useful for forking off processes to filter text streams.
-(make-char-port-filter filter) -! procedure procedure
 
-The filter argument is a character!character procedure. Returns a pro-cedure that when called, repeatedly reads a character from the current
+@ftable @code
+@item (make-char-port-filter @emph{filter})
+-> @emph{procedure} (procedure)
+@end ftable
 
-input port, applies filter to the character, and writes the result to the cur-rent output port. The procedure returns upon reaching eof on the input
-port.
-For example, to downcase a stream of text in a spell-checking pipeline,instead of using the Unix
-
-tr A-Z a-z command, we can say:
+The @emph{filter} argument is a character->character
+procedure. Returns a procedure that when called, repeatedly reads a
+character from the current input port, applies @emph{filter} to the
+character, and writes the result to the cur-rent output port. The
+procedure returns upon reaching eof on the input port.  For example,
+to downcase a stream of text in a spell-checking pipeline, instead of
+using the Unix @code{tr A-Z a-z} command, we can say:
 
 (run (| (delatex)
 
