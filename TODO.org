@@ -1,4 +1,6 @@
 
+* TODO turn all mentions of `eof' into @acronyms
+
 * TODO Add `@cindex' entries to all chapters/nodes
 
   #+BEGIN_EXAMPLE
