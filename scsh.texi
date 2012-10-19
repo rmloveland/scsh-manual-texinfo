@@ -1241,10 +1241,11 @@ zero). Return true if some proc completes successfully; otherwise
 @end ftable
 
 Run each proc until one fails (i.e., exit status non-zero). Return
-true if allprocs complete successfully; otherwise @code{#f}.
+true if all procs complete successfully; otherwise @code{#f}.
 
 @section Process filters
-These procedures are useful for forking off processes to filter text streams.
+These procedures are useful for forking off processes to filter text
+streams.
 
 @ftable @code
 @item (make-char-port-filter @emph{filter})
@@ -1254,59 +1255,78 @@ These procedures are useful for forking off processes to filter text streams.
 The @emph{filter} argument is a character->character
 procedure. Returns a procedure that when called, repeatedly reads a
 character from the current input port, applies @emph{filter} to the
-character, and writes the result to the cur-rent output port. The
+character, and writes the result to the current output port. The
 procedure returns upon reaching eof on the input port.  For example,
 to downcase a stream of text in a spell-checking pipeline, instead of
 using the Unix @code{tr A-Z a-z} command, we can say:
 
+@code
 (run (| (delatex)
+        (begin ((char-filter char-downcase))) ; tr A-Z a-z
+        (spell)
+        (sort)
+        (uniq))
+     (< scsh.tex)
+     (> spell-errors.txt))
+@end code
 
-(begin ((char-filter char-downcase))) ; tr A-Z a-z
-(spell)
-(sort)
-(uniq))
-(< scsh.tex)
-(> spell-errors.txt))
+@ftable @code
+@item (make-string-port-filter @emph{filter [buflen]})
+-> @emph{procedure} (procedure)
+@end ftable
 
-(make-string-port-filter filter [buflen]) -! procedure procedure
+The @emph{filter} argument is a string->string procedure. Returns a
+procedure that when called, repeatedly reads a string from the current
+input port, applies @emph{filter} to the string, and writes the result
+to the current output port.The procedure returns upon reaching eof on
+the input port.
 
-The filter argument is a string!string procedure. Returns a procedurethat when called, repeatedly reads a string from the current input port,
+The optional @emph{buflen} argument controls the number of characters
+each internal read operation requests; this means that @emph{filter}
+will never be applied to a string longer than @emph{buflen} chars. The
+default @emph{buflen} value is 1024.
 
-applies filter to the string, and writes the result to the current output port.The procedure returns upon reaching eof on the input port.
-
-The optional buflen argument controls the number of characters each in-ternal read operation requests; this means that filter will never be applied
-to a string longer than buflen chars. The default buflen value is 1024.
-
-@node System Calls, next, Process notation, top
-@c    Node name, Next, Previous, Up
+@node System Calls, Networking, Process notation, Top
+@c    Current,      Next,       Previous,         Up
 @chapter System Calls
 
-Scsh provides (almost) complete access to the basic Unix kernel services: pro-cesses, files, signals and so forth. These procedures comprise a Scheme binding
-for @acronym{POSIX}, with a few of the more standard extensions thrown in (e.g., symboliclinks,
-
-fchown, fstat, sockets).
+Scsh provides (almost) complete access to the basic Unix kernel
+services: pro-cesses, files, signals and so forth. These procedures
+comprise a Scheme binding for @acronym{POSIX}, with a few of the more
+standard extensions thrown in (e.g., symboliclinks, @code{fchown},
+@code{fstat}, @code{sockets}).
 
 @section Errors
-Scsh syscalls never return error codes, and do not use a global errno variableto report errors. Errors are consistently reported by raising exceptions. This
-frees up the procedures to return useful values, and allows the programmer toassume that if a syscall returns, it succeeded. This greatly simplifies the flow of
+Scsh syscalls never return error codes, and do not use a global
+@code{errno} variable to report errors. Errors are consistently
+reported by raising exceptions. This frees up the procedures to return
+useful values, and allows the programmer toassume that @emph{if a
+syscall returns, it succeeded}. This greatly simplifies the flow of
 the code from the programmer's point of view.
 
-Since Scheme does not yet have a standard exception system, the scsh defi-nition remains somewhat vague on the actual form of exceptions and exception
+Since Scheme does not yet have a standard exception system, the scsh
+definition remains somewhat vague on the actual form of exceptions and
+exception handlers. When a standard exception system is defined, scsh
+will move to it.For now, scsh uses the Scheme 48 exception system,
+with a simple sugaring on top to hide the details in the common case.
 
-handlers. When a standard exception system is defined, scsh will move to it.For now, scsh uses the Scheme 48 exception system, with a simple sugaring on
-top to hide the details in the common case.
+System call error exceptions contain the Unix @code{errno} code
+reported by the system call. Unlike C, the @code{errno} value is a
+part of the exception packet, it is not accessed through a global
+variable.
 
-System call error exceptions contain the Unix errno code reported by thesystem call. Unlike C, the
+For reference purposes, the Unix @code{errno} numbers are bound to the
+variables @code{errno/perm}, @code{errno/noent}, etc. System calls
+never return @code{error/intr}---they automatically retry.
 
-errno value is a part of the exception packet, it is notaccessed through a global variable.
+@ftable @code
+@item (errno-error @emph{errno syscall . data})
+-> @emph{no return value} (procedure)
+@end ftable
 
-For reference purposes, the Unix errno numbers are bound to the variables
-errno/perm, errno/noent, etc. System calls never return error/intr--theyautomatically retry.
-
-(errno-error errno syscall . data) -! no return value procedure
-
-Raises a Unix error exception for Unix error number errno. The syscalland data arguments are packaged up in the exception packet passed to
-the exception handler.
+Raises a Unix error exception for Unix error number @code{errno}. The
+syscall and data arguments are packaged up in the exception packet
+passed to the exception handler.
 
 (with-errno-handler* handler thunk) -! value(s) of thunk procedure
 (with-errno-handler handler-spec . body) -! value of body syntax
