@@ -1,4 +1,7 @@
 
+* TODO wrap all mentions of `dup' with @code
+
+* TODO what is correct way to typeset `stdin', `stdout', &c.?
 * TODO turn all mentions of `eof' into @acronyms
 
 * TODO Add `@cindex' entries to all chapters/nodes

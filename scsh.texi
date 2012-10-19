@@ -277,9 +277,9 @@ make                    # Build system.
 When you are done, you should have a virtual machine compiled in file
 `scshvm', and a heap image in file `scsh/scsh.image'. Typing
 
-@code
+@example
 make install
-@end code
+@end example
 
 will install these programs in your installation directory (by default,
 @code{/usr/local}), along with a small stub startup binary, @code{scsh}.
@@ -287,9 +287,9 @@ will install these programs in your installation directory (by default,
 If you don't have the patience to do this, you can start up a Scheme
 shell immediately after the initial make by simply saying
 
-@code
+@example
 ./scshvm -o ./scshvm -i scsh/scsh.image
-@end code
+@end example
 
 See @ref{Running scsh} for full details on installation locations and
 startup options.
@@ -314,12 +314,12 @@ Scsh follows a general naming scheme that consistently employs a set of
 abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
 
-@defvr {Scsh Abbreviation} fdes
+@defvr fdes
 Means ``file descriptor'', a small integer used in Unix to represent I/O
 channels.
 @end defvr
 
-@defvr {Scsh Abbreviation} @dots{}*
+@defvr ...*
 A given bit of functionality sometimes comes in two related forms,
 the first being a special form that contains a body of Scheme code to be
 executed in some context, and the other being a procedure that takes a
@@ -341,20 +341,20 @@ appending an asterisk. For example:
 @end example
 @end defvr
 
-@defvr {Scsh Abbreviation} action/modifier
+@defvr @emph{action/modifier}
 The infix ``/'' is pronounced ``with'', as in @code{exec/env}---
 ``exec with environment''.
 @end defvr
 
-@defvr {Scsh Abbreviation} call/@dots{}
+@defvr call/...
 Procedures that call their argument on some computed value are usually
 named @code{call/@dots{}}, e.g., @code{(call/fdes port proc)}, which
 calls @code{proc} on @code{port}'s file descriptor, returning whatever
 @code{proc} returns. The abbreviated name means ``call with file
 descriptor''.
-@defvr
+@end defvr
 
-@defvr {Scsh Abbreviation} with-@dots{}
+@defvr with-...
 Procedures that call their argument, and special forms that execute
 their bodies in some special dynamic context frequently have names of
 the form @code{with-@dots{}}. For example, @code{(with-env env
@@ -363,30 +363,30 @@ set the process environment body, execute their body or thunk, and
 then return after resetting the environment to its original state.
 @end defvr
 
-@defvr {Scsh Abbreviation} create-
+@defvr create-...
 Procedures that create objects in the file system (files,
 directories,temp files, fifos, etc.), begin with
 @code{create-@dots{}}.
 @end defvr
 
-@defvr {Scsh Abbreviation} delete-
+@defvr delete-...
 Procedures that delete objects from the file system (files,
 directories,temp files, fifos, etc.), begin with
 @code{delete-@dots{}}.
 @end defvr
 
-@defvr {Scsh Abbreviation} record:field
+@defvr @emph{record:field}
 Procedures that access fields of a record are usually written with a
 colon between the name of the record and the name of the field, as in
 @code{user-info:home-dir}.
 @end defvr
 
-@defvr {Scsh Abbreviation} %@dots{}
+@defvr %...
 A percent sign is used to prefix lower-level scsh primitives that are
 not commonly used.
 @end defvr
 
-@defvr {Scsh Abbreviation} -info
+@defvr ...-info
 Data structures packaging up information about various OS entities
 frequently end in @dots{}@code{-info}. Examples: @code{user-info},
 @code{file-info}, @code{group-info}, and @code{host-info}.
@@ -408,18 +408,20 @@ Scsh's symbol syntax differs from R5RS Scheme in the following ways:
 @item
 In scsh, symbol case is preserved by @code{read} and is significant on
 symbol comparison. This means
-@code
+
+@example
 (run (less Readme))
-@end code
+@end example
 
 displays the right file.
 
 @item
 ``-'' and ``+'' are allowed to begin symbols. So the following are
 legitimate symbols:
-@code
+
+@example
 -O2 -geometry +Wn
-@end code
+@end example
 
 @item
 ``|'' and ``.'' are symbol constituents. This allows @code{|} for the
@@ -428,9 +430,10 @@ pipe symbol, and @code{..} for the parent-directory symbol. (Of course,
 
 @item
 A symbol may begin with a digit. So the following are legitimate symbols:
-@code
+
+@example
 9x15 80x36-3+440
-@end code
+@end example
 @end itemize
 
 @subsection Extended string syntax
@@ -440,9 +443,9 @@ Scsh strings are allowed to contain the @acronym{ANSI} C escape sequences such a
 @subsection Block comments and executable interpreter-triggers
 Scsh allows source files to begin with a header of the form
 
-@code
+@example
 #!/usr/local/bin/scsh -s
-@end code
+@end example
 
 The Unix operating system treats source files beginning with the headers
 of this form specially; they can be directly executed by the operating
@@ -467,17 +470,15 @@ character-delimited and line-delimited; they are both introduced by the
 @subsubsection Character-delimited here-strings
 A character-delimited here-string has the form
 
-@code
-#<x @dots{} stuff @dots{} x
-@end code
+@example
+#<x ... stuff ... x
+@end example
 
 where @emph{x} is any single character (except @code{<}, see below),
-which is used to delimit the string bounds. Some examples:
+which is used to delimit the string bounds. Some examples of
+here-strings and their Scheme equivalents:
 
-@c You may need to remove the table's ``header'' descriptions into the
-@c text above.
 @table @code
-Here-string syntax      Ordinary string syntax
 @item #<|Hello, world.|
 @code{"Hello, world."}
 @item #<!"Ouch," he said.!
@@ -493,34 +494,34 @@ here-string. These are similar to the ``here documents'' of @code{sh} and
 @code{csh}. Line-delimited here-strings are delimited by the rest of the text
 line that follows the @code{#<<} sequence. For example:
 
-@code
+@example
 #<<FOO
 Hello, there.
 This is read by Scheme as a string,
 terminated by the first occurrence
-of newline-F-O-O-newline or newline-F-O-O-eof.
+of newline-F-O-O-newline or newline-F-O-O-@acronym{eof}.
 FOO
-@end code
+@end example
 
 Thus,
 
-@code
+@example
 #<<foo
 Hello, world.
 foo
-@end code
+@end example
 
 is the same thing as
 
-@code
+@example
 "Hello, world."
-@end code
+@end example
 
 Line-delimited here-strings are useful for writing down long, constant
 strings---such as long, multi-line @code{format} strings, or arguments
 to Unix programs, e.g.,
 
-@code
+@example
 ;; Free up some disk space for my netnews files.
 (run (csh -c #<<EOF
 cd /urops
@@ -529,7 +530,7 @@ echo All done.
 
 EOF
 ))
-@end code
+@end example
 
 The advantage they have over the double-quote syntax (e.g., "@code{Hello,
 world.}") is that there is no need to backslash-quote special characters
@@ -548,7 +549,7 @@ interpretation is done on the input string. Control characters, white
 space, quotes, backslash---everything is copied as-is. The newline
 immediately preceding the terminating delimiter line is not included
 in the result string (leave an extra blank line if you need to put a
-final newline in the here-string---see the example above). If EOF is
+final newline in the here-string---see the example above). If @acronym{eof} is
 encountered before reading the end of the here-string, an error is
 signalled.
 
@@ -557,15 +558,15 @@ It is unfortunate that the single-dot token, ``.'', is both a
 fundamental Unix filename and a deep, primitive syntactic token in
 Scheme -- it means the following will not parse correctly in scsh:
 
-@code
+@example
 (run/strings (find . -name *.c -print))
-@end code
+@end example
 
 You must instead quote the dot:
 
-@code
+@example
 (run/strings (find "." -name *.c -print))
-@end code
+@end example
 
 When you write shell scripts that manipulate the file system, keep in
 mind the special status of the dot token.
@@ -580,12 +581,12 @@ data for a particular file. These record types are described in this
 manual using the @code{define-record} notation, which looks like the
 following:
 
-@code
+@example
 (define-record ship
   x
   y
   (size 100))
-@end code
+@end example
 
 This form defines a @emph{ship} record, with three fields: its x and y
 coordinates, and its size. The values of the @code{x} and @code{y} fields
@@ -650,8 +651,8 @@ standards, @acronym{POSIX} is the least common denominator. So when
 this manual repeatedly refers to @acronym{POSIX}, the point is ``the
 thing we are describing should be portable just about anywhere''. Scsh
 sticks to @acronym{POSIX} when at all possible; its major departure is
-symbolic links, which aren't in @acronym{POSIX} (see---it really is a
-least common denominator).
+symbolic links, which aren't in @acronym{POSIX} (see---it really
+@emph{is} a least common denominator).
 
 @node Process notation, System Calls, Introduction, Top
 @c    Current,          Next,         Previous,     Up
@@ -659,8 +660,9 @@ least common denominator).
 
 Scsh has a notation for controlling Unix processes that takes the form
 of s-expressions; this notation can then be embedded inside of
-standard Scheme code. The basic elements of this notation are process
-forms, extended process forms, and redirections.
+standard Scheme code. The basic elements of this notation are
+@emph{process forms}, @emph{extended process forms}, and
+@emph{redirections}.
 
 @section Extended process forms and I/O redirections
 An extended process form is a specification of a Unix process to run,
@@ -711,29 +713,29 @@ stdin, and @code{/tmp/buf} to be opened for append writes on stderr.
 The redirection @code{(<< @emph{object})} causes input to come from
 the printed representation of @emph{object}. For example,
 
-@code
+@example
 (<< "The quick brown fox jumped over the lazy dog.")
-@end code
+@end example
 
 causes reads from stdin to produce the characters of the above
 string. The object is converted to its printed representation using
 the @code{display} procedure, so
 
-@code
+@example
 (<< (A five element list))
-@end code
+@end example
 
 is the same as
 
-@code
+@example
 (<< "(A five element list)")
-@end code
+@end example
 
 is the same as
 
-@code
+@example
 (<< ,(reverse '(list element five A))).
-@end code
+@end example
 
 (Here we use the implicit backquoting feature to compute the list to
 be printed.)
@@ -742,18 +744,18 @@ The redirection @code{(= @emph{fdes} @emph{fdes/port})} causes
 @emph{fdes/port} to be dup'd into file descriptor @emph{fdes}. For
 example, the redirection
 
-@code
+@example
 (= 2 1)
-@end code
+@end example
 
 causes stderr to be the same as stdout. @emph{Fdes/port} can also be a
 port, for code:
 
-@code
+@example
 (= 2 ,(current-output-port))
-@end code
+@end example
 
-causes stderr to be dup'd from the current output port. In this case, it
+causes stderr to be @code{dup}'d from the current output port. In this case, it
 is an error if the port is not a file port (e.g., a string port). More
 complex redirections can be accomplished using the @code{begin} process
 form, discussed below, which gives the programmer full control of I/O
@@ -780,11 +782,11 @@ use the special redirection @code{stdports}. This causes 0, 1, 2 to be
 redirected from the current Scheme standard ports. It is equivalent to
 the three redirections:
 
-@code
+@example
 (= 0 ,(current-input-port))
 (= 1 ,(current-output-port))
 (= 2 ,(error-output-port))
-@end code
+@end example
 
 The redirections are done in the indicated order. This will cause an
 error if one of the current I/O ports isn't a Unix port (e.g., if one is
@@ -813,9 +815,9 @@ The default case @code{(@emph{prog} @math{arg_1} @dots{}
 @math{arg_n})} is also implicitly backquoted. That is, it is
 equivalent to:
 
-@code
+@example
 (begin (apply exec-path `(@emph{prog} @math{arg_1} @dots{} @math{arg_n})))
-@end code
+@end example
 
 @code{Exec-path} is the version of the @code{exec(3)} system call that
 uses scsh's path list to search for an executable. The program and the
@@ -826,9 +828,9 @@ instead of strings is convenient, since it suppresses the clutter of
 the surrounding ``@dots{}''  quotation marks. To aid this purpose,
 scsh reads symbols in a case-sensitive manner, so that you can say
 
-@code
+@example
 (more Readme)
-@end code
+@end example
 
 and get the right file.
 
@@ -837,9 +839,9 @@ be wired together by pipes. It has the form @code{((@math{from_1}
 @math{from_2} @dots{} @emph{to}) @dots{})} and is implicitly
 backquoted. For example,
 
-@code
+@example
 (|+ ((1 2 0) (3 1)) @math{pf_1} @math{pf_2})
-@end code
+@end example
 
 runs @math{pf_1} and @math{pf_2}. The first clause @code{(1 2 0)}
 causes @math{pf_1}'s stdout (1) and stderr (2) to be connected via
@@ -956,16 +958,16 @@ forking child.
 Value is name of a temp file containing process' output. Returns when
 process exits.
 @item run/string      
-Value is a string containing process' output. Returns when eof read.
+Value is a string containing process' output. Returns when @acronym{eof} read.
 @item run/strings     
 Splits process' output into a list of newline-delimited
-strings. Returns when eof read. 
+strings. Returns when @acronym{eof} read. 
 @item run/sexp        
 Reads a single object from process' stdout with @code{read}. Returns
 as soon as the read completes.
 @item run/sexps       
 Repeatedly reads objects from process' stdout with
-@code{read}. Returns accumulated list upon eof.
+@code{read}. Returns accumulated list upon @acronym{eof}.
 @end table
 
 The delimiting newlines are not included in the strings returned by
@@ -1009,15 +1011,15 @@ input streams in scsh:
 -> @emph{list} (procedure)
 @end ftable
 
-@code{Port->string} reads the port until eof, then returns the
+@code{Port->string} reads the port until @acronym{eof}, then returns the
 accumulated string. @code{Port->sexp-list} repeatedly reads data from
-the port until eof, then returns the accumulated list of
+the port until @acronym{eof}, then returns the accumulated list of
 items. @code{Port->string-list} repeatedly reads newline-terminated
-strings from the port until eof, then returns the accumulated list of
+strings from the port until @acronym{eof}, then returns the accumulated list of
 strings. The delimiting newlines are not part of the returned
 strings. @code{Port->list} generalises these two procedures. It uses
 @emph{reader} to repeatedly read objects from a port. It accumulates
-these objects into a list, which is returned upon eof. The
+these objects into a list, which is returned upon @acronym{eof}. The
 @code{port->string-list} and @code{port->sexp-list} procedures are
 trivial to define, being merely @code{port->list} curried with the
 appropriate parsers:
@@ -1043,7 +1045,7 @@ run/sexps*      @equiv{} port->sexp-list         run/port*
 
 This procedure can be used to perform a variety of iterative
 operations over an input stream. It repeatedly uses @emph{reader} to
-read an object from @emph{port}. If the first read returns eof, then
+read an object from @emph{port}. If the first read returns @acronym{eof}, then
 the entire @code{port-fold} operation returns the seeds as multiple
 values. If the first read operation returns some other value @emph{v},
 then @emph{op} is applied to @emph{v} and the seeds:
@@ -1256,7 +1258,7 @@ The @emph{filter} argument is a character->character
 procedure. Returns a procedure that when called, repeatedly reads a
 character from the current input port, applies @emph{filter} to the
 character, and writes the result to the current output port. The
-procedure returns upon reaching eof on the input port.  For example,
+procedure returns upon reaching @acronym{eof} on the input port.  For example,
 to downcase a stream of text in a spell-checking pipeline, instead of
 using the Unix @code{tr A-Z a-z} command, we can say:
 
@@ -1278,7 +1280,7 @@ using the Unix @code{tr A-Z a-z} command, we can say:
 The @emph{filter} argument is a string->string procedure. Returns a
 procedure that when called, repeatedly reads a string from the current
 input port, applies @emph{filter} to the string, and writes the result
-to the current output port.The procedure returns upon reaching eof on
+to the current output port.The procedure returns upon reaching @acronym{eof} on
 the input port.
 
 The optional @emph{buflen} argument controls the number of characters
@@ -1827,13 +1829,13 @@ Returns two ports, the read and write end-points of a Unix pipe.
 (read-string nbytes [fd/port]) -! string or #f procedure
 (read-string! str [fd/port start end]) -! nread or #f procedure
 
-These calls read exactly as much data as you requested, unless there isnot enough data (eof).
+These calls read exactly as much data as you requested, unless there isnot enough data (@acronym{eof}).
 
 read-string! reads the data into string str atthe indices in the half-open interval [start, end); the default interval is thewhole string: start = 0 and end =
-(string-length string). They willpersistently retry on partial reads and when interrupted until (1) error, (2) eof, or (3) the input request is completely satisfied. Partial reads canoccur when reading from an intermittent source, such as a pipe or tty.
+(string-length string). They willpersistently retry on partial reads and when interrupted until (1) error, (2) @acronym{eof}, or (3) the input request is completely satisfied. Partial reads canoccur when reading from an intermittent source, such as a pipe or tty.
 
-read-string returns the string read; read-string! returns the numberof characters read. They both return false at eof. A request to read zero
-bytes returns immediately, with no eof check.
+read-string returns the string read; read-string! returns the numberof characters read. They both return false at @acronym{eof}. A request to read zero
+bytes returns immediately, with no @acronym{eof} check.
 The values of start and end must specify a well-defined interval in str, i.e.,0 <= start <= end <=
 
 (string-length str).
@@ -1845,7 +1847,7 @@ Any partially-read data is included in the error exception packet. Errorreturns 
 
 These are atomic best-effort/forward-progress calls. Best effort: theymay read less than you request if there is a lesser amount of data immediately available (e.g., because you are reading from a pipe or a tty).Forward progress: if no data is immediately available (e.g., empty pipe),
 they will block. Therefore, if you request an n > 0 byte read, while youmay not get everything you asked for, you will always get something
-(barring eof).
+(barring @acronym{eof}).
 There is one case in which the forward-progress guarantee is cancelled:when the programmer explicitly sets the port to non-blocking I/O. In this
 
 case, if no data is immediately available, the procedure will not block, butwill immediately return a zero-byte read.
@@ -1859,10 +1861,10 @@ read-string!/partial reads the data intostring str at the indices in the half-op
 
 0 <= start <= end <= (string-length str). It returns the number of bytesread.
 
-A request to read zero bytes returns immediatedly, with no eof check.
+A request to read zero bytes returns immediatedly, with no @acronym{eof} check.
 In sum, there are only three ways you can get a zero-byte read: (1) yourequest one, (2) you turn on non-blocking I/O, or (3) you try to read at
 
-eof.
+@acronym{eof}.
 These are the routines to use for non-blocking input. They are also use-ful when you wish to efficiently process data in large blocks, and your
 
 algorithm is insensitive to the block size of any particular read operation.
@@ -3921,7 +3923,7 @@ tty-info record to share storage for the min field and the ttychar/eof elementof
 
 time field and the ttychar/eolelement of the control-characters string. Many implementations in fact do this.
 
-To stay out of trouble, set the min and time fields only if you are putting theterminal into raw mode; set the eof and eol control-characters only if you are
+To stay out of trouble, set the min and time fields only if you are putting theterminal into raw mode; set the @acronym{eof} and eol control-characters only if you are
 putting the terminal into canonical mode. It's ugly, but it's Unix.
 
 @subsection Using tty-info records
@@ -6222,29 +6224,29 @@ strings that are terminated by a delimiter character, and strings that are termi
 
 (read-line [port handle-newline]) -! string or eof-object procedure
 
-Reads and returns one line of text; on eof, returns the eof object. A line isterminated by newline or eof.
+Reads and returns one line of text; on @acronym{eof}, returns the @acronym{eof} object. A line isterminated by newline or @acronym{eof}.
 
 140
 
-handle-newline determines what read-line does with the newline or EOFthat terminates the line; it takes the general set of values described for
+handle-newline determines what read-line does with the newline or @acronym{eof} that terminates the line; it takes the general set of values described for
 the general handle-delim case above, and defaults to 'trim (discard thenewline). Using this argument allows one to tell whether or not the last
 line of input in a file is newline terminated.
 
-(read-paragraph [port handle-delim]) -! string or eof procedure
+(read-paragraph [port handle-delim]) -! string or @acronym{eof} procedure
 
-This procedure skips blank lines, then reads text from a port until a blankline or eof is found. A "blank line" is a (possibly empty) line composed
+This procedure skips blank lines, then reads text from a port until a blankline or @acronym{eof} is found. A "blank line" is a (possibly empty) line composed
 
 only of white space. The handle-delim parameter determines how the ter-minating blank line is handled. It is described above, and defaults to
 'trim. The 'peek option is not available.
 The following procedures read in strings from ports delimited by charactersbelonging to a specific set. See section @ref{5.5} for information on character set
 
 manipulation.
-(read-delimited char-set [port handle-delim]) -! string or eof procedure
+(read-delimited char-set [port handle-delim]) -! string or @acronym{eof} procedure
 
-Read until we encounter one of the chars in char-set or eof. Thehandle-delim parameter determines how the terminating character is handled. It is described above, and defaults to 'trim.
+Read until we encounter one of the chars in char-set or @acronym{eof}. Thehandle-delim parameter determines how the terminating character is handled. It is described above, and defaults to 'trim.
 The char-set argument may be a charset, a string, or a character; it is co-erced to a charset.
 
-(read-delimited! char-set buf [port handle-delim start end]) -! nchars or eof or #f procedure
+(read-delimited! char-set buf [port handle-delim start end]) -! nchars or @acronym{eof} or #f procedure
 
 A side-effecting variant of read-delimited.
 The data is written into the string buf at the indices in the half-open in-terval [start
@@ -6256,14 +6258,14 @@ The data is written into the string buf at the indices in the half-open in-terva
 
 It returns nbytes, the number of bytes read. If the buffer filled up withouta delimiter character being found,
 
-#f is returned. If the port is at eofwhen the read starts, the eof object is returned.
+#f is returned. If the port is at @acronym{eof}when the read starts, the @acronym{eof} object is returned.
 
 If an integer is returned (i.e., the read is successfully terminated by read-ing a delimiter character), then the handle-delim parameter determines
 how the terminating character is handled. It is described above, and de-faults to
 
 'trim.
 
-(%read-delimited! char-set buf gobble? [port start end]) -! [char-or-eof-or-#f integer] procedure
+(%read-delimited! char-set buf gobble? [port start end]) -! [char-or-@acronym{eof}-or-#f integer] procedure
 
 This low-level delimited reader uses an alternate interface. It returns twovalues: terminator and num-read.
 
@@ -6271,7 +6273,7 @@ This low-level delimited reader uses an alternate interface. It returns twovalue
 
 terminator A value describing why the read was terminated:
 
-Character or eof-object ) Read terminated by this value.
+Character or @acronym{eof}-object ) Read terminated by this value.
 #f ) Filled buffer without finding a delimiter.
 
 num-read Number of characters read into buf.
@@ -6316,8 +6318,8 @@ strings terminated by specific characters.
 
 Returns a procedure that reads records from a port. The procedure isinvoked as follows:
 
-(reader [port]) -! string or eof
-A record is a sequence of characters terminated by one of the charactersin delims or eof. If elide-delims? is true, then a contiguous sequence of
+(reader [port]) -! string or @acronym{eof}
+A record is a sequence of characters terminated by one of the charactersin delims or @acronym{eof}. If elide-delims? is true, then a contiguous sequence of
 
 delimiter chars are taken as a single record delimiter. If elide-delims? isfalse, then a delimiter char coming immediately after a delimiter char
 produces an empty-string record. The reader consumes the delimitingchar(s) before returning from a read.
@@ -6327,11 +6329,11 @@ elide-delims? flag defaults to #f.
 The handle-delim argument controls what is done with the record's termi-nating delimiter.
 
 'trim Delimiters are trimmed. (The default)
-'split Reader returns delimiter string as asecond argument. If record is terminated by EOF, then the eof object isreturned as this second argument.
+'split Reader returns delimiter string as asecond argument. If record is terminated by @acronym{eof}, then the @acronym{eof} object isreturned as this second argument.
 'concat The record and its delimiter are re-turned as a single string.
 
 The reader procedure returned takes one optional argument, the portfrom which to read, which defaults to the current input port. It returns a
-string or eof.
+string or @acronym{eof}.
 
 @subsection Parsing fields
 
@@ -6500,16 +6502,16 @@ This utility returns a procedure that reads records with field structurefrom a p
 
 awk loop macro (section @ref{8.2}). The reader is used as follows:
 
-(reader [port]) =) [raw-record parsed-record] or [eof ()]
+(reader [port]) =) [raw-record parsed-record] or [@acronym{eof} ()]
 
-When the reader is applied to an input port (default: the current inputport), it reads a record using rec-reader. If this record isn't the eof object, it
+When the reader is applied to an input port (default: the current inputport), it reads a record using rec-reader. If this record isn't the @acronym{eof} object, it
 
 is parsed with field-parser. These two values--the record, and its parsedrepresentation--are returned as multiple values from the reader.
 
-When called at eof, the reader returns [eof-object ()].
+When called at @acronym{eof}, the reader returns [@acronym{eof}-object ()].
 Although the record reader typically returns a string, and the field-parsertypically takes a string argument, this is not required. The record reader
 
-can produce, and the field-parser consume, values of any type. However,the empty list returned as the parsed value on eof is hardwired into the
+can produce, and the field-parser consume, values of any type. However,the empty list returned as the parsed value on @acronym{eof} is hardwired into the
 field reader.
 For example, if port p is open on /etc/passwd, then
 
@@ -6649,7 +6651,7 @@ since read-passwd returns two values.
 
 Note that awk allows us to use any record reader we want in the loop, re-turning whatever number of values we like. These values don't have to be
 
-strings or string lists. The only requirement is that the record reader return theeof object as its first value when the loop should terminate.
+strings or string lists. The only requirement is that the record reader return the@acronym{eof} object as its first value when the loop should terminate.
 
 The awk loop allows the programmer to have loop variables. These aredeclared and initialised by the h state-var-decls i form, a
 
@@ -6659,7 +6661,7 @@ The awk loop allows the programmer to have loop variables. These aredeclared and
 
 list rather like the let form. Whenever a clause in the loop body executes, itevaluates to as many values as there are state variables, updating them.
 
-The optional h counter i variable is an iteration counter. It is bound to 0 whenthe loop starts. The counter is incremented each time a non-eof record is read.
+The optional h counter i variable is an iteration counter. It is bound to 0 whenthe loop starts. The counter is incremented each time a non-@acronym{eof} record is read.
 There are several kinds of loop clause. When evaluating the body of theloop,
 
 awk evaluates all the clauses sequentially. Unlike cond, it does not stopafter the first clause is satisfied; it checks them all.
@@ -6718,7 +6720,7 @@ test produces a true value, apply exp to that value. If testis a regular express
 
 returned by the regexp match routine.
 
-* (after body1 ...)This clause executes when the loop encounters EOF. The body forms execute in the scope of the state vars and the record-count var, if there areany. The value of the last body form is the value of the entire awk form.
+* (after body1 ...)This clause executes when the loop encounters @acronym{eof}. The body forms execute in the scope of the state vars and the record-count var, if there areany. The value of the last body form is the value of the entire awk form.
 
 If there is no after clause, awk returns the loop's state variables as multi-ple values.
 
