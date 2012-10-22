@@ -928,30 +928,37 @@ the full story on all the procedures in the syscall library.
 There is a family of procedures and special forms that can be used to
 capture the output of processes as Scheme data.
 
+@anchor{run/port}
 @deffn Macro run/port . epf        
 Value is a port open on process' stdout. Returns immediately after
 forking child.
 @end deffn
 
+@anchor{run/file}
 @deffn Macro run/file . epf        
 Value is name of a temp file containing process' output. Returns when
 process exits.
 @end deffn
 
+@anchor{run/string}
 @deffn Macro run/string . epf      
-Value is a string containing process' output. Returns when @acronym{eof} read.
+Value is a string containing process' output. Returns when
+@acronym{eof} read.
 @end deffn
 
+@anchor{run/strings}
 @deffn Macro run/strings . epf     
 Splits process' output into a list of newline-delimited
 strings. Returns when @acronym{eof} read.
 @end deffn
 
+@anchor{run/sexp}
 @deffn Macro run/sexp . epf        
 Reads a single object from process' stdout with @code{read}. Returns
 as soon as the read completes.
 @end deffn
 
+@anchor{run/sexps}
 @deffn Macro run/sexps . epf       
 Repeatedly reads objects from process' stdout with
 @code{read}. Returns accumulated list upon @acronym{eof}.
@@ -967,98 +974,107 @@ The delimiting newlines are not included in the strings returned by
 These special forms just expand into calls to the following analogous
 procedures.
 
-@ftable @code
-@item (run/port* @emph{thunk})       
--> @code{port} (procedure)
-@item (run/file* @emph{thunk})       
--> @code{string} (procedure)
-@item (run/string* @emph{thunk})     
--> @code{string} (procedure)
-@item (run/strings* @emph{thunk})    
--> @code{string list} (procedure)
-@item (run/sexp* @emph{thunk})       
--> @code{object} (procedure)
-@item (run/sexps* @emph{thunk})      
--> @code{object list} (procedure)
-@end ftable
+@deffn Function run/port* thunk
+@xref{run/port}.
+@end deffn
 
-For example, @code{(run/port . epf)} expands into
+@deffn Function run/file* thunk
+@xref{run/file}.
+@end deffn
 
-@code
-(run/port* (* () (exec-epf . epf))).
-@end code
+@deffn Function run/string* thunk
+@xref{run/string}.
+@end deffn
+
+@deffn Function run/strings* thunk @xref{run/strings}
+@end deffn
+
+@deffn Function run/sexp* thunk
+@xref{run/sexp}
+@end deffn
+
+@deffn Function run/sexps* thunk      
+@xref{run/sexps}
+@end deffn
+
+For example, @code{(run/port . @emph{epf})} expands into
+
+@example
+(run/port* (* () (exec-epf . @emph{epf}))).
+@end example
 
 The following procedures are also of utility for generally parsing
 input streams in scsh:
 
-@ftable @code
-@item (@emph{port}->string @emph{port})             
--> @emph{string} (procedure)
-@item (@emph{port}->sexp-list @emph{port})          
--> @emph{list} (procedure)
-@item (@emph{port}->string-list @emph{port})        
--> @emph{string list}  (procedure)
-@item (@emph{port}->list @emph{reader} @emph{port})        
--> @emph{list} (procedure)
-@end ftable
+@deffn Function port->string port
+@code{Port->string} reads the port until @acronym{eof}, then returns
+the accumulated string.
+@end deffn
 
-@code{Port->string} reads the port until @acronym{eof}, then returns the
-accumulated string. @code{Port->sexp-list} repeatedly reads data from
-the port until @acronym{eof}, then returns the accumulated list of
-items. @code{Port->string-list} repeatedly reads newline-terminated
-strings from the port until @acronym{eof}, then returns the accumulated list of
-strings. The delimiting newlines are not part of the returned
-strings. @code{Port->list} generalises these two procedures. It uses
+@deffn Function port->sexp-list port
+@code{Port->sexp-list} repeatedly reads data from the port until
+@acronym{eof}, then returns the accumulated list of items.
+@end deffn
+
+@deffn Function port->string-list port
+@code{Port->string-list} repeatedly reads newline-terminated strings
+from the port until @acronym{eof}, then returns the accumulated list
+of strings. The delimiting newlines are not part of the returned
+strings.
+@end deffn
+
+@deffn Function port->list reader port
+@code{Port->list} generalises these two procedures. It uses
 @emph{reader} to repeatedly read objects from a port. It accumulates
-these objects into a list, which is returned upon @acronym{eof}. The
-@code{port->string-list} and @code{port->sexp-list} procedures are
+these objects into a list, which is returned upon @acronym{eof}.
+@end deffn
+
+The @code{port->string-list} and @code{port->sexp-list} procedures are
 trivial to define, being merely @code{port->list} curried with the
 appropriate parsers:
 
 @example
-(port->string-list port) @equiv{} (port->list read-line port)
-(port->sexp-list port)   @equiv{} (port->list read port)
+(port->string-list @emph{port}) @equiv{} (port->list read-line @emph{port})
+(port->sexp-list @emph{port})   @equiv{} (port->list read @emph{port})
 @end example
 
 The following compositions also hold:
 
 @example
-run/string*     @equiv{} port->string            run/port*
-run/strings*    @equiv{} port->string-list       run/port*
-run/sexp*       @equiv{} read                    run/port*
-run/sexps*      @equiv{} port->sexp-list         run/port*
+run/string*     @equiv{} port->string        @bullet{}    run/port*
+run/strings*    @equiv{} port->string-list   @bullet{}    run/port*
+run/sexp*       @equiv{} read                @bullet{}    run/port*
+run/sexps*      @equiv{} port->sexp-list     @bullet{}    run/port*
 @end example
 
-@ftable @code
-@item (port-fold @emph{port} @emph{reader} @emph{op} . @emph{seeds})
--> @emph{object*}      (procedure)
-@end ftable
-
+@deffn Function port-fold port reader op . seeds
 This procedure can be used to perform a variety of iterative
-operations over an input stream. It repeatedly uses @emph{reader} to
-read an object from @emph{port}. If the first read returns @acronym{eof}, then
-the entire @code{port-fold} operation returns the seeds as multiple
-values. If the first read operation returns some other value @emph{v},
-then @emph{op} is applied to @emph{v} and the seeds:
-@code{(@emph{op} @emph{v} . @emph{seeds})}. This should return a new
-set of seed values, and the reduction then loops, reading a new value
-from the port, and so forth. (If multiple seed values are used, then
-@emph{op} must return multiple values.)
+operations over an input stream.  It repeatedly uses @var{reader} to
+read an object from @var{port}.  If the first read returns
+@acronym{eof}, then the entire @code{port-fold} operation returns the
+seeds as multiple values.  If the first read operation returns some
+other value @emph{v}, then @var{op} is applied to @emph{v} and the
+seeds: @code(@var{op} @var{v} . @var{seeds})}.  This should return a
+new set of seed values, and the reduction then loops, reading a new
+value from the port, and so forth.  (If multiple seed values are used,
+then @var{op} must return multiple values.)
 
-For example, @code{(port->list @emph{reader} @emph{port})} could be
-defined as
+For example, @code(port->list @var{reader} @var{port}) could be defined as
 
-@code
-(reverse (port-fold @emph{port} @emph{reader} cons '()))
-@end code
+@example
+(reverse (port-fold @var{port} @var{reader} cons '()))
+@end example
 
-An imperative way to look at @code{port-fold} is to say that it
+An imperative way to look at @codeex{port-fold} is to say that it
 abstracts the idea of a loop over a stream of values read from some
 port, where the seed values express the loop state.
 
+@flushright
 @emph{Remark}: This procedure was formerly named
 @code{reduce-port}. The old binding is still provided, but is
 deprecated and will probably vanish in a future release.
+@end flushright
+@end deffn
 
 @section More complex process operations
 The procedures and special forms in the previous section provide for
