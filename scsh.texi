@@ -341,26 +341,27 @@ appending an asterisk. For example:
 @end example
 @end defvr
 
-@defvr @emph{action/modifier}
+@defvr action/modifier
 The infix ``/'' is pronounced ``with'', as in @code{exec/env}---
 ``exec with environment''.
 @end defvr
 
 @defvr call/...
 Procedures that call their argument on some computed value are usually
-named @code{call/@dots{}}, e.g., @code{(call/fdes port proc)}, which
-calls @code{proc} on @code{port}'s file descriptor, returning whatever
-@code{proc} returns. The abbreviated name means ``call with file
+named @code{call/@dots{}}, e.g., @code{(call/fdes @var{port} @var{proc})}, which
+calls @var{proc} on @var{port}'s file descriptor, returning whatever
+@var{proc} returns. The abbreviated name means ``call with file
 descriptor''.
 @end defvr
 
 @defvr with-...
 Procedures that call their argument, and special forms that execute
 their bodies in some special dynamic context frequently have names of
-the form @code{with-@dots{}}. For example, @code{(with-env env
-@math{body_1} @dots{})} and @code{(with-env* env thunk)}. These forms
-set the process environment body, execute their body or thunk, and
-then return after resetting the environment to its original state.
+the form @code{with-@dots{}}. For example, @code{(with-env @var{env}
+@math{body_1} @dots{})} and @code{(with-env* @var{env}
+@var{thunk})}. These forms set the process environment body, execute
+their body or thunk, and then return after resetting the environment
+to its original state.
 @end defvr
 
 @defvr create-...
@@ -375,7 +376,7 @@ directories,temp files, fifos, etc.), begin with
 @code{delete-@dots{}}.
 @end defvr
 
-@defvr @emph{record:field}
+@defvr record:field
 Procedures that access fields of a record are usually written with a
 colon between the name of the record and the name of the field, as in
 @code{user-info:home-dir}.
@@ -392,7 +393,7 @@ frequently end in @dots{}@code{-info}. Examples: @code{user-info},
 @code{file-info}, @code{group-info}, and @code{host-info}.
 @end defvr
 
-Enumerated constants from some set @code{s} are usually named
+Enumerated constants from some set @emph{s} are usually named
 @code{s/@math{const_1}}, @code{s/@math{const_2}}, @dots{}. For
 example, the various Unix signal integers have the names
 @code{signal/cont}, @code{signal/kill}, @code{signal/int},
@@ -532,10 +533,10 @@ EOF
 ))
 @end example
 
-The advantage they have over the double-quote syntax (e.g., "@code{Hello,
-world.}") is that there is no need to backslash-quote special characters
-internal to the string, such as the double-quote or backslash
-characters.
+The advantage they have over the double-quote syntax (e.g.,
+@code{"Hello, world."}) is that there is no need to backslash-quote
+special characters internal to the string, such as the double-quote or
+backslash characters.
 
 The detailed syntax of line-delimited here-strings is as follows. The
 characters ``@code{#<<}'' begin the here-string. The characters
@@ -588,37 +589,37 @@ following:
   (size 100))
 @end example
 
-This form defines a @emph{ship} record, with three fields: its x and y
-coordinates, and its size. The values of the @code{x} and @code{y} fields
-are specified as parameters to the ship-building procedure,
-@code{(make-ship x y)}, and the @emph{size} field is initialised to
-100. All told, the @code{define-record} form above defines the following
-procedures:
+This form defines a @var{ship} record, with three fields: its x and y
+coordinates, and its size. The values of the @var{x} and @var{y}
+fields are specified as parameters to the ship-building procedure,
+@code{(make-ship @var{x} @var{y})}, and the @var{size} field is
+initialised to 100. All told, the @code{define-record} form above
+defines the following procedures:
 
 @table @code
-@item (make-ship x y)
-Create a new @emph{ship} record.
-@item (ship:x ship)
-Retrieve the @emph{x} field.
-@item (ship:y ship)
-Retrieve the @emph{y} field.
-@item (ship:size ship)
-Retrieve the @emph{size} field.
-@item (set-ship:x ship new-x)
-Assign the @emph{x} field.
-@item (set-ship:y ship new-y)
-Assign the @emph{y} field.
-@item (set-ship:size ship new-size)
-Assign the @emph{size} field.
-@item (modify-ship:x ship xfun)
-Modify @emph{x} field with @emph{xfun}.
-@item (modify-ship:y ship yfun)
-Modify @emph{y} field with @emph{yfun}.
-@item (modify-ship:size ship sizefun)
-Modify @emph{size} field with @emph{sizefun}.
-@item (ship? object)
+@item (make-ship @var{x} @var{y})
+Create a new @var{ship} record.
+@item (ship:x @var{ship})
+Retrieve the @var{x} field.
+@item (ship:y @var{ship})
+Retrieve the @var{y} field.
+@item (ship:size @var{ship})
+Retrieve the @var{size} field.
+@item (set-ship:x @var{ship} @var{new-x})
+Assign the @var{x} field.
+@item (set-ship:y @var{ship} @var{new-y})
+Assign the @var{y} field.
+@item (set-ship:size @var{ship} @var{new-size})
+Assign the @var{size} field.
+@item (modify-ship:x @var{ship} @var{xfun})
+Modify @var{x} field with @var{xfun}.
+@item (modify-ship:y @var{ship} @var{yfun})
+Modify @var{y} field with @var{yfun}.
+@item (modify-ship:size @var{ship} @var{sizefun})
+Modify @var{size} field with @var{sizefun}.
+@item (ship? @var{object})
 Type predicate.
-@item (copy-ship ship)
+@item (copy-ship @var{ship})
 Shallow-copy of the record.
 @end table
 
@@ -631,9 +632,9 @@ single syntax form @code{define-record}. See the source code for the
 You must open this package to access the form. Scsh does not export a
 record-definition package by default as there are several from which to
 choose. Besides the @code{define-record} macro, which Shivers
-prefers@footnote{He wrote it.}, you might instead wish to employ the
+prefers @footnote{He wrote it.}, you might instead wish to employ the
 notationally-distinct @code{define-record-type} macro that Jonathan Rees
-prefers@footnote{He wrote it.}. It can be found in the
+prefers @footnote{He wrote it.}. It can be found in the
 @code{define-record-types} structure.
 
 Alternatively, you may define your own, of course.
@@ -1054,12 +1055,12 @@ read an object from @var{port}.  If the first read returns
 @acronym{eof}, then the entire @code{port-fold} operation returns the
 seeds as multiple values.  If the first read operation returns some
 other value @emph{v}, then @var{op} is applied to @emph{v} and the
-seeds: @code(@var{op} @var{v} . @var{seeds})}.  This should return a
+seeds: @code{(@var{op} @var{v} . @var{seeds})}.  This should return a
 new set of seed values, and the reduction then loops, reading a new
 value from the port, and so forth.  (If multiple seed values are used,
 then @var{op} must return multiple values.)
 
-For example, @code(port->list @var{reader} @var{port}) could be defined as
+For example, @code{(port->list @var{reader} @var{port})} could be defined as
 
 @example
 (reverse (port-fold @var{port} @var{reader} cons '()))
@@ -1083,13 +1084,8 @@ of the process. These special forms and procedures provide more
 complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
-@ftable @code 
-@item (run/port+proc . @emph{epf})
--> @emph{[port proc]}          (syntax)
-@item (run/port+proc* @emph{thunk})
--> @emph{[port proc]}          (procedure)
-@end ftable
-
+@anchor{run-port-proc}
+@deffn Macro run/port+proc . epf
 This special form and its analogous procedure can be used if the
 programmer also wishes access to the process' pid, exit status, or
 other information. They both fork off a subprocess, returning two
@@ -1102,16 +1098,21 @@ For example, to uncompress a tech report, reading the uncompressed
 data into scsh, and also be able to track the exit status of the
 decompression process, use the following:
 
-@code
+@example
 (receive (port child) (run/port+proc (zcat tr91-145.tex.Z))
   (let* ((paper (port->string port))
     (status (wait child)))
       @dots{} @emph{use paper, status, and child here} @dots{} ))
-@end code
+@end example
 
 Note that you must @emph{first} do the @code{port->string} and
 @emph{then} do the @code{wait} -- the other way around may lock up
 when the @code{zcat} fills up its output pipe buffer.
+@end deffn
+
+@deffn Function run/port+proc* thunk
+@ref{run-port-proc}.
+@end deffn
 
 @subsection Multiple stream capture
 Occasionally, the programmer may want to capture multiple distinct
