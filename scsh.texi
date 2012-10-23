@@ -1107,44 +1107,43 @@ stdout and stderr streams into two distinct strings. This is
 accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
-@ftable @code
-@item (run/collecting @emph{fds . epf} )
--> @emph{[status port @dots{}]}  (syntax)
-@item (run/collecting* @emph{fds thunk})
--> @emph{[status port @dots{}]}  (procedure)
-@end ftable
-
-@code{Run/collecting} and @code{run/collecting*} run processes that
+@deffn Macro run/collecting fds . epf
+@code{Run/collecting} runs processes that
 produce multiple output streams and return ports open on these
 streams. To avoid issues of deadlock, @code{run/collecting} doesn't use
 pipes. Instead, it first runs the process with output to temp files,
 then returns ports open on the temp files. For example,
 
-@code
+@example
 (run/collecting (1 2) (ls))
-@end code
+@end example
 
 runs @code{ls} with stdout (fd 1) and stderr (fd 2)
 redirected to temporary files. When the @code{ls} is done,
 @code{run/collecting} returns three values: the @code{ls} process' exit
 status, and two ports open on the temporary files. The files are deleted
 before @code{run/collecting} returns, so when the ports are closed, they
-vanish. The @emph{fds} list of file descriptors is implicitly backquoted
+vanish. The @var{fds} list of file descriptors is implicitly backquoted
 by the special-form version.
 
 For example, if Kaiming has his mailbox protected, then
 
-@code
+@example
 (receive (status out err)
          (run/collecting (1 2) (cat /usr/kmshea/mbox))
    (list status (port->string out) (port->string err)))
-@end code
+@end example
 
 might produce the list
 
-@code
-(256 "" "cat: /usr/kmshea/mbox: Permission denied")
-@end code
+@example
+(256 "" "cat: /usr/kmshea/mbox: Permission denied").
+@end example
+@end deffn
+
+@deffn Function run/collecting* fds thunk
+Procedural analogue to the @code{run/collecting} form.
+@end deffn
 
 What is the deadlock hazard that causes @code{run/collecting} to use
 tempfiles? Processes with multiple output streams can lock up if they
@@ -1161,21 +1160,21 @@ Finally, outputs a single ")" to stderr, and exits.
 @end enumerate
 
 Our scsh programmer decides to run @code{myprog} with stdout and
-stderr redirected via Unix pipes to the ports @emph{port1} and
-@emph{port2}, respectively. He gets into trouble when he subsequently
-says @code{(read @emph{port2})}. The Scheme @code{read} routine reads
+stderr redirected via Unix pipes to the ports @var{port1} and
+@var{port2}, respectively. He gets into trouble when he subsequently
+says @code{(read @var{port2})}. The Scheme @code{read} routine reads
 the open paren, and then hangs in a @code{read(2)} system call trying
 to read a matching close paren. But before @code{myprog} sends the
 close paren down the stderr pipe, it first tries to write a megabyte
 of data to the stdout pipe. However, Scheme is not reading that pipe
 -- it's stuck waiting for input on stderr. So the stdout pipe quickly
 fills up, and @code{myprog} hangs, waiting for the pipe to drain. The
-@code{myprog} child is stuck in a stdout/@emph{port1} write; the
-Scheme parent is stuck in a stderr/@emph{port2} read. Deadlock.
+@code{myprog} child is stuck in a stdout/@var{port1} write; the
+Scheme parent is stuck in a stderr/@var{port2} read. Deadlock.
 
 Here's a concrete example that does exactly the above:
 
-@code
+@example
 (receive (status port1 port2)
          (run/collecting (1 2)
          (begin
@@ -1192,7 +1191,7 @@ Here's a concrete example that does exactly the above:
          ;; subproc's stderr.
          (read port2) ; Should return the empty list.
          (port->string port1)) ; Should return a big string.
-@end code
+@end example
 
 In order to avoid this problem, @code{run/collecting} and
 @code{run/collecting*} first run the child process to completion,
@@ -1222,32 +1221,22 @@ files as communication channels.
 @section Conditional process sequencing forms
 These forms allow conditional execution of a sequence of processes.
 
-@ftable @code
-@item (|| @math{pf_1} @dots{} @math{pf_n})
--> @emph{boolean} (syntax)
-@end ftable
-
+@deffn Macro || @math{pf_1} @dots{} @math{pf_n})
 Run each proc until one completes successfully (i.e., exit status
 zero). Return true if some proc completes successfully; otherwise
 @code{#f}.
+@end deffn
 
-@ftable @code
-@item (&& pf1 . . . pfn)
--> @emph{boolean} (syntax)
-@end ftable
-
+@deffn Macro && @math{pf_1} @dots{} @math{pf_n}
 Run each proc until one fails (i.e., exit status non-zero). Return
 true if all procs complete successfully; otherwise @code{#f}.
+@end deffn
 
 @section Process filters
 These procedures are useful for forking off processes to filter text
 streams.
 
-@ftable @code
-@item (make-char-port-filter @emph{filter})
--> @emph{procedure} (procedure)
-@end ftable
-
+@deffn Function make-char-port-filter filter
 The @emph{filter} argument is a character->character
 procedure. Returns a procedure that when called, repeatedly reads a
 character from the current input port, applies @emph{filter} to the
@@ -1256,7 +1245,7 @@ procedure returns upon reaching @acronym{eof} on the input port.  For example,
 to downcase a stream of text in a spell-checking pipeline, instead of
 using the Unix @code{tr A-Z a-z} command, we can say:
 
-@code
+@example
 (run (| (delatex)
         (begin ((char-filter char-downcase))) ; tr A-Z a-z
         (spell)
@@ -1264,23 +1253,21 @@ using the Unix @code{tr A-Z a-z} command, we can say:
         (uniq))
      (< scsh.tex)
      (> spell-errors.txt))
-@end code
+@end example
+@end deffn
 
-@ftable @code
-@item (make-string-port-filter @emph{filter [buflen]})
--> @emph{procedure} (procedure)
-@end ftable
-
-The @emph{filter} argument is a string->string procedure. Returns a
+@deffn Function make-string-port-filter filter [buflen]
+The @var{filter} argument is a string->string procedure. Returns a
 procedure that when called, repeatedly reads a string from the current
-input port, applies @emph{filter} to the string, and writes the result
+input port, applies @var{filter} to the string, and writes the result
 to the current output port.The procedure returns upon reaching @acronym{eof} on
 the input port.
 
-The optional @emph{buflen} argument controls the number of characters
-each internal read operation requests; this means that @emph{filter}
-will never be applied to a string longer than @emph{buflen} chars. The
-default @emph{buflen} value is 1024.
+The optional @var{buflen} argument controls the number of characters
+each internal read operation requests; this means that @var{filter}
+will never be applied to a string longer than @var{buflen} chars. The
+default @var{buflen} value is 1024.
+@end deffn
 
 @node System Calls, Networking, Process notation, Top
 @c    Current,      Next,       Previous,         Up
