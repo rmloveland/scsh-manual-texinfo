@@ -670,25 +670,25 @@ An extended process form is a specification of a Unix process to run,
 in a particular I/O environment:
 
 @example
-@emph{epf} ::= (@emph{pf} @math{redir_1 ... redir_n})
+@var{epf} ::= (@var{pf} @math{redir_1 ... redir_n})
 @end example
 
-where @emph{pf} is a process form and the @math{redir_i} are
+where @var{pf} is a process form and the @math{redir_i} are
 redirection specs. A @emph{redirection spec} is one of:
 
 @table @code
-@item (< @emph{[fdes]} @emph{file-name})
+@item (< @var{[fdes]} @var{file-name})
 Open file for read.
-@item (> @emph{[fdes]} @emph{file-name})
+@item (> @var{[fdes]} @var{file-name})
 Open file create/truncate.
-@item (<< @emph{[fdes]} @emph{object})
-Use @emph{object}'s printed representation.
-@item (>> @emph{[fdes]} @emph{file-name})
+@item (<< @var{[fdes]} @var{object})
+Use @var{object}'s printed representation.
+@item (>> @var{[fdes]} @var{file-name})
 Open file for append.
-@item (= @emph{fdes} @emph{fdes/port})
+@item (= @var{fdes} @var{fdes/port})
 Dup2
 @item (- fdes/port)
-Close @emph{fdes/port}.
+Close @var{fdes/port}.
 @item stdports
 0,1,2 dup'd from standard ports.
 @end table
@@ -698,7 +698,7 @@ redirections default to file descriptor 1.
 
 The subforms of a redirection are implicitly backquoted, and symbols
 stand for their print-names. So @code{(> ,x)} means ``output to the
-file named by Scheme variable @emph{x}'', and @code{(<
+file named by Scheme variable @var{x}'', and @code{(<
 /usr/shivers/.login)} means ``read from @code{/usr/shivers/.login}''.
 
 Here are two more examples of I/O redirection:
@@ -711,8 +711,8 @@ Here are two more examples of I/O redirection:
 These two redirections cause the file @code{fv[i]} to be opened on
 stdin, and @code{/tmp/buf} to be opened for append writes on stderr.
 
-The redirection @code{(<< @emph{object})} causes input to come from
-the printed representation of @emph{object}. For example,
+The redirection @code{(<< @var{object})} causes input to come from
+the printed representation of @var{object}. For example,
 
 @example
 (<< "The quick brown fox jumped over the lazy dog.")
@@ -741,26 +741,26 @@ is the same as
 (Here we use the implicit backquoting feature to compute the list to
 be printed.)
 
-The redirection @code{(= @emph{fdes} @emph{fdes/port})} causes
-@emph{fdes/port} to be dup'd into file descriptor @emph{fdes}. For
+The redirection @code{(= @var{fdes} @var{fdes/port})} causes
+@var{fdes/port} to be dup'd into file descriptor @var{fdes}. For
 example, the redirection
 
 @example
 (= 2 1)
 @end example
 
-causes stderr to be the same as stdout. @emph{Fdes/port} can also be a
+causes stderr to be the same as stdout. @var{Fdes/port} can also be a
 port, for code:
 
 @example
 (= 2 ,(current-output-port))
 @end example
 
-causes stderr to be @code{dup}'d from the current output port. In this case, it
-is an error if the port is not a file port (e.g., a string port). More
-complex redirections can be accomplished using the @code{begin} process
-form, discussed below, which gives the programmer full control of I/O
-redirection from Scheme.
+causes stderr to be @code{dup}'d from the current output port. In this
+case, it is an error if the port is not a file port (e.g., a string
+port). More complex redirections can be accomplished using the
+@code{begin} process form, discussed below, which gives the programmer
+full control of I/O redirection from Scheme.
 
 @subsection Port and file descriptor sync
 It's important to remember that rebinding Scheme's current I/O ports
@@ -800,24 +800,24 @@ A @emph{process form} specifies a computation to perform as an
 independent Unix process. It can be one of the following:
 
 @table @code 
-@item (begin . @emph{scheme-code})
-Run @emph{scheme-code} in a fork.
+@item (begin . @var{scheme-code})
+Run @var{scheme-code} in a fork.
 @item (| @math{pf_1} @dots{} @math{pf_n})
 Simple pipeline.
-@item (|+ @emph{connect-list} @math{pf_1} @dots{} @math{pf_n})
+@item (|+ @var{connect-list} @math{pf_1} @dots{} @math{pf_n})
 Complex pipeline.
-@item (epf . @emph{epf})
+@item (epf . @var{epf})
 An extended process form.
 @item (prog @math{arg_1} @dots{} @math{arg_n})
 Default: exec the program.
 @end table
 
-The default case @code{(@emph{prog} @math{arg_1} @dots{}
+The default case @code{(@var{prog} @math{arg_1} @dots{}
 @math{arg_n})} is also implicitly backquoted. That is, it is
 equivalent to:
 
 @example
-(begin (apply exec-path `(@emph{prog} @math{arg_1} @dots{} @math{arg_n})))
+(begin (apply exec-path `(@var{prog} @math{arg_1} @dots{} @math{arg_n})))
 @end example
 
 @code{Exec-path} is the version of the @code{exec(3)} system call that
@@ -837,7 +837,7 @@ and get the right file.
 
 A @emph{connect-list} is a specification of how two processes are to
 be wired together by pipes. It has the form @code{((@math{from_1}
-@math{from_2} @dots{} @emph{to}) @dots{})} and is implicitly
+@math{from_2} @dots{} @var{to}) @dots{})} and is implicitly
 backquoted. For example,
 
 @example
@@ -890,10 +890,10 @@ set up pipelines. However, the definitions of the @code{&} and
 @code{run} macros are very simple:
 
 @table @code
-@item (& . @emph{epf})
-@equiv{} @code{(fork (lambda () (exec-epf . @emph{epf})))}
-@item (run . @emph{epf})
-@equiv{} @code{(wait (& . @emph{epf}))}
+@item (& . @var{epf})
+@equiv{} @code{(fork (lambda () (exec-epf . @var{epf})))}
+@item (run . @var{epf})
+@equiv{} @code{(wait (& . @var{epf}))}
 @end table
 
 @subsection Procedures and special forms
@@ -911,8 +911,8 @@ the syntax/procedure equivalents:
 @code{fork/pipe+}
 @item exec-epf
 @code{exec-path}
-@item @emph{redirection}
-@code{open}, @code{dup}
+@item <, =, >
+Redirection specs use @code{open} and @code{dup}.
 @item &
 @code{fork}
 @item run
@@ -972,36 +972,11 @@ descriptor 1 and the current output port bound to a pipe.
 The delimiting newlines are not included in the strings returned by
 @code{run/strings}.
 
-These special forms just expand into calls to the following analogous
-procedures.
-
-@deffn Function run/port* thunk
-@xref{run/port}.
-@end deffn
-
-@deffn Function run/file* thunk
-@xref{run/file}.
-@end deffn
-
-@deffn Function run/string* thunk
-@xref{run/string}.
-@end deffn
-
-@deffn Function run/strings* thunk @xref{run/strings}
-@end deffn
-
-@deffn Function run/sexp* thunk
-@xref{run/sexp}
-@end deffn
-
-@deffn Function run/sexps* thunk      
-@xref{run/sexps}
-@end deffn
-
-For example, @code{(run/port . @emph{epf})} expands into
+The above special forms just expand into calls to analogous
+procedures. For example, @code{(run/port . @var{epf})} expands into
 
 @example
-(run/port* (* () (exec-epf . @emph{epf}))).
+(run/port* (lambda () (exec-epf . @var{epf}))).
 @end example
 
 The following procedures are also of utility for generally parsing
@@ -1035,8 +1010,8 @@ trivial to define, being merely @code{port->list} curried with the
 appropriate parsers:
 
 @example
-(port->string-list @emph{port}) @equiv{} (port->list read-line @emph{port})
-(port->sexp-list @emph{port})   @equiv{} (port->list read @emph{port})
+(port->string-list @var{port}) @equiv{} (port->list read-line @var{port})
+(port->sexp-list @var{port})   @equiv{} (port->list read @var{port})
 @end example
 
 The following compositions also hold:
@@ -1054,19 +1029,20 @@ operations over an input stream.  It repeatedly uses @var{reader} to
 read an object from @var{port}.  If the first read returns
 @acronym{eof}, then the entire @code{port-fold} operation returns the
 seeds as multiple values.  If the first read operation returns some
-other value @emph{v}, then @var{op} is applied to @emph{v} and the
+other value @var{v}, then @var{op} is applied to @var{v} and the
 seeds: @code{(@var{op} @var{v} . @var{seeds})}.  This should return a
 new set of seed values, and the reduction then loops, reading a new
 value from the port, and so forth.  (If multiple seed values are used,
 then @var{op} must return multiple values.)
 
-For example, @code{(port->list @var{reader} @var{port})} could be defined as
+For example, @code{(port->list @var{reader} @var{port})} could be
+defined as
 
 @example
 (reverse (port-fold @var{port} @var{reader} cons '()))
 @end example
 
-An imperative way to look at @codeex{port-fold} is to say that it
+An imperative way to look at @code{port-fold} is to say that it
 abstracts the idea of a loop over a stream of values read from some
 port, where the seed values express the loop state.
 
@@ -1084,7 +1060,6 @@ of the process. These special forms and procedures provide more
 complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
-@anchor{run-port-proc}
 @deffn Macro run/port+proc . epf
 This special form and its analogous procedure can be used if the
 programmer also wishes access to the process' pid, exit status, or
@@ -1111,7 +1086,18 @@ when the @code{zcat} fills up its output pipe buffer.
 @end deffn
 
 @deffn Function run/port+proc* thunk
-@ref{run-port-proc}.
+This is the procedural analogue of the special form
+@code{run/port+proc}, such that
+
+@example
+(run/port+proc (zcat tr91-145.tex.Z))
+@end example
+
+expands into
+
+@example
+(run/port+proc* (lambda () (zcat tr91-145.tex.Z))).
+@end example
 @end deffn
 
 @subsection Multiple stream capture
