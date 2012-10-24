@@ -1,4 +1,6 @@
 
+* TODO add all missing footnotes
+
 * TODO wrap all mentions of `dup' with @code
 
 * TODO what is correct way to typeset `stdin', `stdout', &c.?
