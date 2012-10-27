@@ -1692,41 +1692,62 @@ the initial values of @code{(current-input-port)},
 ports are initialised with @var{revealed} set to 1, so that stdin,
 stdout, and stderr are not closed even if the user drops the port.
 
-Unrevealed file ports have the nice property that they can be closed whenall pointers to the port are dropped. This can happen during gc, or at an exec()--since all memory is dropped at an exec(). No one knows the filedescriptor associated with the port, so the exec'd process certainly can't refer to it.
+Unrevealed file ports have the nice property that they can be closed
+when all pointers to the port are dropped. This can happen during gc,
+or at an @code{exec()}--since all memory is dropped at an
+@code{exec()}. No one knows the file descriptor associated with the
+port, so the @code{exec}'d process certainly can't refer to it.
 
-This facility preserves the transparent close-on-collect property for file portsthat are used in straightforward ways, yet allows access to the underlying Unix substrate without interference from the garbage collector. This is critical, sinceshell programming absolutely requires access to the Unix file descriptors, as their numerical values are a critical part of the process interface.
+This facility preserves the transparent close-on-collect property for
+file ports that are used in straightforward ways, yet allows access to
+the underlying Unix substrate without interference from the garbage
+collector. This is critical, since shell programming absolutely
+requires access to the Unix file descriptors, as their numerical
+values are a critical part of the process interface.
 
-A port's underlying file descriptor can be shifted around with dup(2) whenconvenient. That is, the actual file descriptor on top of which a port is constructed can be shifted around underneath the port by the scsh kernel when necessary. This is important, because when the user is setting up file descrip-tors prior to a exec(2), he may explicitly use a file descriptor that has alreadybeen allocated to some port. In this case, the scsh kernel just shifts the port's file descriptor to some new location with dup, freeing up its old descriptor. Thisprevents errors from happening in the following scenario. Suppose we have a
-file open on port f. Now we want to run a program that reads input on file 0,writes output to file 1, errors to file 2, and logs execution information on file 3. We want to run this program with input from f. So we write:
+A port's underlying file descriptor can be shifted around with @code{dup(2)}
+hen convenient. That is, the actual file descriptor on top of which a
+port is constructed can be shifted around underneath the port by the
+scsh kernel when necessary. This is important, because when the user
+is setting up file descriptors prior to an @code{exec(2)}, he may explicitly
+use a file descriptor that has already been allocated to some port. In
+this case, the scsh kernel just shifts the port's file descriptor to
+some new location with @code{dup}, freeing up its old
+descriptor. This prevents errors from happening in the following
+scenario. Suppose we have a file open on port @var{f}. Now we want to run a
+program that reads input on file 0, writes output to file 1, errors to
+file 2, and logs execution information on file 3. We want to run this
+program with input from @var{f}. So we write:
 
+@example
 (run (/usr/shivers/bin/prog)
+     (> 1 output.txt)
+     (> 2 error.log)
+     (> 3 trace.log)
+     (= 0 ,f))
+@end example
 
-(> 1 output.txt)
-(> 2 error.log)
-(> 3 trace.log)
-(= 0 ,f))
+Now, suppose by ill chance that, unbeknownst to us, when the operating
+system opened @var{f}'s file, it allocated descriptor 3 for it. If we
+blindly redirect @code{trace.log} into file descriptor 3, we'll clobber @var{f}!
+However, the port-shuffling machinery saves us: when the @code{run} form
+tries to @code{dup} @code{trace.log}'s file descriptor to 3, @code{dup} will notice that
+file descriptor 3 is already associated with an unrevealed port
+(i.e., @var{f}). So, it will first move @var{f} to some other file
+descriptor. This keeps @var{f} alive and well so that it can subsequently be
+@code{dup}'d into descriptor 0 for @code{prog}'s stdin.
 
-Now, suppose by ill chance that, unbeknownst to us, when the operatingsystem opened
+The port-shifting machinery makes the following guarantee: a port is
+only moved when the underlying file descriptor is closed, either by a
+@code{close()} or a @code{dup2()} operation. Otherwise a port/file-descriptor
+association is stable.
 
-f's file, it allocated descriptor 3 for it. If we blindly redirect
-trace.log into file descriptor 3, we'll clobber f! However, the port-shufflingmachinery saves us: when the
-
-run form tries to dup trace.log's file descriptorto 3,
-dup will notice that file descriptor 3 is already associated with an unre-vealed port (i.e.,
-
-f). So, it will first move f to some other file descriptor. Thiskeeps
-f alive and well so that it can subsequently be dup'd into descriptor 0for
-prog's stdin.
-
-The port-shifting machinery makes the following guarantee: a port is onlymoved when the underlying file descriptor is closed, either by a
-
-close() or a
-dup2() operation. Otherwise a port/file-descriptor association is stable.
-
-Under normal circumstances, all this machinery just works behind thescenes to keep things straightened out. The only time the user has to think
-
-about it is when he starts accessing file descriptors from ports, which he shouldalmost never have to do. If a user starts asking what file descriptors have been
-allocated to what ports, he has to take responsibility for managing this infor-mation.
+Under normal circumstances, all this machinery just works behind the
+scenes to keep things straightened out. The only time the user has to
+think about it is when he starts accessing file descriptors from
+ports, which he should almost never have to do. If a user starts asking
+what file descriptors have been allocated to what ports, he has to
+take responsibility for managing this information.
 
 @subsection Port-mapping machinery
 The procedures provided in this section are almost never needed. You maysafely skim or completely skip this section on a first reading.
