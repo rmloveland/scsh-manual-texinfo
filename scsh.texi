@@ -1750,55 +1750,81 @@ what file descriptors have been allocated to what ports, he has to
 take responsibility for managing this information.
 
 @subsection Port-mapping machinery
-The procedures provided in this section are almost never needed. You maysafely skim or completely skip this section on a first reading.
+The procedures provided in this section are almost never needed. You
+may safely skim or completely skip this section on a first reading.
 
-Here are the routines for manipulating ports in scsh. The important pointsto remember are:
+Here are the routines for manipulating ports in scsh. The important
+points to remember are:
 
-* A file port is associated with an open file, not a particular file descriptor.
+@itemized
+@item
+A file port is associated with an open file, not a particular
+file descriptor.
 
-* The association between a file port and a particular file descriptor is neverchanged except when the file descriptor is explicitly closed. "Closing"
+@item
+The association between a file port and a particular file descriptor
+is never changed except when the file descriptor is explicitly
+closed. ``Closing'' includes being used as the target of a
+@code{dup2}, so the set of procedures below that close their targets
+are @code{close}, two-argument @code{dup}, and @code{move->fdes}. If
+the target file descriptor of one of these routines has an allocated
+port, the port will be shifted to another freshly-allocated file
+descriptor, and marked as unrevealed, thus preserving the port but
+freeing its old file descriptor.
+@end itemize
 
-includes being used as the target of a dup2, so the set of procedures belowthat close their targets are
+These rules are what is necessary to ``make things work out'' with no
+surprises in the general case.
 
-close, two-argument dup, and move->fdes. Ifthe target file descriptor of one of these routines has an allocated port,
+@deffn Function fdes->inport fd
+This procedure increments the port's revealed count.
+@end deffn
 
-the port will be shifted to another freshly-allocated file descriptor, andmarked as unrevealed, thus preserving the port but freeing its old file
-descriptor.
-These rules are what is necessary to "make things work out" with no surprisesin the general case.
+@deffn Function fdes->outport fd
+This procedure increments the port's revealed count.
+@end deffn
 
-(fdes->inport fd) -! port procedure
-(fdes->outport fd) -! port procedure
-(port->fdes port) -! fixnum procedure
+@deffn Function port->fdes port
+This procedure increments the port's revealed count.
+@end deffn
 
-These increment the port's revealed count.
+@deffn Function port-revealed port
+Return the port's revealed count if positive, otherwise @code{#f}.
+@end deffn
 
-(port-revealed port) -! integer or #f procedure
-
-Return the port's revealed count if positive, otherwise #f.
-
-(release-port-handle port) -! undefined procedure
-
+@deffn Function release-port-handle port
 Decrement the port's revealed count.
+@end deffn
 
-(call/fdes fd/port consumer) -! value(s) of consumer procedure
+@deffn Function call/fdes fd/port consumer
+Calls @var{consumer} on a file descriptor; takes care of revealed
+bookkeeping. If @var{fd/port} is a file descriptor, this is just
+@code{(@var{consumer} @var{fd/port})}. If @var{fd/port} is a port,
+calls @var{consumer} on its underlying file descriptor. While
+@var{consumer} is running, the port's revealed count is incremented.
 
-Calls consumer on a file descriptor; takes care of revealed bookkeeping.If fd/port is a file descriptor, this is just
+When @code{call/fdes} is called with port argument, you are not
+allowed to throw into @var{consumer} with a stored continuation, as
+that would violate the revealed-count bookkeeping.
+@end deffn
 
-(consumer fd/port). If fd/port is aport, calls consumer on its underlying file descriptor. While consumer is
+@deffn Function move->fdes fd/port target-fd
+Maps fd->fd and port->port.
 
-running, the port's revealed count is incremented.
-When call/fdes is called with port argument, you are not allowed tothrow into consumer with a stored continuation, as that would violate the
+If @var{fd/port} is a file descriptor not equal to @var{target-fd},
+@code{dup} it to @var{target-fd} and close it. Returns
+@var{target-fd}.
 
-revealed-count bookkeeping.
-(move->fdes fd/port target-fd) -! port or fdes procedure
+If @var{fd/port} is a port, it is shifted to @var{target-fd}, by
+@code{dup}ing its underlying file descriptor if
+necessary. @var{Fd/port}'s original file descriptor is closed (if it
+was different from @var{target-fd}). Returns the port. This operation
+resets @var{fd/port}'s revealed count to 1.
 
-Maps fd!fd and port!port.
-If fd/port is a file-descriptor not equal to target-fd, dup it to target-fd andclose it. Returns target-fd.
-
-If fd/port is a port, it is shifted to target-fd, by duping its underlying file-descriptor if necessary. Fd/port's original file descriptor is closed (if it was
-different from target-fd). Returns the port. This operation resets fd/port'srevealed count to 1.
-
-In all cases when fd/port is actually shifted, if there is a port already usingtarget-fd, it is first relocated to some other file descriptor.
+In all cases when @var{fd/port} is actually shifted, if there is a
+port already using @var{target-fd}, it is first relocated to some
+other file descriptor.
+@end deffn
 
 @subsection Unix I/O
 
