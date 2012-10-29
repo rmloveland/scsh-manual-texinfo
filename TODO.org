@@ -1,4 +1,6 @@
 
+* TODO add `@var' to all function definition variables
+
 * TODO add all missing footnotes
 
 * TODO wrap all mentions of `dup' with @code

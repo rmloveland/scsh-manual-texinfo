@@ -865,19 +865,19 @@ programs by embedding them inside special Scheme forms. There are
 three basic Scheme forms that use extended process forms:
 @code{exec-epf}, @code{&}, and @code{run}.
 
-@deffn Macro exec-epf . epf
+@deffn Macro exec-epf . @var{epf}
 The @code{(exec-epf . @var{epf})} form nukes the current process: it
 establishes the I/O redirections and then overlays the current process
 with the requested computation.
 @end deffn
 
-@deffn Macro & . epf
+@deffn Macro & . @var{epf}
 The @code{(& . @var{epf})} form is similar to @code{exec-epf}, except
 that the process is forked off in background. The form returns the
 subprocess' process object.
 @end deffn
 
-@deffn Macro run . epf
+@deffn Macro run . @var{epf}
 The @code{(run . @var{epf})} form runs the process in foreground:
 after forking off the computation, it waits for the subprocess to
 exit, and returns its exit status.
@@ -930,37 +930,37 @@ There is a family of procedures and special forms that can be used to
 capture the output of processes as Scheme data.
 
 @anchor{run/port}
-@deffn Macro run/port . epf        
+@deffn Macro run/port . @var{epf}
 Value is a port open on process' stdout. Returns immediately after
 forking child.
 @end deffn
 
 @anchor{run/file}
-@deffn Macro run/file . epf        
+@deffn Macro run/file . @var{epf}
 Value is name of a temp file containing process' output. Returns when
 process exits.
 @end deffn
 
 @anchor{run/string}
-@deffn Macro run/string . epf      
+@deffn Macro run/string . @var{epf}
 Value is a string containing process' output. Returns when
 @acronym{eof} read.
 @end deffn
 
 @anchor{run/strings}
-@deffn Macro run/strings . epf     
+@deffn Macro run/strings . @var{epf}
 Splits process' output into a list of newline-delimited
 strings. Returns when @acronym{eof} read.
 @end deffn
 
 @anchor{run/sexp}
-@deffn Macro run/sexp . epf        
+@deffn Macro run/sexp . @var{epf}
 Reads a single object from process' stdout with @code{read}. Returns
 as soon as the read completes.
 @end deffn
 
 @anchor{run/sexps}
-@deffn Macro run/sexps . epf       
+@deffn Macro run/sexps . @var{epf}
 Repeatedly reads objects from process' stdout with
 @code{read}. Returns accumulated list upon @acronym{eof}.
 @end deffn
@@ -982,24 +982,24 @@ procedures. For example, @code{(run/port . @var{epf})} expands into
 The following procedures are also of utility for generally parsing
 input streams in scsh:
 
-@deffn Function port->string port
+@deffn Function port->string @var{port}
 @code{Port->string} reads the port until @acronym{eof}, then returns
 the accumulated string.
 @end deffn
 
-@deffn Function port->sexp-list port
+@deffn Function port->sexp-list @var{port}
 @code{Port->sexp-list} repeatedly reads data from the port until
 @acronym{eof}, then returns the accumulated list of items.
 @end deffn
 
-@deffn Function port->string-list port
+@deffn Function port->string-list @var{port}
 @code{Port->string-list} repeatedly reads newline-terminated strings
 from the port until @acronym{eof}, then returns the accumulated list
 of strings. The delimiting newlines are not part of the returned
 strings.
 @end deffn
 
-@deffn Function port->list reader port
+@deffn Function port->list @var{reader} @var{port}
 @code{Port->list} generalises these two procedures. It uses
 @emph{reader} to repeatedly read objects from a port. It accumulates
 these objects into a list, which is returned upon @acronym{eof}.
@@ -1023,7 +1023,7 @@ run/sexp*       @equiv{} read                @bullet{}    run/port*
 run/sexps*      @equiv{} port->sexp-list     @bullet{}    run/port*
 @end example
 
-@deffn Function port-fold port reader op . seeds
+@deffn Function port-fold @var{port} @var{reader} @var{op} . @var{seeds}
 This procedure can be used to perform a variety of iterative
 operations over an input stream.  It repeatedly uses @var{reader} to
 read an object from @var{port}.  If the first read returns
@@ -1060,7 +1060,7 @@ of the process. These special forms and procedures provide more
 complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
-@deffn Macro run/port+proc . epf
+@deffn Macro run/port+proc . @var{epf}
 This special form and its analogous procedure can be used if the
 programmer also wishes access to the process' pid, exit status, or
 other information. They both fork off a subprocess, returning two
@@ -1085,7 +1085,7 @@ Note that you must @emph{first} do the @code{port->string} and
 when the @code{zcat} fills up its output pipe buffer.
 @end deffn
 
-@deffn Function run/port+proc* thunk
+@deffn Function run/port+proc* @var{thunk}
 This is the procedural analogue of the special form
 @code{run/port+proc}, such that
 
@@ -1107,7 +1107,7 @@ stdout and stderr streams into two distinct strings. This is
 accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
-@deffn Macro run/collecting fds . epf
+@deffn Macro run/collecting @var{fds} . @var{epf}
 @code{Run/collecting} runs processes that
 produce multiple output streams and return ports open on these
 streams. To avoid issues of deadlock, @code{run/collecting} doesn't use
@@ -1141,7 +1141,7 @@ might produce the list
 @end example
 @end deffn
 
-@deffn Function run/collecting* fds thunk
+@deffn Function run/collecting* @var{fds} @var{thunk}
 Procedural analogue to the @code{run/collecting} form.
 @end deffn
 
@@ -1236,7 +1236,7 @@ true if all procs complete successfully; otherwise @code{#f}.
 These procedures are useful for forking off processes to filter text
 streams.
 
-@deffn Function make-char-port-filter filter
+@deffn Function make-char-port-filter @var{filter}
 The @emph{filter} argument is a character->character
 procedure. Returns a procedure that when called, repeatedly reads a
 character from the current input port, applies @emph{filter} to the
@@ -1256,7 +1256,7 @@ using the Unix @code{tr A-Z a-z} command, we can say:
 @end example
 @end deffn
 
-@deffn Function make-string-port-filter filter [buflen]
+@deffn Function make-string-port-filter @var{filter} [@var{buflen}]
 The @var{filter} argument is a string->string procedure. Returns a
 procedure that when called, repeatedly reads a string from the current
 input port, applies @var{filter} to the string, and writes the result
@@ -1302,13 +1302,13 @@ For reference purposes, the Unix @code{errno} numbers are bound to the
 variables @code{errno/perm}, @code{errno/noent}, etc. System calls
 never return @code{error/intr}---they automatically retry.
 
-@deffn Function errno-error errno syscall . data
+@deffn Function errno-error @var{errno} @var{syscall} . @var{data}
 Raises a Unix error exception for Unix error number @code{errno}. The
 syscall and data arguments are packaged up in the exception packet
 passed to the exception handler.
 @end deffn
 
-@deffn Function with-errno-handler* handler thunk
+@deffn Function with-errno-handler* @var{handler} @var{thunk}
 Unix syscalls raise error exceptions by calling @code{errno-error}. Programs can use 
 @code{with-errno-handler*} to establish handlers for these exceptions.
 
@@ -1342,7 +1342,7 @@ continuation. This procedure can be sugared over with the following syntax:
 @end example
 @end deffn
 
-@deffn Macro with-errno-handler handler-spec . body
+@deffn Macro with-errno-handler @var{handler-spec} . @var{body}
 This form executes the body forms with a particular errno handler
 installed. When an errno error is raised, the handler search
 machinery will bind variable @var{errno} to the error's integer code,
@@ -1427,7 +1427,7 @@ I/O.
 
 @subsection Port manipulation and standard ports
 
-@deffn Function close-after port consumer
+@deffn Function close-after @var{port} @var{consumer}
 Returns @code{(@var{consumer} @var{port})}, but closes the port on
 return. No @code{dynamic-wind} magic.
 @flushright
@@ -1441,52 +1441,52 @@ produces a port used for error messages---the scsh equivalent of
 stderr.
 @end deffn
 
-@deffn Function with-current-input-port* port thunk
+@deffn Function with-current-input-port* @var{port} @var{thunk}
 This procedure installs @var{port} as the current input for the
 duration of a call to @var{thunk}.
 @end deffn
 
-@deffn Function with-current-output-port* port thunk
+@deffn Function with-current-output-port* @var{port} @var{thunk}
 This procedure installs @var{port} as the current output for the
 duration of a call to @var{thunk}.
 @end deffn
 
-@deffn Function with-error-output-port* port thunk
+@deffn Function with-error-output-port* @var{port} @var{thunk}
 This procedure installs @var{port} as the error output port for the
 duration of a call to @var{thunk}.
 @end deffn
 
-@deffn Macro with-current-input-port port . body
+@deffn Macro with-current-input-port @var{port} . @var{body}
 This special form is simply syntactic sugar for the
 @code{with-current-input-port*} procedure.
 @end deffn
 
-@deffn Macro with-current-output-port port . body
+@deffn Macro with-current-output-port @var{port} . @var{body}
 This special form is simply syntactic sugar for the
 @code{with-current-output-port*} procedure.
 @end deffn
 
-@deffn Macro with-error-output-port port . body
+@deffn Macro with-error-output-port @var{port} . @var{body}
 This special form is simply syntactic sugar for the
 @code{with-error-output-port*} procedure.
 @end deffn
 
-@deffn Function set-current-input-port! port
+@deffn Function set-current-input-port! @var{port}
 This procedure alters the dynamic binding of the current I/O
 port reading procedures to a new value.
 @end deffn
 
-@deffn Function set-current-output-port! port
+@deffn Function set-current-output-port! @var{port}
 This procedure alters the dynamic binding of the current I/O
 port writing procedures to a new value.
 @end deffn
 
-@deffn Function set-error-output-port! port
+@deffn Function set-error-output-port! @var{port}
 This procedure alters the dynamic binding of the current I/O
 port writing procedures to a new value.
 @end deffn
 
-@deffn Function close fd/port
+@deffn Function close @var{fd/port}
 Close the port or file descriptor. If @var{fd/port} is a file
 descriptor, and it has a port allocated to it, the port is shifted to
 a new file descriptor created with @code{(dup @var{fd/port})} before
@@ -1543,7 +1543,7 @@ However, you are more likely to find the dynamic-extent variant,
 @code{with-stdio-ports*}, to be of use in general programming.
 @end deffn
 
-@deffn Function with-stdio-ports* thunk
+@deffn Function with-stdio-ports* @var{thunk}
 @code{With-stdio-ports*} binds the standard ports
 @code{(current-input-port)}, @code{(current-output-port)}, and
 @code{(error-output-port)} to be ports on file descriptors 0, 1, 2,
@@ -1557,7 +1557,7 @@ and then calls @var{thunk}. It is equivalent to:
 @end example
 @end deffn
 
-@deffn Macro with-stdio-ports body . . . 
+@deffn Macro with-stdio-ports @var{body} . . . 
 The @code{with-stdio-ports} special form is merely syntactic sugar for
 @code{with-stdio-ports*}.
 @end deffn
@@ -1567,7 +1567,7 @@ Scheme 48 has string ports, which you can use. Scsh has not committed
 to the particular interface or names that Scheme 48 uses, so be warned
 that the interface described herein may be liable to change.
 
-@deffn Function make-string-input-port string
+@deffn Function make-string-input-port @var{string}
 Returns a port that reads characters from the supplied string.
 @end deffn
 
@@ -1576,13 +1576,13 @@ Returns a port that reads characters from the supplied string.
 collects the characters given to it into a string.
 @end deffn
 
-@deffn Function string-output-port-output port
+@deffn Function string-output-port-output @var{port}
 @code{String-output-port-output} retrieves a string when applied to a
 string output port, such as is generated by
 @code{make-stringe-output-port}.
 @end deffn
 
-@deffn Function call-with-string-output-port procedure
+@deffn Function call-with-string-output-port @var{procedure}
 The @var{procedure} value is called on a port. When it returns,
 @code{call-with-string-output-port} returns a string containing the
 characters that were written to that port during the execution of
@@ -1776,27 +1776,27 @@ freeing its old file descriptor.
 These rules are what is necessary to ``make things work out'' with no
 surprises in the general case.
 
-@deffn Function fdes->inport fd
+@deffn Function fdes->inport @var{fd}
 This procedure increments the port's revealed count.
 @end deffn
 
-@deffn Function fdes->outport fd
+@deffn Function fdes->outport @var{fd}
 This procedure increments the port's revealed count.
 @end deffn
 
-@deffn Function port->fdes port
+@deffn Function port->fdes @var{port}
 This procedure increments the port's revealed count.
 @end deffn
 
-@deffn Function port-revealed port
+@deffn Function port-revealed @var{port}
 Return the port's revealed count if positive, otherwise @code{#f}.
 @end deffn
 
-@deffn Function release-port-handle port
+@deffn Function release-port-handle @var{port}
 Decrement the port's revealed count.
 @end deffn
 
-@deffn Function call/fdes fd/port consumer
+@deffn Function call/fdes @var{fd/port} @var{consumer}
 Calls @var{consumer} on a file descriptor; takes care of revealed
 bookkeeping. If @var{fd/port} is a file descriptor, this is just
 @code{(@var{consumer} @var{fd/port})}. If @var{fd/port} is a port,
@@ -1808,7 +1808,7 @@ allowed to throw into @var{consumer} with a stored continuation, as
 that would violate the revealed-count bookkeeping.
 @end deffn
 
-@deffn Function move->fdes fd/port target-fd
+@deffn Function move->fdes @var{fd/port} @var{target-fd}
 Maps fd->fd and port->port.
 
 If @var{fd/port} is a file descriptor not equal to @var{target-fd},
@@ -1828,69 +1828,86 @@ other file descriptor.
 
 @subsection Unix I/O
 
-(dup fd/port [newfd]) -! fd/port procedure
-(dup->inport fd/port [newfd]) -! port procedure
-(dup->outport fd/port [newfd]) -! port procedure
-(dup->fdes fd/port [newfd]) -! fd procedure
+@deffn Function dup @var{fd/port} [@var{newfd}]
+This procedure provides the functionality of C's @code{dup()} and
+@code{dup2()}. @code{Dup}'s return value depends on on thetype of
+@var{fd/port}--it maps fd->fd and port->port.
+@end deffn
 
-These procedures provide the functionality of C's dup() and dup2().The different routines return different types of values:
+@deffn Function dup->inport @var{fd/port} [@var{newfd}]
+This procedure provides the functionality of C's @code{dup()} and
+@code{dup2()}. @code{Dup->inport} returns an input port.
+@end deffn
 
-dup->inport,
-dup->outport, and dup->fdes return input ports, output ports, and in-teger file descriptors, respectively.
+@deffn Function dup->outport @var{fd/port} [@var{newfd}]
+This procedure provides the functionality of C's @code{dup()} and
+@code{dup2()}. @code{Dup->outport} returns an output port.
+@end deffn
 
-dup's return value depends on on thetype of fd/port--it maps fd!fd and port!port.
+@deffn Function dup->fdes @var{fd/port} [@var{newfd}]
+This procedure provides the functionality of C's @code{dup()} and
+@code{dup2()}. @code{Dup->fdes} returns an integer file descriptor.
+@end deffn
 
-These procedures use the Unix dup() syscall to replicate the file descrip-tor or file port fd/port. If a newfd file descriptor is given, it is used as the
-target of the dup operation, i.e., the operation is a dup2(). In this case,procedures that return a port (such as
+These procedures use the Unix @code{dup()} syscall to replicate the file
+descriptor or file port @var{fd/port}. If a @var{newfd} file descriptor
+is given, it is used as the target of the @code{dup} operation, i.e.,
+the operation is a @code{dup2()}. In this case, procedures that return a
+port (such as @code{dup->inport}) will return one with the revealed
+count set to one. For example, @code{(dup (current-input-port) 5)}
+produces a new port with underlying file descriptor 5, whose revealed
+count is 1. If @var{newfd} is not specified, then the operating system
+chooses the file descriptor, and any returned port is marked as
+unrevealed.
 
-dup->inport) will return one withthe revealed count set to one. For example,
+If the @var{newfd} target is given, and some port is already using that
+file descriptor, the port is first quietly shifted (with another
+@code{dup}) to some other file descriptor (zeroing its revealed count).
 
-(dup (current-input-port)
-5) produces a new port with underlying file descriptor 5, whose revealedcount is 1. If newfd is not specified, then the operating system chooses the
+Since Scheme doesn't provide read/write ports, @code{dup->inport} and
+@code{dup->outport} can be useful for getting an output version of an
+input port, or vice versa. For example, if @var{p} is an input port open
+on a tty, and we would like to do output to that tty, we can simply use
+@code{(dup->outport @var{p})} to produce an equivalent output port for
+the tty. Be sure to open the file with the @code{open/read+write} flag
+for this.
 
-file descriptor, and any returned port is marked as unrevealed.
-If the newfd target is given, and some port is already using that file de-scriptor, the port is first quietly shifted (with another
+@deffn Function seek @var{fd/port} @var{offset} [@var{whence}]
+Reposition the I/O cursor for a file descriptor or port. @var{whence} is one of
+{ @code{seek/set}, @code{seek/delta}, @code{seek/end} }, and defaults to @code{seek/set}. If
+@code{seek/set}, then @var{offset} is an absolute index into the file; if
+@code{seek/delta}, then @var{offset} is a relative offset from the current I/O cursor;
+if @code{seek/end}, then @var{offset} is a relative offset from the end of file. The
+@var{fd/port} argument may be a port or an integer file descriptor. Not all
+such values are @code{seek}able; this is dependent on the OS
+implementation. The return value is the resulting position of the I/O
+cursor in the I/O stream.
 
-dup) to some otherfile descriptor (zeroing its revealed count).
-
-Since Scheme doesn't provide read/write ports, dup->inport and
-dup->outport can be useful for getting an output version of an inputport, or vice versa. For example, if
-
-p is an input port open on a tty, and wewould like to do output to that tty, we can simply use
-
-(dup->outport p)to produce an equivalent output port for the tty. Be sure to open the file
-
-with the open/read+write flag for this.
-(seek fd/port offset [whence]) -! integer procedure
-
-Reposition the I/O cursor for a file descriptor or port. whence is oneof {
-
-seek/set, seek/delta, seek/end}, and defaults to seek/set. If
-seek/set, then offset is an absolute index into the file; if seek/delta,then offset is a relative offset from the current I/O cursor; if
-
-seek/end,then offset is a relative offset from the end of file. The fd/port argument
-
-may be a port or an integer file descriptor. Not all such values are seek-able; this is dependent on the OS implementation. The return value is the
-resulting position of the I/O cursor in the I/O stream.
-
-Oops: The current implementation doesn't handle offset argumentsthat are not immediate integers (i.e., representable in 30 bits).
+@flushright
+Oops: The current implementation doesn't handle @var{offset} arguments
+that are not immediate integers (i.e., representable in 30 bits).
 
 Oops: The current implementation doesn't handle buffered ports.
+@end flushright
+@end deffn
 
-(tell fd/port) -! integer procedure
+@deffn Function tell @var{fd/port}
+Returns the position of the I/O cursor in the the I/O stream. Not all
+file descriptors or ports support cursor-reporting; this is dependent on
+the OS implementation.
+@end deffn
 
-Returns the position of the I/O cursor in the the I/O stream. Not all filedescriptors or ports support cursor-reporting; this is dependent on the
-
-OS implementation.
-(open-file fname flags [perms]) -! port procedure
-
-Perms defaults to #o666. Flags is an integer bitmask, composed by or'ingtogether constants listed in table 3.1. You must use exactly
-
-one of the open/read, open/write, or open/read+write flags. The re-turned port is an input port if the flags permit it, otherwise an output
-port. R5RS/Scheme 48/scsh do not have input/output ports, so it's oneor the other. This should be fixed. (You can hack simultaneous I/O on
-a file by opening it r/w, taking the result input port, and duping it to anoutput port with
-
-dup->outport.)
+@deffn Function open-file @var{fname} @var{flags} [@var{perms}]
+Perms defaults to @code{#o666}. @var{Flags} is an integer bitmask,
+composed by or'ing together constants listed in table 3.1. You must use
+exactly one of the @code{open/read}, @code{open/write}, or
+@code{open/read+write} flags. The returned port is an input port if the
+flags permit it, otherwise an output port. R5RS/Scheme 48/scsh do not
+have input/output ports, so it's one or the other. This should be
+fixed. (You can hack simultaneous I/O on a file by opening it r/w,
+taking the result input port, and duping it to anoutput port with
+@code{dup->outport}.)
+@end deffn
 
 (open-input-file fname [flags]) -! port procedure
 (open-output-file fname [flags perms]) -! port procedure
