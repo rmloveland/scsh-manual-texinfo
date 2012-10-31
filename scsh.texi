@@ -1898,27 +1898,31 @@ the OS implementation.
 @end deffn
 
 @deffn Function open-file @var{fname} @var{flags} [@var{perms}]
-Perms defaults to @code{#o666}. @var{Flags} is an integer bitmask,
-composed by or'ing together constants listed in table 3.1. You must use
-exactly one of the @code{open/read}, @code{open/write}, or
+@var{Perms} defaults to @code{#o666}. @var{Flags} is an integer bitmask,
+composed by or'ing together constants listed in table 3.1. @c FIXME
+You must use exactly one of the @code{open/read}, @code{open/write}, or
 @code{open/read+write} flags. The returned port is an input port if the
 flags permit it, otherwise an output port. R5RS/Scheme 48/scsh do not
-have input/output ports, so it's one or the other. This should be
-fixed. (You can hack simultaneous I/O on a file by opening it r/w,
-taking the result input port, and duping it to anoutput port with
+have input/output ports, so it's one or the other. This should be fixed.
+(You can hack simultaneous I/O on a file by opening it r/w, taking the
+result input port, and duping it to an output port with
 @code{dup->outport}.)
 @end deffn
 
-(open-input-file fname [flags]) -! port procedure
-(open-output-file fname [flags perms]) -! port procedure
+@deffn Function open-input-file @var{fname} [@var{flags}]
+This is equivalent to @code{open-file}, after first setting the
+@code{read/write} bits of the @var{flags} argument to @code{open/read}.
+@var{Flags} defaults to zero. This default makes the procedure
+backwards-compatible with its unary R5RS definition.
+@end deffn
 
-These are equivalent to open-file, after first setting the read/write bitsof the flags argument to
-
-open/read or open/write, respectively. Flagsdefaults to zero for
-open-input-file, and
-
-(bitwise-ior open/create open/truncate)
-for open-output-file. These defaults make the procedures backwards-compatible with their unary R5RS definitions.
+@deffn Function open-output-file @var{fname} [@var{flags} @var{perms}]
+This is equivalent to @code{open-file}, after first setting the
+read/write bits of the @var{flags} argument to @code{open/write}.
+@var{Flags} defaults to (@code{bitwise-ior} @code{open/create}
+@code{open/truncate}). This default makes the procedure
+backwards-compatible with its unary R5RS definition.
+@end deffn
 
 (open-fdes fname flags [perms]) -! integer procedure
 
