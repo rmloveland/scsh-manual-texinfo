@@ -7105,7 +7105,7 @@ section High-level interface
 @c 
 @c Returns the uid of the thread that currently holds lock or false if the lock isfree.
 @c 
-section Placeholders
+@section Placeholders
 @c 
 @c Placeholders combine synchronization with value delivery. They can be thoughtof as special variables. After creation the value of the placeholder is undefined.
 @c If a thread tries to read the placeholders value this thread is blocked. Multi-ple threads are allowed to block on a single placeholder. They will continue
@@ -7130,7 +7130,7 @@ section Placeholders
 @c 
 @c placeholder-set!.
 @c 
-section The event interface to interrupts
+@section The event interface to interrupts
 @c 
 @c Scsh provides an synchronous interface to the asynchronous signals deliveredby the operation system1. The key element in this system is an object called
 @c 
@@ -7188,7 +7188,7 @@ section The event interface to interrupts
 @c 
 @c 159
 
-section Interaction between threads and process state
+@section Interaction between threads and process state
 @c 
 @c In Unix, a number of resources are global to the process: signal handlers, work-ing directory, umask, environment, user and group ids. Modular programming is difficult in the context of this global state and for concurrent program-ming things get even worse. Section @ref{9.4} presents how scsh turns the global,
 @c asynchronous signals handlers into modular, synchronous sigevents. Concur-rent programming also benefit from sigevents as every thread may chase down
