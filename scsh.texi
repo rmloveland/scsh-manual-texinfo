@@ -4475,7 +4475,7 @@ programmer.
 @c The Scheme Underground has also released a network library with many ofthese protocols as a companion to the current release of scsh. See this code for
 @c examples showing the use of the sockets interface.
 @c 
-section High-level interface
+@section High-level interface
 @c 
 @c For convenience, and to avoid some of the messy details of the socket interface,we provide a high level socket interface. These routines attempt to make it easy
 @c to write simple clients and servers without having to think of many of the de-tails of initiating socket connections. We welcome suggested improvements to
@@ -8298,7 +8298,7 @@ section High-level interface
 @c !#
 @c ... Your Scheme program goes here ...
 @c 
-section Compiling scsh programs
+@section Compiling scsh programs
 @c 
 @c Scsh allows you to create a heap image with your own top-level procedure.Adding the pair of lines
 @c 
