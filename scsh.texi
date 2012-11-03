@@ -50,7 +50,6 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 @end ifnottex
 
 @menu
-* Acknowledgements::
 * Introduction::
 * Process notation::
 * System Calls::
@@ -168,10 +167,7 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 @c Part 5: The Body of the Document
 @c --------------------------------
 
-@node Acknowledgements
-@chapter Acknowledgements
-@c This should probably not be a chapter. Is there a better way to
-@c represent this in Texinfo?
+@unnumbered Acknowledgements
 
 Who should I thank? My so-called ``colleagues'', who laugh at me
 behind my back, all the while becoming famous on @emph{my} work? My
