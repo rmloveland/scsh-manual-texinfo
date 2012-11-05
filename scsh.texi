@@ -1951,6 +1951,26 @@ This procedure allows reading of an open file's status flags (See table 3.1).
 This procedure allows writing of an open file's status flags (See table 3.1).
 @end deffn
 
+@multitable @columnfractions .15 .70 .15
+@headitem Flag Type @tab Allowed operations @tab Status flag
+@item Open + Get + Set
+@tab These flags can be used in @code{open-file}, @code{fdes-status}, and
+@code{set-fdes-status} calls.
+@tab @code{open/append}
+@code{open/non-blocking}
+@code{open/async} (Non-@acronym{POSIX})
+@code{open/fsync} (Non-@acronym{POSIX})
+
+@item Open + Get
+@tab These flags can be used in @code{open-file} and @code{fdes-status}
+calls, but are ignored by @code{set-fdes-status}.
+@tab @code{open/read}
+@code{open/write}
+@code{open/read+write}
+@code{open/access-mask}
+
+@end multitable
+
 @c Allowed operations Status flagOpen+Get+Set These flags can be used
 @c in open-file,
 @c fdes-status, and
