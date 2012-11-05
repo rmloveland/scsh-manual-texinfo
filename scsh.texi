@@ -1501,7 +1501,7 @@ The procedure returns true if it closed an open port. If the port was al-ready c
 @end deffn
 
 @deffn Function stdports->stdio
-This procedure (along with @code{stdio->stdports} is used to
+This procedure (along with @code{stdio->stdports}) is used to
 synchronise Unix' standard I/O file descriptors and Scheme's current
 I/O ports.
 
@@ -1919,26 +1919,37 @@ read/write bits of the @var{flags} argument to @code{open/write}.
 backwards-compatible with its unary R5RS definition.
 @end deffn
 
-@deffn open-fdes @var{fname} @var{flags} [@var{perms}]
+@deffn Function open-fdes @var{fname} @var{flags} [@var{perms}]
 Returns a file descriptor.
 @end deffn
 
-@ftable @code
-@item fdes-flags @var{fd/port}
-@itemx set-fdes-flags @var{fd/port} @var{integer}
-These procedures allow reading and writing an open file's flags. The only such flag defined by
-@acronym{POSIX} is @code{fdflags/close-on-exec}; your Unix
+@deffn Function fdes-flags @var{fd/port}
+This procedure allows reading an open file's flags. The only such flag
+defined by @acronym{POSIX} is @code{fdflags/close-on-exec}; your Unix
 implementation may provide others.
+@end deffn
+
+@deffn Function set-fdes-flags @var{fd/port} @var{integer}
+This procedure allows writing an open file's flags. The only such flag
+defined by @acronym{POSIX} is @code{fdflags/close-on-exec}; your Unix
+implementation may provide others.
+@end deffn
 
 These procedures should not be particularly useful to the programmer, as
 the scsh runtime already provides automatic control of the close-on-exec
 property. Unrevealed ports always have their file descriptors marked
 close-on-exec, as they can be closed when the scsh process execs a new
 program. Whenever the user reveals or unreveals a port's file
-descrip-tor, the runtime automatically sets or clears the flag for the
+descriptor, the runtime automatically sets or clears the flag for the
 programmer.
-@end ftable
 
+@deffn Function fdes-status @var{fd/port}
+This procedure allows reading of an open file's status flags (See table 3.1).
+@end deffn
+
+@deffn Function set-fdes-status @var{fd/port} @var{integer}
+This procedure allows writing of an open file's status flags (See table 3.1).
+@end deffn
 
 @c Allowed operations Status flagOpen+Get+Set These flags can be used
 @c in open-file,
@@ -1980,10 +1991,6 @@ programmer.
 @c 
 @c Programmers that manipulate this flag should be aware of these extra,automatic operations.
 @c 
-@c (fdes-status fd/port) -! integer procedure
-@c (set-fdes-status fd/port integer) -! undefined procedure
-@c 
-@c These procedures allow reading and writing of an open file's status flags(table 3.1).
 @c 
 @c Note that this file-descriptor state is shared between file descriptors cre-ated by
 @c 
