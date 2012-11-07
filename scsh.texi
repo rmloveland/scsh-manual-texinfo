@@ -1941,7 +1941,8 @@ property. Unrevealed ports always have their file descriptors marked
 close-on-exec, as they can be closed when the scsh process execs a new
 program. Whenever the user reveals or unreveals a port's file
 descriptor, the runtime automatically sets or clears the flag for the
-programmer.
+programmer. Programmers that manipulate this flag should be aware of
+these extra, automatic operations.
 
 @deffn Function fdes-status @var{fd/port}
 This procedure allows reading of an open file's status flags
@@ -2001,43 +2002,54 @@ present; your operating system may define others. The
 to select the field for the @code{open/read}, @code{open/write} and
 @code{open/read+write} bits.
 
-@c 
-@c Programmers that manipulate this flag should be aware of these extra,automatic operations.
-@c 
-@c 
-@c Note that this file-descriptor state is shared between file descriptors cre-ated by
-@c 
-@c dup--if you create port b by applying dup to port a, and changeb's status flags, you will also have changed a's status flags.
-@c 
-@c (pipe) -! [rport wport] procedure
-@c 
-@c Returns two ports, the read and write end-points of a Unix pipe.
-@c 
-@c (read-string nbytes [fd/port]) -! string or #f procedure
-@c (read-string! str [fd/port start end]) -! nread or #f procedure
-@c 
-@c These calls read exactly as much data as you requested, unless there isnot enough data (@acronym{eof}).
-@c 
-@c read-string! reads the data into string str atthe indices in the half-open interval [start, end); the default interval is thewhole string: start = 0 and end =
-@c (string-length string). They willpersistently retry on partial reads and when interrupted until (1) error, (2) @acronym{eof}, or (3) the input request is completely satisfied. Partial reads canoccur when reading from an intermittent source, such as a pipe or tty.
-@c 
-@c read-string returns the string read; read-string! returns the numberof characters read. They both return false at @acronym{eof}. A request to read zero
-@c bytes returns immediately, with no @acronym{eof} check.
-@c The values of start and end must specify a well-defined interval in str, i.e.,0 <= start <= end <=
-@c 
-@c (string-length str).
-@c 
-@c Any partially-read data is included in the error exception packet. Errorreturns on non-blocking input are considered an error.
-@c 
+Note that this file-descriptor state is shared between file descriptors
+created by @code{dup}---if you create port @emph{b} by applying
+@code{dup} to port @emph{a}, and change @emph{b}'s status flags, you
+will also have changed @emph{a}'s status flags.
+
+@deffn Function pipe
+Returns two ports, the read and write end-points of a Unix pipe.
+@end deffn
+
+@deffn Function read-string @var{nbytes} [@var{fd/port}]
+This procedure reads exactly as much data as you requested, unless there
+is not enough data (@acronym{eof}). It will persistently retry on
+partial reads and when interrupted until (1) error, (2) @acronym{eof},
+or (3) the input request is completely satisfied. Partial reads can
+occur when reading from an intermittent source, such as a pipe or tty.
+@code{Read-string} returns the string read, and false at @acronym{eof}.
+A request to read zero bytes returns immediately, with no @acronym{eof}
+check. Any partially-read data is included in the error exception
+packet. Error returns on non-blocking input are considered an error.
+@end deffn
+
+@deffn Function read-string! @var{string} [@var{fd/port} @var{start} @var{end}]
+This procedure reads exactly as much data as you requested, unless there
+is not enough data (@acronym{eof}). @code{Read-string!} reads the data
+into @var{string} at the indices in the half-open interval (@var{start},
+@var{end}); the default interval is the whole string: @var{start} = 0
+and @var{end} = @code{(string-length @var{string})}. It will
+persistently retry on partial reads and when interrupted until (1)
+error, (2) @acronym{eof}, or (3) the input request is completely
+satisfied. Partial reads can occur when reading from an intermittent
+source, such as a pipe or tty. @code{Read-string!} returns the number of
+characters read, and false at @acronym{eof}. A request to read zero
+bytes returns immediately, with no @acronym{eof} check. The values of
+@var{start} and @var{end} must specify a well-defined interval in
+@var{string}, i.e., 0 <= @var{start} <= @var{end} <=
+@code{(string-length @var{string})}. Any partially-read data is included
+in the error exception packet. Error returns on non-blocking input are
+considered an error.
+@end deffn
+
 @c (read-string/partial nbytes [fd/port]) -! string or #f procedure
 @c (read-string!/partial str [fd/port start end]) -! nread or #f procedure
 @c 
 @c These are atomic best-effort/forward-progress calls. Best effort: theymay read less than you request if there is a lesser amount of data immediately available (e.g., because you are reading from a pipe or a tty).Forward progress: if no data is immediately available (e.g., empty pipe),
 @c they will block. Therefore, if you request an n > 0 byte read, while youmay not get everything you asked for, you will always get something
 @c (barring @acronym{eof}).
-@c There is one case in which the forward-progress guarantee is cancelled:when the programmer explicitly sets the port to non-blocking I/O. In this
-@c 
-@c case, if no data is immediately available, the procedure will not block, butwill immediately return a zero-byte read.
+@c There is one case in which the forward-progress guarantee is
+@c cancelled:when the programmer explicitly sets the port to non-blocking I/O. In this case, if no data is immediately available, the procedure will not block, butwill immediately return a zero-byte read.
 @c 
 @c read-string/partial reads the data into a freshly allocated string,which it returns as its value.
 @c 
