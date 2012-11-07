@@ -1894,8 +1894,8 @@ the OS implementation.
 
 @deffn Function open-file @var{fname} @var{flags} [@var{perms}]
 @var{Perms} defaults to @code{#o666}. @var{Flags} is an integer bitmask,
-composed by or'ing together constants listed in table 3.1. @c FIXME
-You must use exactly one of the @code{open/read}, @code{open/write}, or
+composed by or'ing together constants listed in @ref{Table 3.1}.  You
+must use exactly one of the @code{open/read}, @code{open/write}, or
 @code{open/read+write} flags. The returned port is an input port if the
 flags permit it, otherwise an output port. R5RS/Scheme 48/scsh do not
 have input/output ports, so it's one or the other. This should be fixed.
@@ -1944,70 +1944,63 @@ descriptor, the runtime automatically sets or clears the flag for the
 programmer.
 
 @deffn Function fdes-status @var{fd/port}
-This procedure allows reading of an open file's status flags (See table 3.1).
+This procedure allows reading of an open file's status flags
+(@pxref{Table 3.1}).
 @end deffn
 
 @deffn Function set-fdes-status @var{fd/port} @var{integer}
-This procedure allows writing of an open file's status flags (See table 3.1).
+This procedure allows writing of an open file's status flags
+(@pxref{Table 3.1}).
 @end deffn
 
+@anchor{Table 3.1}
 @multitable @columnfractions .15 .70 .15
-@headitem Flag Type @tab Allowed operations @tab Status flag
-@item Open + Get + Set
-@tab These flags can be used in @code{open-file}, @code{fdes-status}, and
+@headitem Flag Type
+@tab
+Allowed operations
+@tab
+Status flag
+@item
+Open + Get + Set
+@tab
+These flags can be used in @code{open-file}, @code{fdes-status}, and
 @code{set-fdes-status} calls.
-@tab @code{open/append}
-@code{open/non-blocking}
-@code{open/async} (Non-@acronym{POSIX})
-@code{open/fsync} (Non-@acronym{POSIX})
+@tab 
+@code{open/append}@*
+@code{open/non-blocking}@*
+@code{open/async} (Non-@acronym{POSIX})@*
+@code{open/fsync} (Non-@acronym{POSIX})@*
 
-@item Open + Get
-@tab These flags can be used in @code{open-file} and @code{fdes-status}
+@item
+Open + Get
+@tab
+These flags can be used in @code{open-file} and @code{fdes-status}
 calls, but are ignored by @code{set-fdes-status}.
-@tab @code{open/read}
-@code{open/write}
-@code{open/read+write}
-@code{open/access-mask}
+@tab
+@code{open/read}@*
+@code{open/write}@*
+@code{open/read+write}@*
+@code{open/access-mask}@*
 
+@item Open
+@tab 
+These flags are only relevant in @code{open-file} calls; they are
+ignored by @code{fdes-status} and @code{set-fdes-status} calls.
+
+@tab
+@code{open/create}@*
+@code{open/exclusive}@*
+@code{open/no-control-tty}@*
+@code{open/truncate}@*
 @end multitable
 
-@c Allowed operations Status flagOpen+Get+Set These flags can be used
-@c in open-file,
-@c fdes-status, and
-@c set-fdes-status calls.
+Table 3.1: Status flags for @code{open-file}, @code{fdes-status} and
+@code{set-fdes-status}. Only @acronym{POSIX} flags are guaranteed to be
+present; your operating system may define others. The
+@code{open/access-mask} value is not an actual flag, but a bit mask used
+to select the field for the @code{open/read}, @code{open/write} and
+@code{open/read+write} bits.
 
-@c open/append
-@c open/non-blocking
-@c open/async (Non-@acronym{POSIX})
-@c open/fsync (Non-@acronym{POSIX})Open+Get These flags can be used
-@c 
-@c in open-file and
-@c fdes-status calls, butare ignored by
-@c 
-@c set-fdes-status.
-@c 
-@c open/read
-@c open/write
-@c open/read+write
-@c open/access-mask
-@c 
-@c Open These flags are onlyrelevant in
-@c 
-@c open-filecalls; they are ignored
-@c 
-@c by fdes-status and
-@c set-fdes-status calls.
-@c 
-@c open/create
-@c open/exclusive
-@c open/no-control-tty
-@c open/truncate
-@c 
-@c Table 3.1: Status flags for open-file, fdes-status and set-fdes-status.Only @acronym{POSIX} flags are guaranteed to be present; your operating system may de-fine others. The
-@c 
-@c open/access-mask value is not an actual flag, but a bit maskused to select the field for the
-@c 
-@c open/read, open/write and open/read+writebits.
 @c 
 @c Programmers that manipulate this flag should be aware of these extra,automatic operations.
 @c 
