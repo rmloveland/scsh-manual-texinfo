@@ -1379,10 +1379,11 @@ mode. This can be overridden if the programmer wishes.
 
 @section I/O
 @subsection Standard R5RS I/O procedures
+
 In scsh, most standard R5RS I/O operations (such as @code{display} or
 @code{read-char}) work on both integer file descriptors and Scheme
-ports. When doing I/O with a file descriptor, the I/O operation is
-done directly on the file, bypassing any buffered data that may have
+ports. When doing I/O with a file descriptor, the I/O operation is done
+directly on the file, bypassing any buffered data that may have
 accumulated in an associated port. Note that character-at-a-time
 operations such as @code{read-char} are likely to be quite slow when
 performed directly upon file descriptors.
@@ -1416,57 +1417,34 @@ stderr.
 @end deffn
 
 @deffn Function with-current-input-port* @var{port} @var{thunk}
-This procedure installs @var{port} as the current input for the
-duration of a call to @var{thunk}.
-@end deffn
-
-@deffn Function with-current-output-port* @var{port} @var{thunk}
-This procedure installs @var{port} as the current output for the
-duration of a call to @var{thunk}.
-@end deffn
-
-@deffn Function with-error-output-port* @var{port} @var{thunk}
-This procedure installs @var{port} as the error output port for the
-duration of a call to @var{thunk}.
+@deffnx Function with-current-output-port* @var{port} @var{thunk}
+@deffnx Function with-error-output-port* @var{port} @var{thunk}
+These procedures install @var{port} as the current input, current
+output, and error output port, respectively, for the duration of a call
+to @var{thunk}.
 @end deffn
 
 @deffn Macro with-current-input-port @var{port} . @var{body}
-This special form is simply syntactic sugar for the
-@code{with-current-input-port*} procedure.
-@end deffn
-
-@deffn Macro with-current-output-port @var{port} . @var{body}
-This special form is simply syntactic sugar for the
-@code{with-current-output-port*} procedure.
-@end deffn
-
-@deffn Macro with-error-output-port @var{port} . @var{body}
-This special form is simply syntactic sugar for the
-@code{with-error-output-port*} procedure.
+@deffnx Macro with-current-output-port @var{port} . @var{body}
+@deffnx Macro with-error-output-port @var{port} . @var{body}
+These special forms are simply syntactic sugar for the
+@code{with-current-input-port*} procedure and friends.
 @end deffn
 
 @deffn Function set-current-input-port! @var{port}
-This procedure alters the dynamic binding of the current I/O
-port reading procedures to a new value.
-@end deffn
-
-@deffn Function set-current-output-port! @var{port}
-This procedure alters the dynamic binding of the current I/O
-port writing procedures to a new value.
-@end deffn
-
-@deffn Function set-error-output-port! @var{port}
-This procedure alters the dynamic binding of the current I/O
-port writing procedures to a new value.
+@deffnx Function set-current-output-port! @var{port}
+@deffnx Function set-error-output-port! @var{port}
+These procedures alter the dynamic binding of the current I/O
+port procedures to new values.
 @end deffn
 
 @deffn Function close @var{fd/port}
 Close the port or file descriptor. If @var{fd/port} is a file
-descriptor, and it has a port allocated to it, the port is shifted to
-a new file descriptor created with @code{(dup @var{fd/port})} before
-closing @var{fd/port}. The port then has its revealed count set to
-zero. This reflects the design criteria that ports are not associated
-with file descriptors, but with open files.
+descriptor, and it has a port allocated to it, the port is shifted to a
+new file descriptor created with @code{(dup @var{fd/port})} before
+closing @var{fd/port}. The port then has its revealed count set to zero.
+This reflects the design criteria that ports are not associated with
+file descriptors, but with open files.
 
 To close a file descriptor, and any associated port it might have, you
 must instead say one of (as appropriate):
@@ -1476,19 +1454,20 @@ must instead say one of (as appropriate):
 (close (fdes->outport @var{fd}))
 @end example
 
-The procedure returns true if it closed an open port. If the port was al-ready closed, it returns false; this is not an error.
+The procedure returns true if it closed an open port. If the port was
+already closed, it returns false; this is not an error.
 @end deffn
 
 @deffn Function stdports->stdio
-This procedure (along with @code{stdio->stdports}) is used to
-synchronise Unix' standard I/O file descriptors and Scheme's current
-I/O ports.
+@deffnx Function stdio->stdports
+These two procedures are used to synchronise Unix' standard I/O file
+descriptors and Scheme's current I/O ports.
 
-@code{(Stdports->stdio)} causes the standard I/O file descriptors (0,
-1, and 2) to take their values from the current I/O ports. It is
-exactly equivalent to the series of redirections @footnote{Why not
-@code{move->fdes}?  Because the current output port and error port
-might be the same port.}:
+@code{Stdports->stdio} causes the standard I/O file descriptors (0, 1,
+and 2) to take their values from the current I/O ports. It is exactly
+equivalent to the series of redirections @footnote{Why not
+@code{move->fdes}?  Because the current output port and error port might
+be the same port.}:
 
 @example
 (dup (current-input-port) 0)
@@ -1496,16 +1475,9 @@ might be the same port.}:
 (dup (error-output-port) 2)
 @end example
 
-However, you are more likely to find the dynamic-extent variant,
-@code{with-stdio-ports*}, to be of use in general programming.
-@end deffn
-
-@deffn Function stdio->stdports
-This procedure (along with @code{stdports->stdio} is used to
-synchronise Unix' standard I/O file descriptors and Scheme's current
-I/O ports.
-
-@code{Stdio->stdports} causes the bindings of the current I/O ports to be changed to ports constructed over the standard I/O file descriptors. It is exactly equivalent to the series of assignments
+@code{Stdio->stdports} causes the bindings of the current I/O ports to
+be changed to ports constructed over the standard I/O file descriptors.
+It is exactly equivalent to the series of assignments
 
 @example
 (set-current-input-port! (fdes->inport 0))
@@ -1514,10 +1486,11 @@ I/O ports.
 @end example
 
 However, you are more likely to find the dynamic-extent variant,
-@code{with-stdio-ports*}, to be of use in general programming.
+@code{with-stdio-ports*}, below, to be of use in general programming.
 @end deffn
 
 @deffn Function with-stdio-ports* @var{thunk}
+@deffnx Macro with-stdio-ports @var{body} . . . 
 @code{With-stdio-ports*} binds the standard ports
 @code{(current-input-port)}, @code{(current-output-port)}, and
 @code{(error-output-port)} to be ports on file descriptors 0, 1, 2,
@@ -1529,11 +1502,6 @@ and then calls @var{thunk}. It is equivalent to:
     (with-error-output-port (fdes->outport 2)
       (thunk))))
 @end example
-@end deffn
-
-@deffn Macro with-stdio-ports @var{body} . . . 
-The @code{with-stdio-ports} special form is merely syntactic sugar for
-@code{with-stdio-ports*}.
 @end deffn
 
 @subsection String ports
