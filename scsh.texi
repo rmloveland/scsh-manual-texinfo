@@ -746,7 +746,7 @@ example, the redirection
 @end example
 
 causes stderr to be the same as stdout. @var{Fdes/port} can also be a
-port, for code:
+port, for example:
 
 @example
 (= 2 ,(current-output-port))
@@ -1043,9 +1043,7 @@ abstracts the idea of a loop over a stream of values read from some
 port, where the seed values express the loop state.
 
 @flushright
-@emph{Remark}: This procedure was formerly named
-@code{reduce-port}. The old binding is still provided, but is
-deprecated and will probably vanish in a future release.
+@emph{Remark}: This procedure was formerly named @code{reduce-port}. The old binding is still provided, but is deprecated and will probably vanish in a future release.
 @end flushright
 @end deffn
 
@@ -1057,6 +1055,7 @@ complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
 @deffn Macro run/port+proc . @var{epf}
+@deffnx Function run/port+proc* @var{thunk}
 This special form and its analogous procedure can be used if the
 programmer also wishes access to the process' pid, exit status, or
 other information. They both fork off a subprocess, returning two
@@ -1081,21 +1080,6 @@ Note that you must @emph{first} do the @code{port->string} and
 when the @code{zcat} fills up its output pipe buffer.
 @end deffn
 
-@deffn Function run/port+proc* @var{thunk}
-This is the procedural analogue of the special form
-@code{run/port+proc}, such that
-
-@example
-(run/port+proc (zcat tr91-145.tex.Z))
-@end example
-
-expands into
-
-@example
-(run/port+proc* (lambda () (zcat tr91-145.tex.Z))).
-@end example
-@end deffn
-
 @subsection Multiple stream capture
 Occasionally, the programmer may want to capture multiple distinct
 output streams from a process. For instance, he may wish to read the
@@ -1104,6 +1088,7 @@ accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
 @deffn Macro run/collecting @var{fds} . @var{epf}
+@deffnx Function run/collecting* @var{fds} @var{thunk}
 @code{Run/collecting} runs processes that
 produce multiple output streams and return ports open on these
 streams. To avoid issues of deadlock, @code{run/collecting} doesn't use
@@ -1135,11 +1120,6 @@ might produce the list
 @example
 (256 "" "cat: /usr/kmshea/mbox: Permission denied").
 @end example
-@end deffn
-
-@deffn Function run/collecting* @var{fds} @var{thunk}
-Procedural analogue to the @code{run/collecting} form.
-@end deffn
 
 What is the deadlock hazard that causes @code{run/collecting} to use
 tempfiles? Processes with multiple output streams can lock up if they
@@ -1213,6 +1193,7 @@ code.
 
 See @code{temp-file-channel} for more information on creating temp
 files as communication channels.
+@end deffn
 
 @section Conditional process sequencing forms
 These forms allow conditional execution of a sequence of processes.
@@ -1304,10 +1285,12 @@ passed to the exception handler.
 @end deffn
 
 @deffn Function with-errno-handler* @var{handler} @var{thunk}
+@deffnx Macro with-errno-handler @var{handler-spec} . @var{body}
 Unix syscalls raise error exceptions by calling @code{errno-error}. Programs can use 
 @code{with-errno-handler*} to establish handlers for these exceptions.
 
-If a Unix error arises while @var{thunk} is executing, @var{handler} is called on two arguments like this:
+If a Unix error arises while @var{thunk} is executing, @var{handler} is
+called on two arguments like this:
 
 @example
 (handler errno packet).
@@ -1335,17 +1318,14 @@ continuation. This procedure can be sugared over with the following syntax:
     @var{body2}
     @dots{})
 @end example
-@end deffn
 
-@deffn Macro with-errno-handler @var{handler-spec} . @var{body}
 This form executes the body forms with a particular errno handler
-installed. When an errno error is raised, the handler search
-machinery will bind variable @var{errno} to the error's integer code,
-and variable @var{packet} to the error's auxiliary data packet. Then,
-the clauses will be checked for a match. The first clause that matches
-is executed, and its value is the value of the entire
-@code{with-errno-handler} form. If no clause matches, the handler
-search continues.
+installed. When an errno error is raised, the handler search machinery
+will bind variable @var{errno} to the error's integer code, and variable
+@var{packet} to the error's auxiliary data packet. Then, the clauses
+will be checked for a match. The first clause that matches is executed,
+and its value is the value of the entire @code{with-errno-handler} form.
+If no clause matches, the handler search continues.
 
 Error clauses have two forms:
 
@@ -1355,10 +1335,9 @@ Error clauses have two forms:
 @end example
 
 In the first type of clause, the @var{errno} forms are integer
-expressions. They are evaluated and compared to the error's errno
-value. An @code{else} clause matches any errno value. Note that the
-@var{errno} and @var{data} variables are lexically visible to the
-error clauses.
+expressions. They are evaluated and compared to the error's errno value.
+An @code{else} clause matches any errno value. Note that the @var{errno}
+and @var{data} variables are lexically visible to the error clauses.
 
 Example:
 
@@ -1374,26 +1353,26 @@ Example:
   (blatz garglemumph))
 @end example
 
-It is not defined what dynamic context the handler executes in, so
-fluid variables cannot reliably be referenced.
-@end deffn
+It is not defined what dynamic context the handler executes in, so fluid
+variables cannot reliably be referenced.
 
 Note that Scsh system calls always retry when interrupted, so that the
-@code{errno/intr} exception is never raised. If the programmer wishes
-to abort a system call on an interrupt, he should have the interrupt
-handler explicitly raise an exception or invoke a stored continuation
-to throw out of the system call.
+@code{errno/intr} exception is never raised. If the programmer wishes to
+abort a system call on an interrupt, he should have the interrupt
+handler explicitly raise an exception or invoke a stored continuation to
+throw out of the system call.
+@end deffn
 
 @subsection Interactive mode and error handling
 Scsh runs in two modes: interactive and script mode. It starts up in
 interactive mode if the scsh interpreter is started up with no script
-argument. Otherwise, scsh starts up in script mode. The mode
-determines whether scsh prints prompts in between reading and
-evaluating forms, and it affects the default error handler. In
-interactive mode, the default error handler will report the error, and
-generate an interactive breakpoint so that the user can interact with
-the system to examine, fix, or dismiss from the error. In script mode,
-the default error handler causes the scsh process to exit.
+argument. Otherwise, scsh starts up in script mode. The mode determines
+whether scsh prints prompts in between reading and evaluating forms, and
+it affects the default error handler. In interactive mode, the default
+error handler will report the error, and generate an interactive
+breakpoint so that the user can interact with the system to examine,
+fix, or dismiss from the error. In script mode, the default error
+handler causes the scsh process to exit.
 
 When scsh forks a child with @code{(fork)}, the child resets to script
 mode. This can be overridden if the programmer wishes.
