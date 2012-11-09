@@ -1759,25 +1759,12 @@ other file descriptor.
 
 @subsection Unix I/O
 @deffn Function dup @var{fd/port} [@var{newfd}]
-This procedure provides the functionality of C's @code{dup()} and
-@code{dup2()}. @code{Dup}'s return value depends on on thetype of
+@deffnx Function dup->inport @var{fd/port} [@var{newfd}]
+@deffnx Function dup->outport @var{fd/port} [@var{newfd}]
+@deffnx Function dup->fdes @var{fd/port} [@var{newfd}]
+These procedures provide the functionality of C's @code{dup()} and
+@code{dup2()}. @code{Dup}'s return value depends on on the type of
 @var{fd/port}--it maps fd->fd and port->port.
-@end deffn
-
-@deffn Function dup->inport @var{fd/port} [@var{newfd}]
-This procedure provides the functionality of C's @code{dup()} and
-@code{dup2()}. @code{Dup->inport} returns an input port.
-@end deffn
-
-@deffn Function dup->outport @var{fd/port} [@var{newfd}]
-This procedure provides the functionality of C's @code{dup()} and
-@code{dup2()}. @code{Dup->outport} returns an output port.
-@end deffn
-
-@deffn Function dup->fdes @var{fd/port} [@var{newfd}]
-This procedure provides the functionality of C's @code{dup()} and
-@code{dup2()}. @code{Dup->fdes} returns an integer file descriptor.
-@end deffn
 
 These procedures use the Unix @code{dup()} syscall to replicate the file
 descriptor or file port @var{fd/port}. If a @var{newfd} file descriptor
@@ -1801,6 +1788,7 @@ on a tty, and we would like to do output to that tty, we can simply use
 @code{(dup->outport @var{p})} to produce an equivalent output port for
 the tty. Be sure to open the file with the @code{open/read+write} flag
 for this.
+@end deffn
 
 @deffn Function seek @var{fd/port} @var{offset} [@var{whence}]
 Reposition the I/O cursor for a file descriptor or port. @var{whence} is
@@ -1815,9 +1803,7 @@ implementation. The return value is the resulting position of the I/O
 cursor in the I/O stream.
 
 @flushright
-Oops: The current implementation doesn't handle @var{offset} arguments
-that are not immediate integers (i.e., representable in 30 bits).
-
+Oops: The current implementation doesn't handle @var{offset} arguments that are not immediate integers (i.e., representable in 30 bits).
 Oops: The current implementation doesn't handle buffered ports.
 @end flushright
 @end deffn
