@@ -1502,6 +1502,8 @@ and then calls @var{thunk}. It is equivalent to:
     (with-error-output-port (fdes->outport 2)
       (thunk))))
 @end example
+
+The @code{with-stdio-ports} special form is merely syntactic sugar.
 @end deffn
 
 @subsection String ports
