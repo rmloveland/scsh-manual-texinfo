@@ -1439,12 +1439,13 @@ port procedures to new values.
 @end deffn
 
 @deffn Function close @var{fd/port}
-Close the port or file descriptor. If @var{fd/port} is a file
-descriptor, and it has a port allocated to it, the port is shifted to a
-new file descriptor created with @code{(dup @var{fd/port})} before
-closing @var{fd/port}. The port then has its revealed count set to zero.
-This reflects the design criteria that ports are not associated with
-file descriptors, but with open files.
+Close the port or file descriptor.
+
+If @var{fd/port} is a file descriptor, and it has a port allocated to
+it, the port is shifted to a new file descriptor created with @code{(dup
+@var{fd/port})} before closing @var{fd/port}. The port then has its
+revealed count set to zero.  This reflects the design criteria that
+ports are not associated with file descriptors, but with open files.
 
 To close a file descriptor, and any associated port it might have, you
 must instead say one of (as appropriate):
@@ -1804,10 +1805,10 @@ all such values are @code{seek}able; this is dependent on the OS
 implementation. The return value is the resulting position of the I/O
 cursor in the I/O stream.
 
-@flushright
-Oops: The current implementation doesn't handle @var{offset} arguments that are not immediate integers (i.e., representable in 30 bits).
+Oops: The current implementation doesn't handle @var{offset} arguments
+that are not immediate integers (i.e., representable in 30 bits).
+
 Oops: The current implementation doesn't handle buffered ports.
-@end flushright
 @end deffn
 
 @deffn Function tell @var{fd/port}
@@ -1829,18 +1830,18 @@ result input port, and duping it to an output port with
 @end deffn
 
 @deffn Function open-input-file @var{fname} [@var{flags}]
-This is equivalent to @code{open-file}, after first setting the
-@code{read/write} bits of the @var{flags} argument to @code{open/read}.
-@var{Flags} defaults to zero. This default makes the procedure
-backwards-compatible with its unary R5RS definition.
-@end deffn
+@deffnx Function open-output-file @var{fname} [@var{flags} @var{perms}]
+These are equivalent to @code{open-file}, after first setting the
+@code{read/write} bits of the @var{flags} argument to @code{open/read},
+or @code{open/write}, respectively.  @var{Flags} defaults to zero for
+open-input-file, and
 
-@deffn Function open-output-file @var{fname} [@var{flags} @var{perms}]
-This is equivalent to @code{open-file}, after first setting the
-read/write bits of the @var{flags} argument to @code{open/write}.
-@var{Flags} defaults to (@code{bitwise-ior} @code{open/create}
-@code{open/truncate}). This default makes the procedure
-backwards-compatible with its unary R5RS definition.
+@example
+(bitwise-ior open/create open/truncate)
+@end example
+
+for @code{open-output-file}. These defaults make the procedures
+backwards-compatible with their unary R5RS definitions.
 @end deffn
 
 @deffn Function open-fdes @var{fname} @var{flags} [@var{perms}]
@@ -1848,16 +1849,11 @@ Returns a file descriptor.
 @end deffn
 
 @deffn Function fdes-flags @var{fd/port}
-This procedure allows reading an open file's flags. The only such flag
-defined by @acronym{POSIX} is @code{fdflags/close-on-exec}; your Unix
-implementation may provide others.
-@end deffn
-
-@deffn Function set-fdes-flags @var{fd/port} @var{integer}
-This procedure allows writing an open file's flags. The only such flag
-defined by @acronym{POSIX} is @code{fdflags/close-on-exec}; your Unix
-implementation may provide others.
-@end deffn
+@deffnx Function set-fdes-flags @var{fd/port} @var{integer}
+These procedures allow reading and writing of an open file's flags. The
+only such flag defined by @acronym{POSIX} is
+@code{fdflags/close-on-exec}; your Unix implementation may provide
+others.
 
 These procedures should not be particularly useful to the programmer, as
 the scsh runtime already provides automatic control of the close-on-exec
@@ -1867,20 +1863,17 @@ program. Whenever the user reveals or unreveals a port's file
 descriptor, the runtime automatically sets or clears the flag for the
 programmer. Programmers that manipulate this flag should be aware of
 these extra, automatic operations.
+@end deffn
 
 @deffn Function fdes-status @var{fd/port}
-This procedure allows reading of an open file's status flags
-(@pxref{Table 3.1}).
-@end deffn
+@deffnx Function set-fdes-status @var{fd/port} @var{integer}
 
-@deffn Function set-fdes-status @var{fd/port} @var{integer}
-This procedure allows writing of an open file's status flags
-(@pxref{Table 3.1}).
-@end deffn
+These procedures allow reading and writing of an open file's status
+flags (@pxref{Table 3.1}).
 
 @anchor{Table 3.1}
 @multitable @columnfractions .15 .70 .15
-@headitem Flag Type
+@headitem
 @tab
 Allowed operations
 @tab
@@ -1930,40 +1923,27 @@ Note that this file-descriptor state is shared between file descriptors
 created by @code{dup}---if you create port @emph{b} by applying
 @code{dup} to port @emph{a}, and change @emph{b}'s status flags, you
 will also have changed @emph{a}'s status flags.
+@end deffn
 
 @deffn Function pipe
 Returns two ports, the read and write end-points of a Unix pipe.
 @end deffn
 
 @deffn Function read-string @var{nbytes} [@var{fd/port}]
-This procedure reads exactly as much data as you requested, unless there
-is not enough data (@acronym{eof}). It will persistently retry on
+@deffnx Function read-string! @var{string} [@var{fd/port} @var{start} @var{end}]
+
+These calls read exactly as much data as you requested, unless there
+is not enough data (@acronym{eof}). They will persistently retry on
 partial reads and when interrupted until (1) error, (2) @acronym{eof},
 or (3) the input request is completely satisfied. Partial reads can
 occur when reading from an intermittent source, such as a pipe or tty.
-@code{Read-string} returns the string read, and false at @acronym{eof}.
-A request to read zero bytes returns immediately, with no @acronym{eof}
-check. Any partially-read data is included in the error exception
-packet. Error returns on non-blocking input are considered an error.
-@end deffn
 
-@deffn Function read-string! @var{string} [@var{fd/port} @var{start} @var{end}]
-This procedure reads exactly as much data as you requested, unless there
-is not enough data (@acronym{eof}). @code{Read-string!} reads the data
-into @var{string} at the indices in the half-open interval (@var{start},
-@var{end}); the default interval is the whole string: @var{start} = 0
-and @var{end} = @code{(string-length @var{string})}. It will
-persistently retry on partial reads and when interrupted until (1)
-error, (2) @acronym{eof}, or (3) the input request is completely
-satisfied. Partial reads can occur when reading from an intermittent
-source, such as a pipe or tty. @code{Read-string!} returns the number of
-characters read, and false at @acronym{eof}. A request to read zero
-bytes returns immediately, with no @acronym{eof} check. The values of
-@var{start} and @var{end} must specify a well-defined interval in
-@var{string}, i.e., 0 <= @var{start} <= @var{end} <=
-@code{(string-length @var{string})}. Any partially-read data is included
-in the error exception packet. Error returns on non-blocking input are
-considered an error.
+@code{Read-string} returns the string read, @code{read-string!} returns
+the number of characters read. They both return false at @acronym{eof}.
+A request to read zero bytes returns immediately, with no check.
+
+Any partially-read data is included in the error exception packet. Error
+returns on non-blocking input are considered an error.
 @end deffn
 
 @c (read-string/partial nbytes [fd/port]) -! string or #f procedure
