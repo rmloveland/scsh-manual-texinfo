@@ -1946,73 +1946,105 @@ Any partially-read data is included in the error exception packet. Error
 returns on non-blocking input are considered an error.
 @end deffn
 
-@c (read-string/partial nbytes [fd/port]) -! string or #f procedure
-@c (read-string!/partial str [fd/port start end]) -! nread or #f procedure
-@c 
-@c These are atomic best-effort/forward-progress calls. Best effort: theymay read less than you request if there is a lesser amount of data immediately available (e.g., because you are reading from a pipe or a tty).Forward progress: if no data is immediately available (e.g., empty pipe),
-@c they will block. Therefore, if you request an n > 0 byte read, while youmay not get everything you asked for, you will always get something
-@c (barring @acronym{eof}).
-@c There is one case in which the forward-progress guarantee is
-@c cancelled:when the programmer explicitly sets the port to non-blocking I/O. In this case, if no data is immediately available, the procedure will not block, butwill immediately return a zero-byte read.
-@c 
-@c read-string/partial reads the data into a freshly allocated string,which it returns as its value.
-@c 
-@c read-string!/partial reads the data intostring str at the indices in the half-open interval [start
-@c 
-@c , end); the defaultinterval is the whole string: start = 0 and end =
-@c (string-length string).The values of start and end must specify a well-defined interval in str, i.e.,
-@c 
-@c 0 <= start <= end <= (string-length str). It returns the number of bytesread.
-@c 
-@c A request to read zero bytes returns immediatedly, with no @acronym{eof} check.
-@c In sum, there are only three ways you can get a zero-byte read: (1) yourequest one, (2) you turn on non-blocking I/O, or (3) you try to read at
-@c 
-@c @acronym{eof}.
-@c These are the routines to use for non-blocking input. They are also use-ful when you wish to efficiently process data in large blocks, and your
-@c 
-@c algorithm is insensitive to the block size of any particular read operation.
-@c 
-@c 34
-@c 
-@c (select rvec wvec evec [timeout]) -! [rvec' wvec' evec'] procedure
-@c (select! rvec wvec evec [timeout]) -! [nr nw ne] procedure
-@c 
-@c The select procedure allows a process to block and wait for events onmultiple I/O channels. The rvec and evec arguments are vectors of input
-@c 
-@c ports and integer file descriptors; wvec is a vector of output ports andinteger file descriptors. The procedure returns three vectors whose elements are subsets of the corresponding arguments. Every element ofrvec' is ready for input; every element of wvec' is ready for output; every
-@c element of evec' has an exceptional condition pending.
-@c The select call will block until at least one of the I/O channels passedto it is ready for operation. For an input port this means that it either
-@c 
-@c has data sitting its buffer or that the underlying file descriptor has datawaiting. For an output port this means that it either has space available
-@c in the associated buffer or that the underlying file descriptor can acceptoutput. For file descriptors, no buffers are checked, even if they have
-@c associated ports.
-@c The timeout value can be used to force the call to time-out after a givennumber of seconds. It defaults to the special value
-@c 
-@c #f, meaning waitindefinitely. A zero value can be used to poll the I/O channels.
-@c 
-@c If an I/O channel appears more than once in a given vector--perhapsoccuring once as a Scheme port, and once as the port's underlying integer file descriptor--only one of these two references may appear in thereturned vector. Buffered I/O ports are handled specially--if an input
-@c port's buffer is not empty, or an output port's buffer is not yet full, thenthese ports are immediately considered eligible for I/O without using
-@c the actual, primitive select system call to check the underlying file de-scriptor. This works pretty well for buffered input ports, but is a little
-@c problematic for buffered output ports.
-@c The select! procedure is similar, but indicates the subset of active I/Ochannels by side-effecting the argument vectors. Non-active I/O channels in the argument vectors are overwritten with #f values. The callreturns the number of active elements remaining in each vector. As a
-@c convenience, the vectors passed in to select! are allowed to contain #fvalues as well as integers and ports.
-@c 
-@c Remark: Select and select! do not call their @acronym{POSIX} counter-parts directly--there is a @acronym{POSIX}
-@c 
-@c select sitting at the very heart of theScheme 48/scsh I/O system, so all multiplexed I/O is really
-@c 
-@c select-based. Therefore, you cannot expect a performance increase from
-@c 
-@c writing a single-threaded program using select and select! insteadof writing a multi-threaded program where each thread handles one
-@c I/O connection.
-@c 
-@c The moral of this story is that select and select! make sense in onlytwo situations: legacy code written for an older version of scsh, and
-@c programs which make inherent use of select/select! which do notbenefit from multiple threads. Examples are network clients that send
-@c requests to multiple alternate servers and discard all but one of them.
-@c In any case, the select-ports and select-port-channels pro-cedures described below are usually a preferable alternative to
-@c 
-@c select/select!: they are much simpler to use, and also have aslightly more efficient implementation.
-@c 
+@deffn Function read-string/partial @var{nbytes} [@var{fd/port}]
+@deffnx Function read-string!/partial @var{str} [@var{fd/port} @var{start} @var{end}]
+
+These are atomic best-effort/forward-progress calls. Best effort: they
+may read less than you request if there is a lesser amount of data
+immediately available (e.g., because you are reading from a pipe or a
+tty). Forward progress: if no data is immediately available (e.g., empty
+pipe), they will block. Therefore, if you request an @math{n > 0} byte
+read, while you may not get everything you asked for, you will always
+get something (barring @acronym{eof}).
+
+There is one case in which the forward-progress guarantee is cancelled:
+when the programmer explicitly sets the port to non-blocking I/O. In
+this case, if no data is immediately available, the procedure will not
+block, but will immediately return a zero-byte read.
+
+@code{Read-string/partial} reads the data into a freshly allocated
+string, which it returns as its value.
+
+@code{Read-string!/partial} reads the data into string @var{str} at the
+indices in the half-open interval [@var{start}, @var{end}]; the default
+interval is the whole string: @var{start} = 0 and @var{end} =
+@code{(string-length @var{str})}.The values of @var{start} and @var{end}
+must specify a well-defined interval in @var{str}, i.e., @math{0 <=}
+@var{start} @math{<=} @var{end} @math{<=} @code{(string-length
+@var{str})}. It returns the number of bytes read.
+
+A request to read zero bytes returns immediatedly, with no @acronym{eof}
+check.
+
+In sum, there are only three ways you can get a zero-byte read: (1) you
+request one, (2) you turn on non-blocking I/O, or (3) you try to read at
+@acronym{eof}. These are the routines to use for non-blocking input.
+They are also useful when you wish to efficiently process data in large
+blocks, and your algorithm is insensitive to the block size of any
+particular read operation.
+@end deffn
+
+@deffn Function select @var{rvec} @var{wvec} @var{evec} [@var{timeout}]
+@deffnx Function select! @var{rvec} @var{wvec} @var{evec} [@var{timeout}]
+
+The @code{select} procedure allows a process to block and wait for
+events on multiple I/O channels. The @var{rvec} and @var{evec} arguments
+are vectors of input ports and integer file descriptors; @var{wvec} is a
+vector of output ports and integer file descriptors. The procedure
+returns three vectors whose elements are subsets of the corresponding
+arguments. Every element of @var{rvec'} is ready for input; every
+element of @var{wvec'} is ready for output; every element of @var{evec'}
+has an exceptional condition pending.
+
+The select call will block until at least one of the I/O channels passed
+to it is ready for operation. For an input port this means that it
+either has data sitting its buffer or that the underlying file
+descriptor has data waiting. For an output port this means that it
+either has space available in the associated buffer or that the
+underlying file descriptor can accept output. For file descriptors, no
+buffers are checked, even if they have associated ports.
+
+The @var{timeout} value can be used to force the call to time-out after
+a given number of seconds. It defaults to the special value @code{#f},
+meaning wait indefinitely. A zero value can be used to poll the I/O
+channels.
+
+If an I/O channel appears more than once in a given vector---perhaps
+occuring once as a Scheme port, and once as the port's underlying
+integer file descriptor---only one of these two references may appear in
+the returned vector. Buffered I/O ports are handled specially---if an
+input port's buffer is not empty, or an output port's buffer is not yet
+full, then these ports are immediately considered eligible for I/O
+without using the actual, primitive select system call to check the
+underlying file descriptor. This works pretty well for buffered input
+ports, but is a little problematic for buffered output ports.
+
+The @code{select!} procedure is similar, but indicates the subset of
+active I/O channels by side-effecting the argument vectors. Non-active
+I/O channels in the argument vectors are overwritten with @code{#f}
+values. The call returns the number of active elements remaining in each
+vector. As a convenience, the vectors passed in to @code{select!} are
+allowed to contain @code{#f} values as well as integers and ports.
+
+Remark: @code{Select} and @code{select!} do not call their
+@acronym{POSIX} counterparts directly---there is a @acronym{POSIX}
+@code{select} sitting at the very heart of the Scheme 48/scsh I/O
+system, so all multiplexed I/O is really @code{select}-based. Therefore,
+you cannot expect a performance increase from writing a single-threaded
+program using @code{select} and @code{select!} instead of writing a
+multi-threaded program where each thread handles one I/O connection.
+
+The moral of this story is that @code{select} and @code{select!} make
+sense in only two situations: legacy code written for an older version
+of scsh, and programs which make inherent use of @code{select/select!}
+which do not benefit from multiple threads. Examples are network clients
+that send requests to multiple alternate servers and discard all but one
+of them.  In any case, the @code{select-ports} and
+@code{select-port-channels} procedures described below are usually a
+preferable alternative to @code{select}/@code{select!}: they are much
+simpler to use, and also have a slightly more efficient implementation.
+@end deffn
+
 @c (select-ports timeout port . . . ) -! ready-ports procedure
 @c 
 @c The select-ports call will block until at least one of the ports passed to itis ready for operation or until the timeout has expired. For an input port
