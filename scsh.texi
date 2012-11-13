@@ -978,24 +978,24 @@ procedures. For example, @code{(run/port . @var{epf})} expands into
 The following procedures are also of utility for generally parsing
 input streams in scsh:
 
-@deffn Function port->string @var{port}
+@deffn Procedure port->string @var{port}
 @code{Port->string} reads the port until @acronym{eof}, then returns
 the accumulated string.
 @end deffn
 
-@deffn Function port->sexp-list @var{port}
+@deffn Procedure port->sexp-list @var{port}
 @code{Port->sexp-list} repeatedly reads data from the port until
 @acronym{eof}, then returns the accumulated list of items.
 @end deffn
 
-@deffn Function port->string-list @var{port}
+@deffn Procedure port->string-list @var{port}
 @code{Port->string-list} repeatedly reads newline-terminated strings
 from the port until @acronym{eof}, then returns the accumulated list
 of strings. The delimiting newlines are not part of the returned
 strings.
 @end deffn
 
-@deffn Function port->list @var{reader} @var{port}
+@deffn Procedure port->list @var{reader} @var{port}
 @code{Port->list} generalises these two procedures. It uses
 @emph{reader} to repeatedly read objects from a port. It accumulates
 these objects into a list, which is returned upon @acronym{eof}.
@@ -1019,7 +1019,7 @@ run/sexp*       @equiv{} read                @bullet{}    run/port*
 run/sexps*      @equiv{} port->sexp-list     @bullet{}    run/port*
 @end example
 
-@deffn Function port-fold @var{port} @var{reader} @var{op} . @var{seeds}
+@deffn Procedure port-fold @var{port} @var{reader} @var{op} . @var{seeds}
 This procedure can be used to perform a variety of iterative
 operations over an input stream.  It repeatedly uses @var{reader} to
 read an object from @var{port}.  If the first read returns
@@ -1055,7 +1055,7 @@ complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
 @deffn Macro run/port+proc . @var{epf}
-@deffnx Function run/port+proc* @var{thunk}
+@deffnx Procedure run/port+proc* @var{thunk}
 This special form and its analogous procedure can be used if the
 programmer also wishes access to the process' pid, exit status, or
 other information. They both fork off a subprocess, returning two
@@ -1088,7 +1088,7 @@ accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
 @deffn Macro run/collecting @var{fds} . @var{epf}
-@deffnx Function run/collecting* @var{fds} @var{thunk}
+@deffnx Procedure run/collecting* @var{fds} @var{thunk}
 @code{Run/collecting} runs processes that
 produce multiple output streams and return ports open on these
 streams. To avoid issues of deadlock, @code{run/collecting} doesn't use
@@ -1213,7 +1213,7 @@ true if all procs complete successfully; otherwise @code{#f}.
 These procedures are useful for forking off processes to filter text
 streams.
 
-@deffn Function make-char-port-filter @var{filter}
+@deffn Procedure make-char-port-filter @var{filter}
 The @emph{filter} argument is a character->character
 procedure. Returns a procedure that when called, repeatedly reads a
 character from the current input port, applies @emph{filter} to the
@@ -1233,7 +1233,7 @@ using the Unix @code{tr A-Z a-z} command, we can say:
 @end example
 @end deffn
 
-@deffn Function make-string-port-filter @var{filter} [@var{buflen}]
+@deffn Procedure make-string-port-filter @var{filter} [@var{buflen}]
 The @var{filter} argument is a string->string procedure. Returns a
 procedure that when called, repeatedly reads a string from the current
 input port, applies @var{filter} to the string, and writes the result
@@ -1278,13 +1278,13 @@ For reference purposes, the Unix @code{errno} numbers are bound to the
 variables @code{errno/perm}, @code{errno/noent}, etc. System calls
 never return @code{error/intr}---they automatically retry.
 
-@deffn Function errno-error @var{errno} @var{syscall} . @var{data}
+@deffn Procedure errno-error @var{errno} @var{syscall} . @var{data}
 Raises a Unix error exception for Unix error number @code{errno}. The
 syscall and data arguments are packaged up in the exception packet
 passed to the exception handler.
 @end deffn
 
-@deffn Function with-errno-handler* @var{handler} @var{thunk}
+@deffn Procedure with-errno-handler* @var{handler} @var{thunk}
 @deffnx Macro with-errno-handler @var{handler-spec} . @var{body}
 Unix syscalls raise error exceptions by calling @code{errno-error}. Programs can use 
 @code{with-errno-handler*} to establish handlers for these exceptions.
@@ -1402,7 +1402,7 @@ I/O.
 
 @subsection Port manipulation and standard ports
 
-@deffn Function close-after @var{port} @var{consumer}
+@deffn Procedure close-after @var{port} @var{consumer}
 Returns @code{(@var{consumer} @var{port})}, but closes the port on
 return. No @code{dynamic-wind} magic.
 @flushright
@@ -1410,15 +1410,15 @@ return. No @code{dynamic-wind} magic.
 @end flushright
 @end deffn
 
-@deffn Function error-output-port
+@deffn Procedure error-output-port
 This procedure is analogous to @code{current-output-port}, but
 produces a port used for error messages---the scsh equivalent of
 stderr.
 @end deffn
 
-@deffn Function with-current-input-port* @var{port} @var{thunk}
-@deffnx Function with-current-output-port* @var{port} @var{thunk}
-@deffnx Function with-error-output-port* @var{port} @var{thunk}
+@deffn Procedure with-current-input-port* @var{port} @var{thunk}
+@deffnx Procedure with-current-output-port* @var{port} @var{thunk}
+@deffnx Procedure with-error-output-port* @var{port} @var{thunk}
 These procedures install @var{port} as the current input, current
 output, and error output port, respectively, for the duration of a call
 to @var{thunk}.
@@ -1431,14 +1431,14 @@ These special forms are simply syntactic sugar for the
 @code{with-current-input-port*} procedure and friends.
 @end deffn
 
-@deffn Function set-current-input-port! @var{port}
-@deffnx Function set-current-output-port! @var{port}
-@deffnx Function set-error-output-port! @var{port}
+@deffn Procedure set-current-input-port! @var{port}
+@deffnx Procedure set-current-output-port! @var{port}
+@deffnx Procedure set-error-output-port! @var{port}
 These procedures alter the dynamic binding of the current I/O
 port procedures to new values.
 @end deffn
 
-@deffn Function close @var{fd/port}
+@deffn Procedure close @var{fd/port}
 Close the port or file descriptor.
 
 If @var{fd/port} is a file descriptor, and it has a port allocated to
@@ -1459,8 +1459,8 @@ The procedure returns true if it closed an open port. If the port was
 already closed, it returns false; this is not an error.
 @end deffn
 
-@deffn Function stdports->stdio
-@deffnx Function stdio->stdports
+@deffn Procedure stdports->stdio
+@deffnx Procedure stdio->stdports
 These two procedures are used to synchronise Unix' standard I/O file
 descriptors and Scheme's current I/O ports.
 
@@ -1490,7 +1490,7 @@ However, you are more likely to find the dynamic-extent variant,
 @code{with-stdio-ports*}, below, to be of use in general programming.
 @end deffn
 
-@deffn Function with-stdio-ports* @var{thunk}
+@deffn Procedure with-stdio-ports* @var{thunk}
 @deffnx Macro with-stdio-ports @var{body} . . . 
 @code{With-stdio-ports*} binds the standard ports
 @code{(current-input-port)}, @code{(current-output-port)}, and
@@ -1512,18 +1512,18 @@ Scheme 48 has string ports, which you can use. Scsh has not committed
 to the particular interface or names that Scheme 48 uses, so be warned
 that the interface described herein may be liable to change.
 
-@deffn Function make-string-input-port @var{string}
+@deffn Procedure make-string-input-port @var{string}
 Returns a port that reads characters from the supplied string.
 @end deffn
 
-@deffn Function make-string-output-port
-@deffnx Function string-output-port-output @var{port}
+@deffn Procedure make-string-output-port
+@deffnx Procedure string-output-port-output @var{port}
 A string output port is a port that collects the characters given to it
 into a string. The accumulated string is retrieved by applying
 @code{string-output-port-output} to the port.
 @end deffn
 
-@deffn Function call-with-string-output-port @var{procedure}
+@deffn Procedure call-with-string-output-port @var{procedure}
 The @var{procedure} value is called on a port. When it returns,
 @code{call-with-string-output-port} returns a string containing the
 characters that were written to that port during the execution of
@@ -1716,21 +1716,21 @@ freeing its old file descriptor.
 These rules are what is necessary to ``make things work out'' with no
 surprises in the general case.
 
-@deffn Function fdes->inport @var{fd}
-@deffnx Function fdes->outport @var{fd}
-@deffnx Function port->fdes @var{port}
+@deffn Procedure fdes->inport @var{fd}
+@deffnx Procedure fdes->outport @var{fd}
+@deffnx Procedure port->fdes @var{port}
 These increment the port's revealed count.
 @end deffn
 
-@deffn Function port-revealed @var{port}
+@deffn Procedure port-revealed @var{port}
 Return the port's revealed count if positive, otherwise @code{#f}.
 @end deffn
 
-@deffn Function release-port-handle @var{port}
+@deffn Procedure release-port-handle @var{port}
 Decrement the port's revealed count.
 @end deffn
 
-@deffn Function call/fdes @var{fd/port} @var{consumer}
+@deffn Procedure call/fdes @var{fd/port} @var{consumer}
 Calls @var{consumer} on a file descriptor; takes care of revealed
 bookkeeping. If @var{fd/port} is a file descriptor, this is just
 @code{(@var{consumer} @var{fd/port})}. If @var{fd/port} is a port,
@@ -1742,7 +1742,7 @@ allowed to throw into @var{consumer} with a stored continuation, as
 that would violate the revealed-count bookkeeping.
 @end deffn
 
-@deffn Function move->fdes @var{fd/port} @var{target-fd}
+@deffn Procedure move->fdes @var{fd/port} @var{target-fd}
 Maps fd->fd and port->port.
 
 If @var{fd/port} is a file descriptor not equal to @var{target-fd},
@@ -1761,10 +1761,10 @@ other file descriptor.
 @end deffn
 
 @subsection Unix I/O
-@deffn Function dup @var{fd/port} [@var{newfd}]
-@deffnx Function dup->inport @var{fd/port} [@var{newfd}]
-@deffnx Function dup->outport @var{fd/port} [@var{newfd}]
-@deffnx Function dup->fdes @var{fd/port} [@var{newfd}]
+@deffn Procedure dup @var{fd/port} [@var{newfd}]
+@deffnx Procedure dup->inport @var{fd/port} [@var{newfd}]
+@deffnx Procedure dup->outport @var{fd/port} [@var{newfd}]
+@deffnx Procedure dup->fdes @var{fd/port} [@var{newfd}]
 These procedures provide the functionality of C's @code{dup()} and
 @code{dup2()}. @code{Dup}'s return value depends on on the type of
 @var{fd/port}--it maps fd->fd and port->port.
@@ -1793,7 +1793,7 @@ the tty. Be sure to open the file with the @code{open/read+write} flag
 for this.
 @end deffn
 
-@deffn Function seek @var{fd/port} @var{offset} [@var{whence}]
+@deffn Procedure seek @var{fd/port} @var{offset} [@var{whence}]
 Reposition the I/O cursor for a file descriptor or port. @var{whence} is
 one of @code{seek/set}, @code{seek/delta}, or @code{seek/end}, and
 defaults to @code{seek/set}. If @code{seek/set}, then @var{offset} is an
@@ -1811,13 +1811,13 @@ that are not immediate integers (i.e., representable in 30 bits).
 Oops: The current implementation doesn't handle buffered ports.
 @end deffn
 
-@deffn Function tell @var{fd/port}
+@deffn Procedure tell @var{fd/port}
 Returns the position of the I/O cursor in the the I/O stream. Not all
 file descriptors or ports support cursor-reporting; this is dependent on
 the OS implementation.
 @end deffn
 
-@deffn Function open-file @var{fname} @var{flags} [@var{perms}]
+@deffn Procedure open-file @var{fname} @var{flags} [@var{perms}]
 @var{Perms} defaults to @code{#o666}. @var{Flags} is an integer bitmask,
 composed by or'ing together constants listed in @ref{Table 3.1}.  You
 must use exactly one of the @code{open/read}, @code{open/write}, or
@@ -1829,8 +1829,8 @@ result input port, and duping it to an output port with
 @code{dup->outport}.)
 @end deffn
 
-@deffn Function open-input-file @var{fname} [@var{flags}]
-@deffnx Function open-output-file @var{fname} [@var{flags} @var{perms}]
+@deffn Procedure open-input-file @var{fname} [@var{flags}]
+@deffnx Procedure open-output-file @var{fname} [@var{flags} @var{perms}]
 These are equivalent to @code{open-file}, after first setting the
 @code{read/write} bits of the @var{flags} argument to @code{open/read},
 or @code{open/write}, respectively.  @var{Flags} defaults to zero for
@@ -1844,12 +1844,12 @@ for @code{open-output-file}. These defaults make the procedures
 backwards-compatible with their unary R5RS definitions.
 @end deffn
 
-@deffn Function open-fdes @var{fname} @var{flags} [@var{perms}]
+@deffn Procedure open-fdes @var{fname} @var{flags} [@var{perms}]
 Returns a file descriptor.
 @end deffn
 
-@deffn Function fdes-flags @var{fd/port}
-@deffnx Function set-fdes-flags @var{fd/port} @var{integer}
+@deffn Procedure fdes-flags @var{fd/port}
+@deffnx Procedure set-fdes-flags @var{fd/port} @var{integer}
 These procedures allow reading and writing of an open file's flags. The
 only such flag defined by @acronym{POSIX} is
 @code{fdflags/close-on-exec}; your Unix implementation may provide
@@ -1865,8 +1865,8 @@ programmer. Programmers that manipulate this flag should be aware of
 these extra, automatic operations.
 @end deffn
 
-@deffn Function fdes-status @var{fd/port}
-@deffnx Function set-fdes-status @var{fd/port} @var{integer}
+@deffn Procedure fdes-status @var{fd/port}
+@deffnx Procedure set-fdes-status @var{fd/port} @var{integer}
 
 These procedures allow reading and writing of an open file's status
 flags (@pxref{Table 3.1}).
@@ -1925,12 +1925,12 @@ created by @code{dup}---if you create port @emph{b} by applying
 will also have changed @emph{a}'s status flags.
 @end deffn
 
-@deffn Function pipe
+@deffn Procedure pipe
 Returns two ports, the read and write end-points of a Unix pipe.
 @end deffn
 
-@deffn Function read-string @var{nbytes} [@var{fd/port}]
-@deffnx Function read-string! @var{string} [@var{fd/port} @var{start} @var{end}]
+@deffn Procedure read-string @var{nbytes} [@var{fd/port}]
+@deffnx Procedure read-string! @var{string} [@var{fd/port} @var{start} @var{end}]
 
 These calls read exactly as much data as you requested, unless there
 is not enough data (@acronym{eof}). They will persistently retry on
@@ -1946,8 +1946,8 @@ Any partially-read data is included in the error exception packet. Error
 returns on non-blocking input are considered an error.
 @end deffn
 
-@deffn Function read-string/partial @var{nbytes} [@var{fd/port}]
-@deffnx Function read-string!/partial @var{str} [@var{fd/port} @var{start} @var{end}]
+@deffn Procedure read-string/partial @var{nbytes} [@var{fd/port}]
+@deffnx Procedure read-string!/partial @var{str} [@var{fd/port} @var{start} @var{end}]
 
 These are atomic best-effort/forward-progress calls. Best effort: they
 may read less than you request if there is a lesser amount of data
@@ -1984,8 +1984,8 @@ blocks, and your algorithm is insensitive to the block size of any
 particular read operation.
 @end deffn
 
-@deffn Function select @var{rvec} @var{wvec} @var{evec} [@var{timeout}]
-@deffnx Function select! @var{rvec} @var{wvec} @var{evec} [@var{timeout}]
+@deffn Procedure select @var{rvec} @var{wvec} @var{evec} [@var{timeout}]
+@deffnx Procedure select! @var{rvec} @var{wvec} @var{evec} [@var{timeout}]
 
 The @code{select} procedure allows a process to block and wait for
 events on multiple I/O channels. The @var{rvec} and @var{evec} arguments
