@@ -2080,22 +2080,28 @@ is not checking for available data, but rather waiting until a port has
 established a connection---for example, to a network port.
 @end deffn
 
-@c (write-string string [fd/port start end]) -! undefined procedure
-@c 
-@c This procedure writes all the data requested. If the procedure cannotperform the write with a single kernel call (due to interrupts or partial
-@c 
-@c writes), it will perform multiple write operations until all the data is writ-ten or an error has occurred. A non-blocking I/O error is considered an error. (Error exception packets for this syscall include the amount of datapartially transferred before the error occurred.)
-@c The data written are the characters of string in the half-open interval[start
-@c 
-@c , end). The default interval is the whole string: start = 0 andend =
-@c 
-@c (string-length string). The values of start and end must specifya well-defined interval in str, i.e., 0 <= start <= end <=
-@c 
-@c (string-length str).A zero-byte write returns immediately, with no error.
-@c 
-@c Output to buffered ports: write-string's efforts end as soon as all thedata has been placed in the output buffer. Errors and true output may
-@c not happen until a later time, of course.
-@c 
+@deffn Procedure write-string @var{string} [@var{fd/port} @var{start} @var{end}]
+
+This procedure writes all the data requested. If the procedure cannot
+perform the write with a single kernel call (due to interrupts or
+partial writes), it will perform multiple write operations until all the
+data is written or an error has occurred. A non-blocking I/O error is
+considered an error. (Error exception packets for this syscall include
+the amount of data partially transferred before the error occurred.)
+
+The data written are the characters of @var{string} in the half-open
+interval [@var{start}, @var{end}]. The default interval is the whole
+string: @var{start} = 0 and @var{end} = @code{(string-length
+@var{string})}. The values of @var{start} and @var{end} must specify a
+well-defined interval in @var{string}, i.e., 0 @math{<=} @var{start}
+@math{<=} @var{end} @math{<=} @code{(string-length @var{string})}. A
+zero-byte write returns immediately, with no error.
+
+Output to buffered ports: write-string's efforts end as soon as all
+thedata has been placed in the output buffer. Errors and true output may
+not happen until a later time, of course.
+@end deffn
+
 @c (write-string/partial string [fd/port start end]) -! nwritten procedure
 @c 
 @c This routine is the atomic best-effort/forward-progress analog to
