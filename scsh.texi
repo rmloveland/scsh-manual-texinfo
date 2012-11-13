@@ -2045,32 +2045,41 @@ preferable alternative to @code{select}/@code{select!}: they are much
 simpler to use, and also have a slightly more efficient implementation.
 @end deffn
 
-@c (select-ports timeout port . . . ) -! ready-ports procedure
-@c 
-@c The select-ports call will block until at least one of the ports passed to itis ready for operation or until the timeout has expired. For an input port
-@c 
-@c this means that it either has data sitting its buffer or that the underlyingfile descriptor has data waiting. For an output port this means that it
-@c either has space available in the associated buffer or that the underlyingfile descriptor can accept output.
-@c 
-@c The timeout value can be used to force the call to time out after a givennumber of seconds. A value of
-@c 
-@c #f means to wait indefinitely. A zerovalue can be used to poll the ports.
-@c 
-@c Select-ports returns a list of the ports ready for operation. Note thatthis list may be empty if the timeout expired before any ports became
-@c ready.
-@c (select-port-channels timeout port . . . ) -! ready-ports procedure
-@c 
-@c Select-port-channels is like select-ports, except that it only looks atthe operating system objects the ports refer to, ignoring any buffering
-@c 
-@c performed by the ports.
-@c 
-@c Remark: Select-port-channels should be used with care: for ex-ample, if an input port has data in the buffer but no data available
-@c on the underlying file descriptor, select-port-channels will block,even though a read operation on the port would be able to complete
-@c without blocking.
-@c Select-port-channels is intended for situations where the programis not checking for available data, but rather for waiting until a port
-@c 
-@c has established a connection--for example, to a network port.
-@c 
+@deffn Procedure select-ports @var{timeout} @var{port} @dots{}
+
+The @code{select-ports} call will block until at least one of the ports
+passed to itis ready for operation or until the timeout has expired. For
+an input port this means that it either has data sitting in its buffer
+or that the underlying file descriptor has data waiting. For an output
+port this means that it either has space available in the associated
+buffer or that the underlying file descriptor can accept output.
+
+The @var{timeout} value can be used to force the call to time out after
+a given number of seconds. A value of @code{#f} means to wait
+indefinitely. A zero value can be used to poll the ports.
+
+@code{Select-ports} returns a list of the ports ready for operation.
+Note that this list may be empty if the timeout expired before any ports
+became ready.
+@end deffn
+
+@deffn Procedure select-port-channels @var{timeout} @var{port} @dots{}
+
+@code{Select-port-channels} is like @code{select-ports}, except that it
+only looks at the operating system objects the ports refer to, ignoring
+any buffering performed by the ports.
+
+Remark: @code{Select-port-channels} should be used with care: for
+example, if an input port has data in the buffer but no data available
+on the underlying file descriptor, @code{select-port-channels} will
+block, even though a read operation on the port would be able to
+complete without blocking.
+
+@code{Select-port-channels} is intended for situations where the program
+is not checking for available data, but rather waiting until a port has
+established a connection---for example, to a network port.
+@end deffn
+
 @c (write-string string [fd/port start end]) -! undefined procedure
 @c 
 @c This procedure writes all the data requested. If the procedure cannotperform the write with a single kernel call (due to interrupts or partial
