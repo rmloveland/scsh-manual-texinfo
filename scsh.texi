@@ -2102,74 +2102,98 @@ thedata has been placed in the output buffer. Errors and true output may
 not happen until a later time, of course.
 @end deffn
 
-@c (write-string/partial string [fd/port start end]) -! nwritten procedure
-@c 
-@c This routine is the atomic best-effort/forward-progress analog to
-@c write-string. It returns the number of bytes written, which may beless than you asked for. Partial writes can occur when (1) we write off
-@c 
-@c the physical end of the media, (2) the write is interrrupted, or (3) the filedescriptor is set for non-blocking I/O.
-@c 
-@c If the file descriptor is not set up for non-blocking I/O, then a successfulreturn from these procedures makes a forward progress guarantee--that
-@c is, a partial write took place of at least one byte:
-@c 
-@c * If we are at the end of physical media, and no write takes place, anerror exception is raised. So a return implies we wrote something.
-@c 
-@c * If the call is interrupted after a partial transfer, it returns immedi-ately. But if the call is interrupted before any data transfer, then the
-@c 
-@c write is retried.
-@c If we request a zero-byte write, then the call immediately returns 0. If thefile descriptor is set for non-blocking I/O, then the call may return 0 if it
-@c was unable to immediately write anything (e.g., full pipe). Barring thesetwo cases, a write either returns nwritten
-@c 
-@c > 0, or raises an error exception.
-@c 
-@c Non-blocking I/O is only available on file descriptors and unbufferedports. Doing non-blocking I/O to a buffered port is not well-defined,
-@c 
-@c and is an error (the problem is the subsequent flush operation).
-@c 
-@c Oops: write-string/partial is currently not implemented. Con-sider using threads to achive the same functionality.
-@c 
-@c @subsection Buffered I/O
-@c Scheme 48 ports use buffered I/O--data is transferred to or from the OS inblocks. Scsh provides control of this mechanism: the programmer may force
-@c saved-up output data to be transferred to the OS when he chooses, and mayalso choose which I/O buffering policy to employ for a given port (or turn
-@c buffering off completely).
-@c 
-@c It can be useful to turn I/O buffering off in some cases, for example whenan I/O stream is to be shared by multiple subprocesses. For this reason, scsh allocates an unbuffered port for file descriptor 0 at start-up time. Because shellsfrequently share stdin with subprocesses, if the shell does buffered reads, it
-@c might "steal" input intended for a subprocess. For this reason, all shells, in-cluding sh, csh, and scsh, read stdin unbuffered. Applications that can tolerate
-@c buffered input on stdin can reset (current-input-port) to block buffering forhigher performance.
-@c 
-@c {Note So support peek-char a Scheme implementation has to maintain abuffer for all input ports. In scsh, for "unbuffered" input ports the buffer size
-@c is one. As you cannot request less then one character there is no unrequestedreading so this can still be called "unbuffered input".}
-@c 
-@c (set-port-buffering port policy [size]) -! undefined procedure
-@c 
-@c This procedure allows the programmer to assign a particular I/O buffer-ing policy to a port, and to choose the size of the associated buffer. It
-@c 
-@c may only be used on new ports, i.e., before I/O is performed on the port.There are three buffering policies that may be chosen:
-@c 
-@c bufpol/block General block buffering (general default)
-@c bufpol/line Line buffering (tty default)
-@c bufpol/none Direct I/O--no buffering2
-@c 
-@c The line buffering policy flushes output whenever a newline is output;whenever the buffer is full; or whenever an input is read from stdin. Line
-@c 
-@c buffering is the default for ports open on terminal devices.
-@c 
-@c Oops: The current implementation doesn't support bufpol/line.
-@c The size argument requests an I/O buffer of size bytes. For output ports,size must be non-negative, for input ports size must be positve. If not
-@c 
-@c given, a reasonable default is used. For output ports, if given and zero,buffering is turned off (i.e., size = 0 for any policy is equivalent to
-@c policy = bufpol/none). For input ports, setting the size to one corre-sponds to unbuffered input as defined above. If given, size must be zero
-@c respectively one for bufpol/none.
-@c 
-@c (force-output [fd/port]) -! undefined procedure
-@c 
-@c This procedure does nothing when applied to an integer file descriptoror unbuffered port. It flushes buffered output when applied to a buffered
-@c port, and raises a write-error exception on error. Returns no value.
-@c 
-@c (flush-all-ports) -! undefined procedure
-@c 
-@c This procedure flushes all open output ports with buffered data.
-@c 
+@deffn Procedure write-string/partial @var{string} [@var{fd/port} @var{start} @var{end}]
+
+This routine is the atomic best-effort/forward-progress analog to
+@code{write-string}. It returns the number of bytes written, which may
+be less than you asked for. Partial writes can occur when (1) we write
+off the physical end of the media, (2) the write is interrrupted, or
+(3) the filedescriptor is set for non-blocking I/O.
+
+If the file descriptor is not set up for non-blocking I/O, then a
+successful return from these procedures makes a forward progress
+guarantee---that is, a partial write took place of at least one byte:
+
+@itemize
+@item
+If we are at the end of physical media, and no write takes place, an
+error exception is raised. So a return implies we wrote something.
+
+@item
+If the call is interrupted after a partial transfer, it returns
+immediately. But if the call is interrupted before any data transfer,
+then the write is retried.
+@end itemize
+
+If we request a zero-byte write, then the call immediately returns
+0. If thefile descriptor is set for non-blocking I/O, then the call
+may return 0 if it was unable to immediately write anything (e.g.,
+full pipe). Barring thesetwo cases, a write either returns
+@var{nwritten} @math{>} 0, or raises an error exception.
+
+Non-blocking I/O is only available on file descriptors and unbuffered
+ports. Doing non-blocking I/O to a buffered port is not well-defined,
+and is an error (the problem is the subsequent flush operation).
+
+Oops: @code{write-string/partial} is currently not
+implemented. Consider using threads to achive the same functionality.
+@end deffn
+
+@subsection Buffered I/O
+Scheme 48 ports use buffered I/O---data is transferred to or from the
+OS in blocks. Scsh provides control of this mechanism: the programmer
+may force saved-up output data to be transferred to the OS when he
+chooses, and may also choose which I/O buffering policy to employ for
+a given port (or turn buffering off completely).
+
+It can be useful to turn I/O buffering off in some cases, for example
+when an I/O stream is to be shared by multiple subprocesses. For this
+reason, scsh allocates an unbuffered port for file descriptor 0 at
+start-up time. Because shells frequently share stdin with
+subprocesses, if the shell does buffered reads, it might ``steal''
+input intended for a subprocess. For this reason, all shells,
+including @code{sh}, @code{csh}, and @code{scsh} , read stdin
+unbuffered. Applications that can tolerate buffered input on stdin can
+reset @code{current-input-port} to block buffering for higher
+performance.
+
+Note: To support @code{peek-char} a Scheme implementation has to
+maintain a buffer for all input ports. In scsh, for ``unbuffered''
+input ports the buffer size is one. As you cannot request less then
+one character there is no unrequested reading so this can still be
+called ``unbuffered input''.
+
+@deffn Procedure set-port-buffering @var{port} @var{policy} [@var{size}]
+
+This procedure allows the programmer to assign a particular I/O buffer-ing policy to a port, and to choose the size of the associated buffer. It
+
+may only be used on new ports, i.e., before I/O is performed on the port.There are three buffering policies that may be chosen:
+
+bufpol/block General block buffering (general default)
+bufpol/line Line buffering (tty default)
+bufpol/none Direct I/O--no buffering2
+
+The line buffering policy flushes output whenever a newline is output;whenever the buffer is full; or whenever an input is read from stdin. Line
+
+buffering is the default for ports open on terminal devices.
+
+Oops: The current implementation doesn't support bufpol/line.
+The size argument requests an I/O buffer of size bytes. For output ports,size must be non-negative, for input ports size must be positve. If not
+
+given, a reasonable default is used. For output ports, if given and zero,buffering is turned off (i.e., size = 0 for any policy is equivalent to
+policy = bufpol/none). For input ports, setting the size to one corre-sponds to unbuffered input as defined above. If given, size must be zero
+respectively one for bufpol/none.
+@end deffn
+
+(force-output [fd/port]) -! undefined procedure
+
+This procedure does nothing when applied to an integer file descriptoror unbuffered port. It flushes buffered output when applied to a buffered
+port, and raises a write-error exception on error. Returns no value.
+
+(flush-all-ports) -! undefined procedure
+
+This procedure flushes all open output ports with buffered data.
+
 @c @subsection File locking
 @c Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
 @c a process has an exclusive lock on a region of a file, other processes will not beable to obtain locks on that region of the file, but they will still be able to read
