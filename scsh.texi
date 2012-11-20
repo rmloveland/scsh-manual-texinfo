@@ -2165,34 +2165,49 @@ called ``unbuffered input''.
 
 @deffn Procedure set-port-buffering @var{port} @var{policy} [@var{size}]
 
-This procedure allows the programmer to assign a particular I/O buffer-ing policy to a port, and to choose the size of the associated buffer. It
+This procedure allows the programmer to assign a particular I/O
+buffering policy to a port, and to choose the size of the associated
+buffer. It may only be used on new ports, i.e., before I/O is
+performed on the port. There are three buffering policies that may be
+chosen:
 
-may only be used on new ports, i.e., before I/O is performed on the port.There are three buffering policies that may be chosen:
+@table @code
+@item bufpol/block
+General block buffering (general default)
+@item bufpol/line
+Line buffering (tty default)
+@item bufpol/none
+Direct I/O---no buffering
+@end table
 
-bufpol/block General block buffering (general default)
-bufpol/line Line buffering (tty default)
-bufpol/none Direct I/O--no buffering2
+The line buffering policy flushes output whenever a newline is output;
+whenever the buffer is full; or whenever an input is read from
+stdin. Line buffering is the default for ports open on terminal
+devices.
 
-The line buffering policy flushes output whenever a newline is output;whenever the buffer is full; or whenever an input is read from stdin. Line
+Oops: The current implementation doesn't support @code{bufpol/line}.
 
-buffering is the default for ports open on terminal devices.
-
-Oops: The current implementation doesn't support bufpol/line.
-The size argument requests an I/O buffer of size bytes. For output ports,size must be non-negative, for input ports size must be positve. If not
-
-given, a reasonable default is used. For output ports, if given and zero,buffering is turned off (i.e., size = 0 for any policy is equivalent to
-policy = bufpol/none). For input ports, setting the size to one corre-sponds to unbuffered input as defined above. If given, size must be zero
-respectively one for bufpol/none.
+The @var{size} argument requests an I/O buffer of @var{size}
+bytes. For output ports, @var{size} must be non-negative, for input
+ports @var{size} must be positve. If not given, a reasonable default
+is used. For output ports, if given and zero, buffering is turned off
+(i.e., @var{size} @math{= 0} for any policy is equivalent to
+@var{policy} @math{=} @code{bufpol/none}). For input ports, setting
+the size to one corresponds to unbuffered input as defined above. If
+given, @var{size} must be zero respectively one for
+@code{bufpol/none}.
 @end deffn
 
-(force-output [fd/port]) -! undefined procedure
+@deffn Procedure force-output [@var{fd/port}]
+This procedure does nothing when applied to an integer file descriptor
+or unbuffered port. It flushes buffered output when applied to a
+buffered port, and raises a write-error exception on error. Returns no
+value.
+@end deffn
 
-This procedure does nothing when applied to an integer file descriptoror unbuffered port. It flushes buffered output when applied to a buffered
-port, and raises a write-error exception on error. Returns no value.
-
-(flush-all-ports) -! undefined procedure
-
+@deffn Procedure flush-all-ports
 This procedure flushes all open output ports with buffered data.
+@end deffn
 
 @c @subsection File locking
 @c Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
