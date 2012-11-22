@@ -1,0 +1,5 @@
+# Scsh 0.6.7 Manual in GNU Texinfo Format
+
+This is a work in progress. Build using the command
+
+    makeinfo --html scsh.texi
