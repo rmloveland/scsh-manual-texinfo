@@ -2209,56 +2209,75 @@ value.
 This procedure flushes all open output ports with buffered data.
 @end deffn
 
-@c @subsection File locking
-@c Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are locks that can bechecked by user code, but do not affect other I/O operations. For example, if
-@c a process has an exclusive lock on a region of a file, other processes will not beable to obtain locks on that region of the file, but they will still be able to read
-@c and write the file with no hindrance. Using advisory locks requires cooperationamongst the agents accessing the shared resource.
-@c 
-@c Remark: Unfortunately, @acronym{POSIX} file locks are associated with actual files,not with associated open file descriptors. Once a process locks a file, using
-@c some file descriptor fd, the next time any file descriptor referencing that fileis closed, all associated locks are released. This severely limits the utility of @acronym{POSIX} advisory file locks, and we'd recommend caution when using them.It is not without reason that the FreeBSD man pages refer to @acronym{POSIX} filelocking as "completely stupid."
-@c 
-@c Scsh moves Scheme ports from file descriptor to file descriptor with dup()and
-@c 
-@c close() as required by the runtime, so it is impossible to keep file locksopen across one of these shifts. Hence we can only offer P
-@c 
-@c OSIX advisoryfile locking directly on raw integer file descriptors; regrettably, there are no
-@c 
-@c facilities for locking Scheme ports.
-@c Note that once a Scheme port is revealed in scsh, the runtime will not shiftthe port around with
-@c 
-@c dup() and close(). This means the file-locking pro-cedures can then be applied to the port's associated file descriptor.
-@c 
-@c @acronym{POSIX} allows the user to lock a region of a file with either an exclusive orshared lock. Locked regions are described by the lock-region record:
-@c 
-@c (define-record lock-region
-@c 
-@c exclusive?
-@c start
-@c len
-@c whence
-@c proc)
-@c 
-@c 39
-@c 
-@c * The exclusive? field is true if the lock is exclusive; false if it is shared.
-@c 
-@c * The whence field is one of the values from the seek call: seek/set,
-@c 
-@c seek/delta, or seek/end, and determines the interpretation of the startfield:
-@c 
-@c - If seek/set, the start value is simply an absolute index into thefile.
-@c - If seek/delta, the start value is an offset from the file descriptor'scurrent position in the file.
-@c - If seek/end, the start value is an offset from the end of the file.
-@c The region of the file being locked is given by the start and len fields;if
-@c 
-@c len is zero, it means "infinity," that is, the region extends from thestarting point through the end of the file, even as the file is extended by
-@c 
-@c subsequent write operations.
-@c 
-@c * The proc field gives the process object for the process holding the regionlock, when relevant (see
-@c 
-@c get-lock-region below).
-@c 
+@subsection File locking
+
+Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are
+locks that can be checked by user code, but do not affect other I/O
+operations. For example, if a process has an exclusive lock on a region
+of a file, other processes will not be able to obtain locks on that
+region of the file, but they will still be able to read and write the
+file with no hindrance. Using advisory locks requires cooperation
+amongst the agents accessing the shared resource.
+
+@emph{Remark}: Unfortunately, @acronym{POSIX} file locks are associated
+with actual files, not with associated open file descriptors. Once a
+process locks a file, using some file descriptor @emph{fd}, the next
+time any file descriptor referencing that file is closed, all associated
+locks are released. This severely limits the utility of @acronym{POSIX}
+advisory file locks, and we'd recommend caution when using them.It is
+not without reason that the FreeBSD man pages refer to @acronym{POSIX}
+file locking as "completely stupid."
+
+Scsh moves Scheme ports from file descriptor to file descriptor with
+@code{dup()} and @code{close()} as required by the runtime, so it is
+impossible to keep file locks open across one of these shifts. Hence we
+can only offer POSIX advisory file locking directly on raw integer file
+descriptors; regrettably, there are no facilities for locking Scheme
+ports.
+
+Note that once a Scheme port is revealed in scsh, the runtime will not
+shift the port around with @code{dup()} and @code{close()}. This means
+the file-locking procedures can then be applied to the port's associated
+file descriptor.
+
+@acronym{POSIX} allows the user to lock a region of a file with either an exclusive or shared lock. Locked regions are described by the @code{lock-region} record:
+
+@example
+(define-record lock-region
+  exclusive?
+  start
+  len
+  whence
+  proc)
+@end example
+
+@itemize
+@item
+The @code{exclusive?} field is true if the lock is exclusive; false if it is shared.
+@item
+The whence field is one of the values from the seek call: @code{seek/set},
+@code{seek/delta}, or @code{seek/end}, and determines the interpretation of the
+@code{start} field:
+@itemize
+@item
+If @code{seek/set}, the start value is simply an absolute index into the
+file.
+@item
+If @code{seek/delta}, the start value is an offset from the file
+descriptor's current position in the file.
+@item
+If @code{seek/end}, the start value is an offset from the end of the
+file.
+@end itemize
+The region of the file being locked is given by the @code{start} and
+@code{len} fields; if @code{len} is zero, it means "infinity," that is,
+the region extends from the starting point through the end of the file,
+even as the file is extended by subsequent write operations.
+@item
+The @code{proc} field gives the process object for the process holding the
+region lock, when relevant (see @code{get-lock-region} below).
+@end itemize
+
 @c (make-lock-region exclusive? start len [whence]) -! lock-region procedure
 @c 
 @c This procedure makes a lock-region record. The whence field defaults to
