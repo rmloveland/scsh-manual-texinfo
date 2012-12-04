@@ -2379,52 +2379,68 @@ If the object being deleted doesn't exist, @code{delete-directory} and
 simply returns.
 @end deffn
 
-@c (read-symlink fname) -! string procedure
-@c 
-@c Return the filename referenced by symbolic link fname.
-@c 
-@c (rename-file old-fname new-fname [override?]) -! undefined procedure
-@c 
-@c If you override an existing object, then old-fname and new-fname musttype-match--either both directories, or both non-directories. This is required by the semantics of Unix rename().
-@c 
-@c Remark: There is an unfortunate atomicity problem with the
-@c rename-file procedure: if you specify no-override, but create file
-@c new-fname sometime between rename-file's existence check and theactual rename operation, your file will be clobbered with
-@c 
-@c old-fname.There is no way to fix this problem, given the semantics of Unix
-@c 
-@c rename(); at least it is highly unlikely to occur in practice.
-@c 
-@c (set-file-mode fname/fd/port mode) -! undefined procedure
-@c (set-file-owner fname/fd/port uid) -! undefined procedure
-@c (set-file-group fname/fd/port gid) -! undefined procedure
-@c 
-@c These procedures set the permission bits, owner id, and group id of afile, respectively. The file can be specified by giving the file name, or
-@c 
-@c either an integer file descriptor or a port open on the file. Setting file userownership usually requires root privileges.
-@c 
-@c (set-file-times fname [access-time mod-time]) -! undefined procedure
-@c 
-@c This procedure sets the access and modified times for the file fname to thesupplied values (see section @ref{3.10} for the scsh representation of time). If
-@c 
-@c neither time argument is supplied, they are both taken to be the currenttime. You must provide both times or neither. If the procedure completes
-@c successfully, the file's time of last status-change (ctime) is set to the cur-rent time.
-@c 
-@c (sync-file fd/port) -! undefined procedure
-@c (sync-file-system) -! undefined procedure
-@c 
-@c Calling sync-file causes Unix to update the disk data structures for agiven file. If fd/port is a port, any buffered data it may have is first flushed.
-@c 
-@c Calling sync-file-system synchronises the kernel's entire file systemwith the disk.
-@c 
-@c These procedures are not @acronym{POSIX}. Interestingly enough, sync-filesystem doesn't actually do what it is claimed to do. We just threw itin for humor value. See the
-@c 
-@c sync(2) man page for Unix enlightenment.
-@c 
-@c (truncate-file fname/fd/port len) -! undefined procedure
-@c 
-@c The specified file is truncated to len bytes in length.
-@c 
+@deffn Procedure read-symlink @var{fname}
+
+Return the filename referenced by symbolic link @var{fname}.
+@end deffn
+
+@deffn Procedure rename-file @var{old-fname} @var{new-fname} [@var{override?}]
+
+If you override an existing object, then @var{old-fname} and
+@var{new-fname} must type-match--either both directories, or both
+non-directories. This is required by the semantics of Unix
+@code{rename()}.
+
+@emph{Remark}: There is an unfortunate atomicity problem with the
+@code{rename-file} procedure: if you specify no-override, but create
+file @var{new-fname} sometime between @code{rename-file} 's existence
+check and the actual rename operation, your file will be clobbered
+with @code{old-fname}.There is no way to fix this problem, given the
+semantics of Unix @code{rename()}; at least it is highly unlikely to
+occur in practice.
+@end deffn
+
+@deffn Procedure set-file-mode @var{fname/fd/port} @var{mode}
+@deffnx Procedure set-file-owner @var{fname/fd/port} @var{uid}
+@deffnx Procedure set-file-group @var{fname/fd/port} @var{gid}
+
+These procedures set the permission bits, owner id, and group id of a
+file, respectively. The file can be specified by giving the file name,
+or either an integer file descriptor or a port open on the
+file. Setting file user ownership usually requires root privileges.
+@end deffn
+
+@deffn Procedure set-file-times @var{fname} [@var{access-time} @var{mod-time}]
+
+This procedure sets the access and modified times for the file fname
+to the supplied values (@xref{Time} for the scsh representation of
+time). If neither time argument is supplied, they are both taken to be
+the current time. You must provide both times or neither. If the
+procedure completes successfully, the file's time of last
+status-change (@code{ctime}) is set to the current time.
+@end deffn
+
+@deffn Procedure sync-file @var{fd/port}
+@deffnx Procedure sync-file-system
+
+Calling @code{sync-file} causes Unix to update the disk data
+structures for a given file. If @var{fd/port} is a port, any buffered
+data it may have is first flushed.
+
+Calling @code{sync-file-system} synchronises the kernel's entire file
+system with the disk.
+
+These procedures are not @acronym{POSIX}. Interestingly enough,
+@code{sync-filesystem} doesn't actually do what it is claimed to
+do. We just threw it in for humor value. See the @code{sync(2)} man
+page for Unix enlightenment.
+@end deffn
+
+@deffn Procedure truncate-file @var{fname/fd/port} @var{len}
+
+The specified file is truncated to @var{len} bytes in length.
+@end deffn
+
 @c (file-info fname/fd/port [chase?]) -! file-info-record procedure
 @c 
 @c The file-info procedure returns a record structure containing every-thing there is to know about a file. If the chase? flag is true (the default),
