@@ -2329,36 +2329,56 @@ is equivalent syntactic sugar.
 @end deffn
 
 @section File system
-@c Besides the following procedures, which allow access to the computer's filesystem, scsh also provides a set of procedures which manipulate file names.
-@c These string-processing procedures are documented in section @ref{5.1}.
-@c (create-directory fname [perms override?]) -! undefined procedure
-@c (create-fifo fname [perms override?]) -! undefined procedure
-@c (create-hard-link oldname newname [override?]) -! undefined procedure
-@c (create-symlink old-name new-name [override?]) -! undefined procedure
-@c 
-@c These procedures create objects of various kinds in the file system.
-@c The override? argument controls the action if there is already an object inthe file system with the new name:
-@c 
-@c #f signal an error (default)
-@c 'query prompt the user
-@c other delete the old object (with delete-file or
-@c 
-@c delete-directory, as appropriate) beforecreating the new object.
-@c 
-@c Perms defaults to #o777 (but is masked by the current umask).
-@c 
-@c Remark: Currently, if you try to create a hard or symbolic link from afile to itself, you will error out with override? false, and simply delete
-@c your file with override? true. Catching this will require some sort oftrue-name procedure, which I currently do not have.
-@c 
-@c (delete-directory fname) -! undefined procedure
-@c (delete-file fname) -! undefined procedure
-@c (delete-filesys-object fname) -! undefined procedure
-@c 
-@c These procedures delete objects from the file system. The deletefilesys-object procedure will delete an object of any type from the filesystem: files, (empty) directories, symlinks, fifos, etc..
-@c 
-@c If the object being deleted doesn't exist, delete-directory and
-@c delete-file raise an error, while delete-filesys-object simply re-turns.
-@c 
+
+Besides the following procedures, which allow access to the computer's
+file system, scsh also provides a set of procedures which manipulate
+file @emph{names}. These string-processing procedures are documented
+in section @ref{Manipulating file names}.
+
+@deffn Procedure create-directory @var{fname} [@var{perms} @var{override?}]
+@deffnx Procedure create-fifo @var{fname} [@var{perms} @var{override?}]
+@deffnx Procedure create-hard-link @var{oldname} @var{newname} [@var{override?}]
+@deffnx Procedure create-symlink @var{old-name} @var{new-name} [@var{override?}]
+
+These procedures create objects of various kinds in the file system.
+
+The @var{override?} argument controls the action if there is already
+an object in the file system with the new name:
+
+@table @asis
+@item @code{#f}
+Signal an error (the default).
+@item @code{'query}
+Prompt the user.
+@item @var{other}
+Delete the old object (with @code{delete-file} or
+@code{delete-directory}, as appropriate) before creating the new
+object.
+@end table
+
+@var{Perms} defaults to @code{#o777} (but is masked by the current umask).
+
+@emph{Remark}: Currently, if you try to create a hard or symbolic link
+from a file to itself, you will error out with @var{override?}  false,
+and simply delete your file with @var{override?}  true. Catching this
+will require some sort of true-name procedure, which I currently do
+not have.
+@end deffn
+
+@deffn Procedure delete-directory @var{fname}
+@deffnx Procedure delete-file @var{fname}
+@deffnx Procedure delete-filesys-object @var{fname}
+
+These procedures delete objects from the file system. The
+@code{delete-filesys-object} procedure will delete an object of any
+type from the filesystem: files, (empty) directories, symlinks, fifos,
+etc.
+
+If the object being deleted doesn't exist, @code{delete-directory} and
+@code{delete-file} raise an error, while @code{delete-filesys-object}
+simply returns.
+@end deffn
+
 @c (read-symlink fname) -! string procedure
 @c 
 @c Return the filename referenced by symbolic link fname.
