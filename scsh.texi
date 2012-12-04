@@ -2278,42 +2278,56 @@ The @code{proc} field gives the process object for the process holding the
 region lock, when relevant (see @code{get-lock-region} below).
 @end itemize
 
-@c (make-lock-region exclusive? start len [whence]) -! lock-region procedure
-@c 
-@c This procedure makes a lock-region record. The whence field defaults to
-@c seek/set.
-@c 
-@c (lock-region fdes lock) -! undefined procedure
-@c (lock-region/no-block fdes lock) -! boolean procedure
-@c 
-@c These procedures lock a region of the file referenced by file descriptorfdes. The
-@c 
-@c lock-region procedure blocks until the lock is granted; thenon-blocking variant returns a boolean indicating whether or not the lock
-@c 
-@c was granted. To take an exclusive (write) lock, you must have the filedescriptor open with write access; to take a shared (read) lock, you must
-@c have the file descriptor open with read access.
-@c (get-lock-region fdes lock) -! lock-region or #f procedure
-@c 
-@c Return the first lock region on fdes that would conflict with lock regionlock. If there is no such lock region, return false. This procedure fills out
-@c 
-@c the proc field of the returned lock region, and is the only procedure thathas anything to do with this field. (See section @ref{3.4.1} for a description of
-@c process objects.) Note that if you apply this procedure to a file systemthat is shared across multiple operating systems (i.e., an NFS file system),
-@c the proc field may be ambiguous. We note, again, that @acronym{POSIX} advisoryfile locking is not a terribly useful or well-designed facility.
-@c 
-@c (unlock-region fdes lock) -! undefined procedure
-@c 
-@c Release a lock from a file.
-@c 
-@c (with-region-lock* fdes lock thunk) -! value(s) of thunk procedure
-@c (with-region-lock fdes lock body . . . ) -! value(s) of body syntax
-@c 
-@c This procedure obtains the requested lock, and then calls (thunk). Whenthunk returns, the lock is released. A non-local exit (e.g., throwing to a
-@c 
-@c saved continuation or raising an exception) also causes the lock to bereleased.
-@c 
-@c After a normal return from thunk, its return values are returned by
-@c with-region-lock*. The with-region-lock special form is equivalentsyntactic sugar.
-@c 
+@deffn Procedure make-lock-region @var{exclusive?} @var{start} @var{len} [@var{whence}]
+
+This procedure makes a lock-region record. The @var{whence} field
+defaults to @code{seek/set}.
+@end deffn
+
+@deffn Procedure lock-region @var{fdes} @var{lock}
+@deffnx Procedure lock-region/no-block @var{fdes} @var{lock}
+
+These procedures lock a region of the file referenced by file
+descriptor @var{fdes}. The @code{lock-region} procedure blocks until
+the lock is granted; the non-blocking variant returns a boolean
+indicating whether or not the lock was granted. To take an exclusive
+(write) lock, you must have the file descriptor open with write
+access; to take a shared (read) lock, you must have the file
+descriptor open with read access.
+@end deffn
+
+@deffn Procedure get-lock-region @var{fdes} @var{lock}
+
+Return the first lock region on @var{fdes} that would conflict with
+lock region @var{lock}. If there is no such lock region, return
+false. This procedure fills out the @code{proc} field of the returned
+lock region, and is the only procedure that has anything to do with
+this field. (@xref{Process objects and process reaping} for a
+description of process objects.) Note that if you apply this procedure
+to a file system that is shared across multiple operating systems
+(i.e., an NFS file system), the @code{proc} field may be ambiguous. We
+note, again, that @acronym{POSIX} advisory file locking is not a
+terribly useful or well-designed facility.
+@end deffn
+
+@deffn Procedure unlock-region @var{fdes} @var{lock}
+
+Release a lock from a file.
+@end deffn
+
+@deffn Procedure with-region-lock* @var{fdes} @var{lock} @var{thunk}
+@deffnx Macro with-region-lock @var{fdes} @var{lock} @var{body} @dots{}
+
+This procedure obtains the requested lock, and then calls
+@var{thunk}. When @var{thunk} returns, the lock is released. A
+non-local exit (e.g., throwing to a saved continuation or raising an
+exception) also causes the lock to be released.
+        
+After a normal return from @var{thunk}, its return values are returned
+by @code{with-region-lock*}. The @code{with-region-lock} special form
+is equivalent syntactic sugar.
+@end deffn
+
 @section File system
 @c Besides the following procedures, which allow access to the computer's filesystem, scsh also provides a set of procedures which manipulate file names.
 @c These string-processing procedures are documented in section @ref{5.1}.
