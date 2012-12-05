@@ -2441,70 +2441,94 @@ page for Unix enlightenment.
 The specified file is truncated to @var{len} bytes in length.
 @end deffn
 
-@c (file-info fname/fd/port [chase?]) -! file-info-record procedure
-@c 
-@c The file-info procedure returns a record structure containing every-thing there is to know about a file. If the chase? flag is true (the default),
-@c 
-@c then the procedure chases symlinks and reports on the files to which theyrefer. If chase? is false, then the procedure checks the actual file itself, even
-@c if it's a symlink. The chase? flag is ignored if the file argument is a file de-scriptor or port.
-@c 
-@c The value returned is a file-info record, defined to have the following struc-ture:
-@c 
-@c (define-record file-info
-@c 
-@c type ; {block-special, char-special, directory,
-@c 
-@c ; fifo, regular, socket, symlink}
-@c device ; Device file resides on.
-@c inode ; File's inode.
-@c mode ; File's mode bits: permissions, setuid, setgid
-@c nlinks ; Number of hard links to this file.
-@c uid ; Owner of file.
-@c gid ; File's group id.
-@c size ; Size of file, in bytes.
-@c atime ; Time of last access.
-@c mtime ; Time of last mod.
-@c ctime) ; Time of last status change.
-@c 
-@c The uid field of a file-info record is accessed with the procedure
-@c 
-@c (file-info:uid x)
-@c 
-@c and similarly for the other fields. The type field is a symbol; allother fields are integers. A file-info record is discriminated with the
-@c file-info? predicate.
-@c The following procedures all return selected information about a file;they are built on top of
-@c 
-@c file-info, and are called with the same argu-ments that are passed to it.
-@c 
-@c Procedure returns
-@c file-type type
-@c file-inode inode
-@c file-mode mode
-@c file-nlinks nlinks
-@c file-owner uid
-@c file-group gid
-@c file-size size
-@c file-last-access atime
-@c file-last-mod mtime
-@c file-last-status-change ctime
-@c 
-@c Example:
-@c 
-@c ;; All my files in /usr/tmp:
-@c (filter (* (f) (= (file-owner f) (user-uid)))
-@c 
-@c (directory-files "/usr/tmp")))
-@c 
-@c Remark: file-info was named file-attributes in releases ofscsh prior to release 0.4. We changed the name to
-@c 
-@c file-info forconsistency with the other information-retrieval procedures in scsh:
-@c 
-@c user-info, group-info, host-info, network-info , service-info,and
-@c 
-@c protocol-info.
-@c 
-@c The file-attributes binding is still supported in the current releaseof scsh, but is deprecated, and may go away in a future release.
-@c 
+@deffn Procedure file-info @var{fname/fd/port} [@var{chase?}]
+
+The @var{file-info} procedure returns a record structure containing
+everything there is to know about a file. If the @var{chase?} flag is
+true (the default), then the procedure chases symlinks and reports on
+the files to which they refer. If @var{chase?} is false, then the
+procedure checks the actual file itself, even if it's a symlink. The
+@var{chase?} flag is ignored if the file argument is a file descriptor
+or port.
+
+The value returned is a @emph{file-info} record, defined to have the
+following structure:
+
+@example
+(define-record file-info 
+    type ; {block-special, char-special, directory,
+         ; fifo, regular, socket, symlink}
+    device ; Device file resides on.
+    inode ; File's inode.
+    mode ; File's mode bits: permissions, setuid, setgid
+    nlinks ; Number of hard links to this file.
+    uid ; Owner of file.
+    gid ; File's group id.
+    size ; Size of file, in bytes.
+    atime ; Time of last access.
+    mtime ; Time of last mod.
+    ctime) ; Time of last status change.
+@end example
+
+The @var{uid} field of a @emph{file-info} record is accessed with the
+procedure
+
+@example
+(file-info:uid x)
+@end example
+
+and similarly for the other fields. The @var{type} field is a symbol;
+all other fields are integers. A @emph{file-info} record is
+discriminated with the @code{file-info?} predicate.
+
+The following procedures all return selected information about a file;
+they are built on top of @code{file-info}, and are called with the
+same arguments that are passed to it.
+
+@table @code
+Procedure returns
+@item file-type
+type
+@item file-inode
+inode
+@item file-mode
+mode
+@item file-nlinks
+nlinks
+@item file-owner
+uid
+@item file-group
+gid
+@item file-size
+size
+@item file-last-access
+atime
+@item
+file-last-mod 
+mtime
+@item file-last-status-change 
+ctime
+@end table
+
+Example:
+@example
+;; All my files in /usr/tmp:
+(filter (lambda (f) (= (file-owner f) (user-uid)))
+    (directory-files "/usr/tmp"))
+@end example
+
+@emph{Remark}: @code{file-info} was named @code{file-attributes} in
+releases of scsh prior to release 0.4. We changed the name to
+@code{file-info} for consistency with the other information-retrieval
+procedures in scsh: @code{user-info}, @code{group-info},
+@code{host-info}, @code{network-info}, @code{service-info}, and
+@code{protocol-info}.
+
+The @code{file-attributes} binding is still supported in the current
+release of scsh, but is deprecated, and may go away in a future
+release.
+@end deffn
+
 @c (file-directory? fname/fd/port [chase?]) -! boolean procedure
 @c (file-fifo? fname/fd/port [chase?]) -! boolean procedure
 @c (file-regular? fname/fd/port [chase?]) -! boolean procedure
