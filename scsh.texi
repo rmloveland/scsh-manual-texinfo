@@ -2481,12 +2481,11 @@ and similarly for the other fields. The @var{type} field is a symbol;
 all other fields are integers. A @emph{file-info} record is
 discriminated with the @code{file-info?} predicate.
 
-The following procedures all return selected information about a file;
-they are built on top of @code{file-info}, and are called with the
-same arguments that are passed to it.
+The following table of procedures each return selected information
+about a file as shown; they are built on top of @code{file-info}, and
+are called with the same arguments that are passed to it.
 
 @table @code
-Procedure returns
 @item file-type
 type
 @item file-inode
