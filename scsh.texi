@@ -2298,16 +2298,15 @@ descriptor open with read access.
 
 @deffn Procedure get-lock-region @var{fdes} @var{lock}
 
-Return the first lock region on @var{fdes} that would conflict with
-lock region @var{lock}. If there is no such lock region, return
-false. This procedure fills out the @code{proc} field of the returned
-lock region, and is the only procedure that has anything to do with
-this field. (@xref{Process objects and process reaping} for a
-description of process objects.) Note that if you apply this procedure
-to a file system that is shared across multiple operating systems
-(i.e., an NFS file system), the @code{proc} field may be ambiguous. We
-note, again, that @acronym{POSIX} advisory file locking is not a
-terribly useful or well-designed facility.
+Return the first lock region on @var{fdes} that would conflict with lock
+region @var{lock}. If there is no such lock region, return false. This
+procedure fills out the @code{proc} field of the returned lock region,
+and is the only procedure that has anything to do with this field.
+(@xref{Process objects and process reaping}.) Note that if you apply
+this procedure to a file system that is shared across multiple operating
+systems (i.e., an NFS file system), the @code{proc} field may be
+ambiguous. We note, again, that @acronym{POSIX} advisory file locking is
+not a terribly useful or well-designed facility.
 @end deffn
 
 @deffn Procedure unlock-region @var{fdes} @var{lock}
@@ -2412,12 +2411,12 @@ file. Setting file user ownership usually requires root privileges.
 
 @deffn Procedure set-file-times @var{fname} [@var{access-time} @var{mod-time}]
 
-This procedure sets the access and modified times for the file fname
-to the supplied values (@xref{Time} for the scsh representation of
-time). If neither time argument is supplied, they are both taken to be
-the current time. You must provide both times or neither. If the
-procedure completes successfully, the file's time of last
-status-change (@code{ctime}) is set to the current time.
+This procedure sets the access and modified times for the file fname to
+the supplied values. (@xref{Time}.) If neither time argument is
+supplied, they are both taken to be the current time. You must provide
+both times or neither. If the procedure completes successfully, the
+file's time of last status-change (@code{ctime}) is set to the current
+time.
 @end deffn
 
 @deffn Procedure sync-file @var{fd/port}
@@ -2456,8 +2455,8 @@ following structure:
 
 @example
 (define-record file-info 
-    type ; {block-special, char-special, directory,
-         ; fifo, regular, socket, symlink}
+    type ; block-special, char-special, directory,
+         ; fifo, regular, socket, symlink
     device ; Device file resides on.
     inode ; File's inode.
     mode ; File's mode bits: permissions, setuid, setgid
