@@ -311,12 +311,12 @@ Scsh follows a general naming scheme that consistently employs a set of
 abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
 
-@defvr fdes
+@table
+@itemfdes
 Means ``file descriptor'', a small integer used in Unix to represent I/O
 channels.
-@end defvr
 
-@defvr ...*
+@item ...*
 A given bit of functionality sometimes comes in two related forms,
 the first being a special form that contains a body of Scheme code to be
 executed in some context, and the other being a procedure that takes a
@@ -336,22 +336,19 @@ appending an asterisk. For example:
     (for-each print-file (directory-files))
     (display "All done")))
 @end example
-@end defvr
 
-@defvr action/modifier
+@item action/modifier
 The infix ``/'' is pronounced ``with'', as in @code{exec/env}---
 ``exec with environment''.
-@end defvr
 
-@defvr call/...
+@item call/...
 Procedures that call their argument on some computed value are usually
 named @code{call/@dots{}}, e.g., @code{(call/fdes @var{port} @var{proc})}, which
 calls @var{proc} on @var{port}'s file descriptor, returning whatever
 @var{proc} returns. The abbreviated name means ``call with file
 descriptor''.
-@end defvr
 
-@defvr with-...
+@item with-...
 Procedures that call their argument, and special forms that execute
 their bodies in some special dynamic context frequently have names of
 the form @code{with-@dots{}}. For example, @code{(with-env @var{env}
@@ -359,36 +356,31 @@ the form @code{with-@dots{}}. For example, @code{(with-env @var{env}
 @var{thunk})}. These forms set the process environment body, execute
 their body or thunk, and then return after resetting the environment
 to its original state.
-@end defvr
 
-@defvr create-...
+@item create-...
 Procedures that create objects in the file system (files,
 directories,temp files, fifos, etc.), begin with
 @code{create-@dots{}}.
-@end defvr
 
-@defvr delete-...
+@item delete-...
 Procedures that delete objects from the file system (files,
 directories,temp files, fifos, etc.), begin with
 @code{delete-@dots{}}.
-@end defvr
 
-@defvr record:field
+@item record:field
 Procedures that access fields of a record are usually written with a
 colon between the name of the record and the name of the field, as in
 @code{user-info:home-dir}.
-@end defvr
 
-@defvr %...
+@item %...
 A percent sign is used to prefix lower-level scsh primitives that are
 not commonly used.
-@end defvr
 
-@defvr ...-info
+@item ...-info
 Data structures packaging up information about various OS entities
 frequently end in @dots{}@code{-info}. Examples: @code{user-info},
 @code{file-info}, @code{group-info}, and @code{host-info}.
-@end defvr
+@end table
 
 Enumerated constants from some set @emph{s} are usually named
 @code{s/@math{const_1}}, @code{s/@math{const_2}}, @dots{}. For
