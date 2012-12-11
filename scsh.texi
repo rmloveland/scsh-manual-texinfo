@@ -312,7 +312,7 @@ abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
 
 @table
-@itemfdes
+@item fdes
 Means ``file descriptor'', a small integer used in Unix to represent I/O
 channels.
 
@@ -2694,197 +2694,207 @@ is unreliable, as filenames with whitespace in their names will be split
 into separate entries. Using @code{directory-files} is reliable.
 @end deffn
 
-@c (open-directory-stream dir) -! directory-stream-record procedure
-@c (read-directory-stream directory-stream-record) -! string or #f procedure
-@c (close-directory-stream directory-stream-record) -! undefined procedure
-@c 
-@c These functions implement a direct interface to the opendir()/
-@c readdir()/ closedir() family of functions for processing directory streams.
-@c (open-directory-stream dir) creates a stream of files in the directory
-@c dir. (read-directory-stream directory-stream) returns the next file inthe stream or
-@c 
-@c #fif no such file exists. Finally, (close-directory-stream
-@c directory-stream) closes the stream.
-@c 
-@c (glob pat1 . . . ) -! string list procedure
-@c 
-@c Glob each pattern against the filesystem and return the sorted list. Du-plicates are not removed. Patterns matching nothing are not included
-@c 
-@c literally.3 C shell {a,b,c} patterns are expanded. Backslash quotes char-acters, turning off the special meaning of
-@c 
-@c {, }, *, [, ], and ?.
-@c 
-@c 3 Why bother to mention such a silly possibility? Because that is what sh does.
-@c 
-@c Note that the rules of backslash for Scheme strings and glob patternswork together to require four backslashes in a row to specify a single
-@c literal backslash. Fortunately, it is very rare that a backslash occurs in aUnix file name.
-@c 
-@c A glob subpattern will not match against dot files unless the first char-acter of the subpattern is a literal "
-@c 
-@c .". Further, a dot subpattern willnot match the files
-@c . or .. unless it is a constant pattern, as in (glob
-@c "../*/*.c"). So a directory's dot files can be reliably generated with thesimple glob pattern
-@c 
-@c ".*".
-@c 
-@c Some examples:
-@c 
-@c (glob "*.c" "*.h")
-@c 
-@c ;; All the C and #include files in my directory.
-@c 
-@c (glob "*.c" "*/*.c")
-@c 
-@c ;; All the C files in this directory and
-@c ;; its immediate subdirectories.
-@c 
-@c (glob "lexer/*.c" "parser/*.c")
-@c (glob "{lexer,parser}/*.c")
-@c 
-@c ;; All the C files in the lexer and parser dirs.
-@c 
-@c (glob "\\{lexer,parser\\}/*.c")
-@c 
-@c ;; All the C files in the strange
-@c ;; directory "{lexer,parser}".
-@c 
-@c (glob "*\\*")
-@c 
-@c ;; All the files ending in "*", e.g.
-@c ;; ("foo*" "bar*")
-@c 
-@c (glob "*lexer*")
-@c 
-@c ("mylexer.c" "lexer1.notes")
-@c ;; All files containing the string "lexer".
-@c 
-@c (glob "lexer")
-@c 
-@c ;; Either ("lexer") or ().
-@c 
-@c If the first character of the pattern (after expanding braces) is a slash, thesearch begins at root; otherwise, the search begins in the current working
-@c directory.
-@c If the last character of the pattern (after expanding braces) is a slash, thenthe result matches must be directories, e.g.,
-@c 
-@c (glob "/usr/man/man?/") =)
-@c 
-@c ("/usr/man/man1/" "/usr/man/man2/" ...)
-@c 
-@c Globbing can sometimes be useful when we need a list of a directory'sfiles where each element in the list includes the pathname for the file.
-@c Compare:
-@c 
-@c (directory-files "../include") =)
-@c 
-@c ("cig.h" "decls.h" ...)
-@c 
-@c (glob "../include/*") =)
-@c 
-@c ("../include/cig.h" "../include/decls.h" ...)
-@c 
-@c (glob-quote str) -! string procedure
-@c 
-@c Returns a constant glob pattern that exactly matches str. All wild-cardcharacters in str are quoted with a backslash.
-@c 
-@c (glob-quote "Any *.c files?")=)
-@c 
-@c "Any \*.c files\?"
-@c 
-@c (file-match root dot-files? pat1 pat2 . . . patn) -! string list procedure{
-@c 
-@c Note This procedure is deprecated, and will probably either go awayor be substantially altered in a future release. New code should not call
-@c 
-@c this procedure. The problem is that it relies upon Posix-notation regu-lar expressions; the rest of scsh has been converted over to the new SRE
-@c notation.}
-@c file-match provides a more powerful file-matching service, at the ex-pense of a less convenient notation. It is intermediate in power between
-@c 
-@c most shell matching machinery and recursive find(1).
-@c Each pattern is a regexp. The procedure searches from root, matching thefirst-level files against pattern pat
-@c 
-@c 1, the second-level files against pat2, andso forth. The list of files matching the whole path pattern is returned, in
-@c 
-@c sorted order. The matcher uses Spencer's regular expression package.
-@c The files . and .. are never matched. Other dot files are only matched ifthe dot-files? argument is
-@c 
-@c #t.
-@c 
-@c A given pati pattern is matched as a regexp, so it is not forced to matchthe entire file name. E.g., pattern
-@c 
-@c "t" matches any file containing a "t" inits name, while pattern
-@c "^t$" matches only a file whose entire name is"
-@c t".
-@c 
-@c The pati patterns can be more general than stated above.
-@c 
-@c * A single pattern can specify multiple levels of the path by em-bedding
-@c 
-@c / characters within the pattern. For example, the pattern
-@c "a/b/c" gives a match equivalent to the list of patterns "a" "b"
-@c "c".
-@c 
-@c * A pati pattern can be a procedure, which is used as a match predi-cate. It will be repeatedly called with a candidate file-name to test.
-@c 
-@c The file-name will be the entire path accumulated. If the procedureraises an error condition,
-@c 
-@c file-match will catch the error and treatit as a failed match. This keeps
-@c 
-@c file-match from being blown out ofthe water by applying tests to dangling symlinks and other similar
-@c 
-@c situations.
-@c 
-@c Some examples:
-@c 
-@c (file-match "/usr/lib" #f "m$" "^tab") =)
-@c 
-@c ("/usr/lib/term/tab300" "/usr/lib/term/tab300-12" ...)
-@c 
-@c (file-match "." #f "^lex|parse|codegen$" "\\.c$") =)
-@c 
-@c ("lex/lex.c" "lex/lexinit.c" "lex/test.c"
-@c 
-@c "parse/actions.c" "parse/error.c" parse/test.c"
-@c "codegen/io.c" "codegen/walk.c")
-@c 
-@c (file-match "." #f "^lex|parse|codegen$/\\.c$")
-@c 
-@c ;; The same.
-@c 
-@c (file-match "." #f file-directory?)
-@c 
-@c ;; Return all subdirs of the current directory.
-@c 
-@c (file-match "/" #f file-directory?) =)
-@c 
-@c ("/bin" "/dev" "/etc" "/tmp" "/usr")
-@c ;; All subdirs of root.
-@c 
-@c (file-match "." #f "\\.c")
-@c 
-@c ;; All the C files in my directory.
-@c 
-@c (define (ext extension)
-@c 
-@c (* (fn) (string-suffix? fn extension)))
-@c 
-@c (define (true . x) #t)
-@c 
-@c (file-match "." #f "./\\.c")
-@c (file-match "." #f "" "\\.c")
-@c (file-match "." #f true "\\.c")
-@c (file-match "." #f true (ext "c"))
-@c 
-@c ;; All the C files of all my immediate subdirs.
-@c 
-@c (file-match "." #f "lexer") =)
-@c 
-@c ("mylexer.c" "lexer.notes")
-@c ;; Compare with (glob "lexer"), above.
-@c 
-@c Note that when root is the current working directory ("."), when it isconverted to directory form, it becomes
-@c 
-@c "", and doesn't show up in theresult file-names.
-@c 
-@c It is regrettable that the regexp wild card char, ".", is such an importantfile name literal, as dot-file prefix and extension delimiter.
-@c 
+@deffn Procedure open-directory-stream @var{dir}
+@deffnx Procedure read-directory-stream @var{directory-stream-record}
+@deffnx Procedure close-directory-stream @var{directory-stream-record}
+
+These functions implement a direct interface to the @code{opendir()}/
+@code{readdir()}/ @code{closedir()} family of functions for processing
+directory streams.  @code{(open-directory-stream @var{dir})} creates a
+stream of files in the directory
+@var{dir}. @code{(Read-directory-stream @var{directory-stream})}
+returns the next file in the stream or @code{#f} if no such file
+exists. Finally, @code{(close-directory-stream
+@var{directory-stream})} closes the stream.
+@end deffn
+
+@deffn Procedure glob @var{pat1} @dots{}
+
+Glob each pattern against the filesystem and return the sorted
+list. Duplicates are not removed. Patterns matching nothing are not
+included literally @footnote{Why bother to mention such a silly
+possibility? Because that is what sh does.}. C shell @{a,b,c@}
+patterns are expanded. Backslash quotes characters, turning off the
+special meaning of @{, @}, *, [, ], and ?.
+
+Note that the rules of backslash for Scheme strings and glob patterns
+work together to require four backslashes in a row to specify a single
+literal backslash. Fortunately, it is very rare that a backslash
+occurs in a Unix file name.
+
+A glob subpattern will not match against dot files unless the first
+character of the subpattern is a literal ".". Further, a dot
+subpattern will not match the files @code{.} or @code{..} unless it is
+a constant pattern, as in @code{(glob "../*/*.c")}. So a directory's
+dot files can be reliably generated with the simple glob pattern
+@code{".*"}.
+
+Some examples:
+
+@table @code
+@item (glob "*.c" "*.h")
+
+;; All the C and #include files in my directory.
+
+@item (glob "*.c" "*/*.c")
+
+;; All the C files in this directory and @*
+;; its immediate subdirectories.
+
+@item (glob "lexer/*.c" "parser/*.c")
+@itemx (glob "@{lexer,parser@}/*.c")
+
+;; All the C files in the lexer and parser dirs.
+
+@item (glob "\\@{lexer,parser\\@}/*.c")
+
+;; All the C files in the strange @*
+;; directory "@{lexer,parser@}".
+
+@item (glob "*\\*")
+
+;; All the files ending in "*", e.g. @*
+;; @code{("foo*" "bar*")}
+
+@item (glob "*lexer*")
+
+@code{("mylexer.c" "lexer1.notes")} @*
+;; All files containing the string "lexer".
+
+@item (glob "lexer")
+
+;; Either ("lexer") or ().
+@end table
+
+If the first character of the pattern (after expanding braces) is a
+slash, the search begins at root; otherwise, the search begins in the
+current working directory.
+
+If the last character of the pattern (after expanding braces) is a
+slash, then the result matches must be directories, e.g.,
+
+@example
+(glob "/usr/man/man?/") ==>
+  ("/usr/man/man1/" "/usr/man/man2/" ...)
+@end example
+
+Globbing can sometimes be useful when we need a list of a directory's
+files where each element in the list includes the pathname for the
+file. Compare:
+
+@example
+(directory-files "../include") ==>
+  ("cig.h" "decls.h" ...)
+
+(glob "../include/*") =>
+  ("../include/cig.h" "../include/decls.h" ...)
+@end example
+@end deffn
+
+@deffn Procedure glob-quote @var{str}
+
+Returns a constant glob pattern that exactly matches @var{str}. All
+wildcard characters in @var{str} are quoted with a backslash.
+
+@example
+(glob-quote "Any *.c files?") ==>
+  "Any \*.c files\?"
+@end example
+@end deffn
+
+@deffn Procedure file-match @var{root} @var{dot-files?} @var{@math{pat_1}} @var{@math{pat_2}} @dots{} @var{@math{pat_n}}
+
+@emph{(Note: This procedure is deprecated, and will probably either go
+away or be substantially altered in a future release. New code should
+not call this procedure. The problem is that it relies upon
+@acronym{POSIX}-notation regular expressions; the rest of scsh has
+been converted over to the new SRE notation.)}
+
+@code{File-match} provides a more powerful file-matching service, at
+the expense of a less convenient notation. It is intermediate in power
+between most shell matching machinery and recursive @code{find(1)}.
+
+Each pattern is a regexp. The procedure searches from @var{root},
+matching the first-level files against pattern @math{pat_1}, the
+second-level files against @math{pat_2}, and so forth. The list of
+files matching the whole path pattern is returned, in sorted
+order. The matcher uses Spencer's regular expression package.
+
+The files @code{.} and @code{..} are never matched. Other dot files
+are only matched if the @var{dot-files?} argument is @code{#t}.
+
+A given @var{@math{pat_i}} pattern is matched as a regexp, so it is
+not forced to match the entire file name. E.g., pattern @code{"t"}
+matches any file containing a ``t'' in its name, while pattern
+@code{"^t$"} matches only a file whose entire name is ``t''.
+
+The @var{@math{pat_i}} patterns can be more general than stated above.
+
+@itemize @bullet
+@item
+A single pattern can specify multiple levels of the path by embedding
+@code{/} characters within the pattern. For example, the pattern
+@code{"a/b/c"} gives a match equivalent to the list of patterns
+@code{"a"} @code{"b"} @code{"c"}.
+
+@item
+A @var{@math{pat_i}} pattern can be a procedure, which is used as a
+match predicate. It will be repeatedly called with a candidate
+filename to test. The filename will be the entire path accumulated. If
+the procedure raises an error condition, @code{file-match} will catch
+the error and treat it as a failed match. This keeps @code{file-match}
+from being blown out of the water by applying tests to dangling
+symlinks and other similar situations.
+@end itemize
+
+Some examples:
+
+@example
+(file-match "/usr/lib" #f "m$" "^tab") ==>
+  ("/usr/lib/term/tab300" "/usr/lib/term/tab300-12" ...)
+
+(file-match "." #f "^lex|parse|codegen$" "\\.c$") ==>
+  ("lex/lex.c" "lex/lexinit.c" "lex/test.c"
+   "parse/actions.c" "parse/error.c" parse/test.c"
+   "codegen/io.c" "codegen/walk.c")
+
+(file-match "." #f "^lex|parse|codegen$/\\.c$")
+  ;; The same.
+
+(file-match "." #f file-directory?)
+  ;; Return all subdirs of the current directory.
+
+(file-match "/" #f file-directory?) ==>
+  ("/bin" "/dev" "/etc" "/tmp" "/usr")
+  ;; All subdirs of root.
+
+(file-match "." #f "\\.c")
+  ;; All the C files in my directory.
+
+(define (ext extension)
+  (* (fn) (string-suffix? fn extension)))
+
+(define (true . x) #t)
+
+(file-match "." #f "./\\.c")
+(file-match "." #f "" "\\.c")
+(file-match "." #f true "\\.c")
+(file-match "." #f true (ext "c"))
+  ;; All the C files of all my immediate subdirs.
+
+(file-match "." #f "lexer") ==>
+  ("mylexer.c" "lexer.notes")
+  ;; Compare with (glob "lexer"), above.
+@end example
+
+Note that when root is the current working directory (@code{"."}), when it is
+converted to directory form, it becomes ``'', and doesn't show up in the
+result filenames.
+
+It is regrettable that the regexp wild card char, ``.'', is such an
+important filename literal, as a dotfile prefix and an extension delimiter.
+@end deffn
+
 @c (create-temp-file [prefix]) -! string procedure
 @c 
 @c Create-temp-file creates a new temporary file and return its name. Theoptional argument specifies the filename prefix to use, and defaults to
