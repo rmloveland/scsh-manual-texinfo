@@ -3057,6 +3057,7 @@ the data on disk. This is good.
 If the reader process gets ahead of the writer process, it will also not
 hang waiting for data from the writer process. It will simply see and
 report an end of file. This is bad.
+@end itemize
 
 In order to ensure that an end-of-file returned to the reader is
 legitimate, the reader and writer must serialise their I/O. The simplest
