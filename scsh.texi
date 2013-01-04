@@ -311,7 +311,7 @@ Scsh follows a general naming scheme that consistently employs a set of
 abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
 
-@table
+@table @code
 @item fdes
 Means ``file descriptor'', a small integer used in Unix to represent I/O
 channels.
@@ -3066,65 +3066,85 @@ has completely finished doing output, or exited.
 @end deffn
 
 @section Processes
-@c (exec prog arg1 . . . argn) -! no return value procedure
-@c (exec-path prog arg1 . . . argn) -! no return value procedure
-@c (exec/env prog env arg1 . . . argn) -! no return value procedure
-@c (exec-path/env prog env arg1 . . . argn) -! no return value procedure
-@c 
-@c The .../env variants take an environment specified as a string!stringalist. An environment of
-@c 
-@c #t is taken to mean the current process' envi-ronment (i.e., the value of the external char
-@c 
-@c **environ).
-@c 
-@c [Rationale: #f is a more convenient marker for the current environmentthan
-@c 
-@c #t, but would cause an ambiguity on Schemes that identify #f and
-@c ().]
-@c 
-@c The path-searching variants search the directories in the list exec-pathlist for the program. A path-search is not performed if the programname contains a slash character--it is used directly. So a program with
-@c 
-@c a name like "bin/prog" always executes the program bin/prog in thecurrent working directory. See
-@c 
-@c $path and exec-path-list, below.
-@c 
-@c Note that there is no analog to the C function execv(). To get the effectjust do
-@c 
-@c (apply exec prog arglist)
-@c All of these procedures flush buffered output and close unrevealed portsbefore executing the new binary. To avoid flushing buffered output, see
-@c 
-@c %exec below.
-@c Note that the C exec() procedure allows the zeroth element of the argu-ment vector to be different from the file being executed, e.g.
-@c 
-@c char *argv[] = {"-", "-f", 0};
-@c exec("/bin/csh", argv, envp);
-@c 
-@c The scsh exec, exec-path, exec/env, and exec-path/env procedures donot give this functionality--element 0 of the arg vector is always identical
-@c to the prog argument. In the rare case the user wishes to differentiatethese two items, he can use the low-level
-@c 
-@c %exec and exec-path-searchprocedures. These procedures never return under any circumstances. As
-@c 
-@c with any other system call, if there is an error, they raise an exception.
-@c (%exec prog arglist env) -! undefined procedure
-@c (exec-path-search fname pathlist) -! string or #f procedure
-@c 
-@c The %exec procedure is the low-level interface to the system call. Thearglist parameter is a list of arguments; env is either a string!string alist or #t. The new program's argv[0] will be taken from (car arglist),not from prog. An environment of
-@c 
-@c #t means the current process' environ-ment.
-@c %exec does not flush buffered output (see flush-all-ports).
-@c 
-@c All exec procedures, including %exec, coerce the prog and arg valuesto strings using the usual conversion rules: numbers are converted to
-@c 
-@c decimal numerals, and symbols converted to their print-names.
-@c exec-path-search searches the directories of pathlist looking for an oc-currence of file
-@c 
-@c fname. If no executable file is found, it returns #f. If
-@c fname contains a slash character, the path search is short-circuited, butthe procedure still checks to ensure that the file exists and is executable--
-@c 
-@c if not, it still returns #f. Users of this procedure should be aware thatit invites a potential race condition: between checking the file with
-@c exec-path-search and executing it with %exec, the file's status mightchange. The only atomic way to do the search is to loop over the candidate file names, exec'ing each one and looping when the exec operationfails.
-@c 
-@c See $path and exec-path-list, below.
+
+@deffn Procedure exec prog @math{arg_1} @dots{} @math{arg_n}
+@deffnx Procedure exec-path prog @math{arg_1} @dots{} @math{arg_n}
+@deffnx Procedure exec/env prog env @math{arg_1} @dots{} @math{arg_n}
+@deffnx Procedure exec-path/env prog env @math{arg_1} @dots{} @math{arg_n}
+
+The @code{.../env} variants take an environment specified as a
+string->string alist. An environment of @code{#t} is taken to mean the
+current process' environment (i.e., the value of the external char
+@code{**environ}).
+
+(Rationale: @code{#f} is a more convenient marker for the current
+environment than @code{#t}, but would cause an ambiguity on Schemes that
+identify @code{#f} and @code{()}.)
+
+The path-searching variants search the directories in the list
+@code{exec-pathlist} for the program. A path-search is not performed if
+the program name contains a slash character---it is used directly. So a
+program with a name like "@code{bin/prog}" always executes the program
+@code{bin/prog} in the current working directory. See @code{$path} and
+@code{exec-path-list}, below.
+
+Note that there is no analog to the C function @code{execv()}. To get
+the effect just do
+
+@example
+(apply exec prog arglist)
+@end example
+
+All of these procedures flush buffered output and close unrevealed ports
+before executing the new binary. To avoid flushing buffered output, see
+@code{%exec} below.
+
+Note that the C @code{exec()} procedure allows the zeroth element of the
+argument vector to be different from the file being executed, e.g.
+
+@example
+char *argv[] = @{"-", "-f", 0@};
+exec("/bin/csh", argv, envp);
+@end example
+
+The scsh @code{exec}, @code{exec-path}, @code{exec/env}, and
+@code{exec-path/env} procedures do not give this functionality---element
+0 of the arg vector is always identical to the @code{prog} argument. In
+the rare case the user wishes to differentiate these two items, he can
+use the low-level @code{%exec} and @code{exec-path-search} procedures.
+These procedures never return under any circumstances. As with any other
+system call, if there is an error, they raise an exception.
+@end deffn
+
+@deffn Procedure %exec prog arglist env
+@deffnx Procedure exec-path-search fname pathlist
+
+The @code{%exec} procedure is the low-level interface to the system
+call.  The @var{arglist} parameter is a list of arguments; @var{env} is
+either a string->string alist or @code{#t}. The new program's
+@code{argv[0]} will be taken from @code{(car @var{arglist})}, not from
+@var{prog}. An environment of @code{#t} means the current process'
+environment.  @code{%exec} does not flush buffered output (see
+@code{flush-all-ports}).
+
+All exec procedures, including @code{%exec}, coerce the @var{prog} and
+@var{arg} values to strings using the usual conversion rules: numbers
+are converted to decimal numerals, and symbols converted to their
+print-names.  @code{Exec-path-search} searches the directories of
+@var{pathlist} looking for an occurrence of file @var{fname}. If no
+executable file is found, it returns @code{#f}. If @var{fname} contains
+a slash character, the path search is short-circuited, but the procedure
+still checks to ensure that the file exists and is executable---if not,
+it still returns @code{#f}. Users of this procedure should be aware that
+it invites a potential race condition: between checking the file with
+@code{exec-path-search} and executing it with @code{%exec}, the file's
+status might change. The only atomic way to do the search is to loop
+over the candidate file names, exec'ing each one and looping when the
+exec operation fails.
+
+See @code{$path} and @code{exec-path-list}, below.
+@end deffn
+
 @c (exit [status]) -! no return value procedure
 @c (%exit [status]) -! no return value procedure
 @c 
