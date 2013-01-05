@@ -3145,96 +3145,133 @@ exec operation fails.
 See @code{$path} and @code{exec-path-list}, below.
 @end deffn
 
-@c (exit [status]) -! no return value procedure
-@c (%exit [status]) -! no return value procedure
-@c 
-@c These procedures terminate the current process with a given exit status.The default exit status is 0. The low-level
-@c 
-@c %exit procedure immediatelyterminates the process without flushing buffered output.
-@c 
-@c (call-terminally thunk) -! no return value procedure
-@c 
-@c call-terminally calls its thunk. When the thunk returns, the processexits. Although
-@c 
-@c call-terminally could be implemented as
-@c 
-@c (* (thunk) (thunk) (exit 0))
-@c an implementation can take advantage of the fact that this procedurenever returns. For example, the runtime can start with a fresh stack and also start with a fresh dynamic environment, where shadowed bindingsare discarded. This can allow the old stack and dynamic environment
-@c to be collected (assuming this data is not reachable through some livecontinuation).
-@c 
-@c (suspend) -! undefined procedure
-@c 
-@c Suspend the current process with a SIGSTOP signal.
-@c 
-@c (fork [thunk or #f] [continue-threads?]) -! proc or #f procedure
-@c (%fork [thunk or #f] [continue-threads?]) -! proc or #f procedure
-@c 
-@c fork with no arguments or #f instead of a thunk is like C fork(). Inthe parent process, it returns the child's process object (see below for more
-@c 
-@c information on process objects). In the child process, it returns #f.
-@c fork with an argument only returns in the parent process, returning thechild's process object. The child process calls thunk and then exits.
-@c 
-@c fork flushes buffered output before forking, and sets the child processto non-interactive.
-@c 
-@c %fork does not perform this bookkeeping; it simplyforks.
-@c 
-@c The optional boolean argument continue-threads? specifies whether thecurrently active threads continue to run in the child or not. The default is
-@c #f.
-@c (fork/pipe [thunk] [continue-threads?]) -! proc or #f procedure
-@c (%fork/pipe [thunk] [continue-threads?]) -! proc or #f procedure
-@c 
-@c Like fork and %fork, but the parent and child communicate via a pipeconnecting the parent's stdin to the child's stdout. These procedures sideeffect the parent by changing his stdin.
-@c In effect, fork/pipe splices a process into the data stream immediatelyupstream of the current process. This is the basic function for creating pipelines. Long pipelines are built by performing a sequence of
-@c fork/pipe calls. For example, to create a background two-process pipe a
-@c | b, we write:
-@c 
-@c (fork (* () (fork/pipe a) (b)))
-@c which returns the process object for b's process.
-@c To create a background three-process pipe a | b | c, we write:
-@c 
-@c (fork (* () (fork/pipe a)
-@c 
-@c (fork/pipe b)
-@c (c)))
-@c 
-@c which returns the process object for c's process.
-@c Note that these procedures affect file descriptors, not ports. That is, thepipe is allocated connecting the child's file descriptor 1 to the parent's file
-@c 
-@c descriptor 0. Any previous Scheme port built over these affected file descriptorsis shifted to a new, unused file descriptor with
-@c 
-@c dup before allocating the I/O pipe.This means, for example, that the ports bound to
-@c 
-@c (current-input-port)and
-@c (current-output-port) in either process are not affected--they stillrefer to the same I/O sources and sinks as before. Remember the simple
-@c 
-@c scsh rule: Scheme ports are bound to I/O sources and sinks, not particularfile descriptors.
-@c 
-@c If the child process wishes to rebind the current output port to the pipeon file descriptor 1, it can do this using
-@c 
-@c with-current-output-portor a related form. Similarly, if the parent wishes to change the current input port to the pipe on file descriptor 0, it can do this using
-@c set-current-input-port! or a related form. Here is an example show-ing how to set up the I/O ports on both sides of the pipe:
-@c 
-@c (fork/pipe (* ()
-@c 
-@c (with-current-output-port (fdes->outport 1)
-@c 
-@c (display "Hello, world.\n"))))
-@c 
-@c (set-current-input-port! (fdes->inport 0))
-@c (read-line) ; Read the string output by the child.
-@c 
-@c None of this is necessary when the I/O is performed by an exec'd pro-gram in the child or parent process, only when the pipe will be referenced
-@c 
-@c by Scheme code through one of the default current I/O ports.
-@c (fork/pipe+ conns [thunk] [continue-threads?]) -! proc or #f procedure
-@c (%fork/pipe+ conns [thunk] [continue-threads?]) -! proc or #f procedure
-@c 
-@c Like fork/pipe, but the pipe connections between the child and parentare specified by the connection list conns. See the
-@c 
-@c (|+ conns pf1 ... pfn)
-@c process form for a description of connection lists.
-@c 
-@c @subsection Process objects and process reaping
+@deffn Procedure exit [status]
+@deffnx Procedure %exit [status]
+
+These procedures terminate the current process with a given exit
+status.The default exit status is 0. The low-level @code{%exit}
+procedure immediately terminates the process without flushing buffered
+output.
+@end deffn
+
+@deffn Procedure call-terminally thunk
+
+@code{Call-terminally} calls its @var{thunk}. When the thunk returns,
+the process exits. Although @code{call-terminally} could be implemented
+as
+
+@example
+(lambda (thunk) (thunk) (exit 0))
+@end example
+
+an implementation can take advantage of the fact that this procedure
+never returns. For example, the runtime can start with a fresh stack and
+also start with a fresh dynamic environment, where shadowed bindings are
+discarded. This can allow the old stack and dynamic environment to be
+collected (assuming this data is not reachable through some live
+continuation).
+@end deffn
+
+@deffn Procedure suspend
+Suspend the current process with a SIGSTOP signal.
+@end deffn
+
+@deffn Procedure fork [thunk or @code{#f}] [continue-threads?]
+@deffnx Procedure %fork [thunk or @code{#f}] [continue-threads?]
+
+@code{Fork} with no arguments or @code{#f} instead of a thunk is like C
+@code{fork()}. In the parent process, it returns the child's process
+object (see below for more information on process objects). In the child
+process, it returns @code{#f}.
+
+@code{Fork} with an argument only returns in the parent process,
+returning the child's process object. The child process calls
+@var{thunk} and then exits.
+
+@code{Fork} flushes buffered output before forking, and sets the child
+process to non-interactive. @code{%fork} does not perform this
+bookkeeping; it simply forks.
+
+The optional boolean argument @var{continue-threads?} specifies whether
+the currently active threads continue to run in the child or not. The
+default is @code{#f}.
+@end deffn
+
+@deffn Procedure fork/pipe [thunk] [continue-threads?]
+@deffnx Procedure %fork/pipe [thunk] [continue-threads?]
+
+Like @code{fork} and @code{%fork}, but the parent and child communicate
+via a pipe connecting the parent's stdin to the child's stdout. These
+procedures side effect the parent by changing his stdin.  In effect,
+@code{fork/pipe} splices a process into the data stream immediately
+upstream of the current process. This is the basic function for creating
+pipelines. Long pipelines are built by performing a sequence of
+@code{fork/pipe} calls. For example, to create a background two-process
+pipe @code{a | b}, we write:
+
+@example
+(fork (lambda () (fork/pipe a) (b)))
+@end example
+
+which returns the process object for @code{b}'s process.
+
+To create a background three-process pipe @code{a | b | c}, we write:
+
+@example
+(fork (lambda () (fork/pipe a)
+                 (fork/pipe b)
+                 (c)))
+@end example
+
+which returns the process object for @code{c}'s process.
+
+Note that these procedures affect file descriptors, not ports. That is,
+the pipe is allocated connecting the child's file descriptor 1 to the
+parent's file descriptor 0. Any previous Scheme port built over these
+affected file descriptors is shifted to a new, unused file descriptor
+with @code{dup} before allocating the I/O pipe. This means, for example,
+that the ports bound to @code{(current-input-port)} and
+@code{(current-output-port)} in either process are not affected---they
+still refer to the same I/O sources and sinks as before. Remember the
+simple scsh rule: Scheme ports are bound to I/O sources and sinks, not
+particular file descriptors.
+
+If the child process wishes to rebind the current output port to the
+pipe on file descriptor 1, it can do this using
+@code{with-current-output-port} or a related form. Similarly, if the
+parent wishes to change the current input port to the pipe on file
+descriptor 0, it can do this using @code{set-current-input-port!} or a
+related form. Here is an example showing how to set up the I/O ports on
+both sides of the pipe:
+
+@example
+(fork/pipe
+  (lambda () (with-current-output-port
+               (fdes->outport 1)
+                 (display "Hello, world.\n"))))
+
+(set-current-input-port! (fdes->inport 0))
+(read-line) ; Read the string output by the child.
+@end example
+
+None of this is necessary when the I/O is performed by an @code{exec}'d
+program in the child or parent process, only when the pipe will be
+referenced by Scheme code through one of the default current I/O ports.
+@end deffn
+
+@deffn Procedure fork/pipe+ conns [thunk] [continue-threads?]
+@deffnx Procedure %fork/pipe+ conns [thunk] [continue-threads?]
+
+Like @code{fork/pipe}, but the pipe connections between the child and parent are specified by the connection list @var{conns}. See the
+
+@example
+(|+ @var{conns} @var{@math{pf_1}} @dots{} @var{@math{pf_n}})
+@end example
+
+process form for a description of connection lists.
+@end deffn
+
+@subsection Process objects and process reaping
 @c Scsh uses process objects to represent Unix processes. They are created by the
 @c fork procedure, and have the following exposed structure:
 @c 
