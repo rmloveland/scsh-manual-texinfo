@@ -3272,101 +3272,148 @@ process form for a description of connection lists.
 @end deffn
 
 @subsection Process objects and process reaping
-@c Scsh uses process objects to represent Unix processes. They are created by the
-@c fork procedure, and have the following exposed structure:
-@c 
-@c (define-record proc pid)
-@c 
-@c The only exposed slot in a proc record is the process' pid, the integer id as-signed by Unix to the process. The only exported primitive procedures for manipulating process objects are proc? and proc:pid. Process objects are createdwith the fork procedure.
-@c 
-@c (pid->proc pid [probe?]) -! proc procedure
-@c 
-@c This procedure maps integer Unix process ids to scsh process objects. Itis intended for use in interactive and debugging code, and is deprecated
-@c 
-@c for use in production code. If there is no process object in the systemindexed by the given pid,
-@c 
-@c pid->proc's action is determined by the probe?parameter (default
-@c #f):
-@c 
-@c probe? Return
-@c #f signal error condition.
-@c 'create Create new proc object.True value
-@c 
-@c #f
-@c 
-@c Sometime after a child process terminates, scsh will perform a wait systemcall on the child in background, caching the process' exit status in the child's
-@c proc object. This is called "reaping" the process. Once the child has beenwaited, the Unix kernel can free the storage allocated for the dead process'
-@c exit information, so process reaping prevents the process table from becomingcluttered with un-waited dead child processes (a.k.a. "zombies"). This can be
-@c especially severe if the scsh process never waits on child processes at all; if theprocess table overflows with forgotten zombies, the OS may be unable to fork
-@c further processes.
-@c 
-@c Reaping a child process moves its exit status information from the kernelinto the scsh process, where it is cached inside the child's process object. If
-@c 
-@c the scsh user drops all pointers to the process object, it will simply be garbagecollected. On the other hand, if the scsh program retains a pointer to the process object, it can use scsh's wait system call to synchronise with the child andretrieve its exit status multiple times (this is not possible with simple Unix integer pids in C--the programmer can only wait on a pid once).
-@c 
-@c Thus, process objects allow scsh programmer to do two things not allowedin other programming environments:
-@c 
-@c * Subprocesses that are never waited on are still removed from the pro-cess table, and their associated exit status data is eventually automatically garbage collected.
-@c 
-@c * Subprocesses can be waited on multiple times.
-@c 
-@c However, note that once a child has exited, if the scsh programmer dropsall pointers to the child's proc object, the child's exit status will be reaped and
-@c 
-@c 58
-@c 
-@c thrown away. This is the intended behaviour, and it means that integer pids arenot enough to cause a process's exit status to be retained by the scsh runtime.
-@c (This is because it is clearly impossible to GC data referenced by integers.)
-@c 
-@c As a convenience for interactive use and debugging, all procedures thattake process objects will also accept integer Unix pids as arguments, coercing
-@c 
-@c them to the corresponding process objects. Since integer process ids are notreliable ways to keep a child's exit status from being reaped and garbage collected, programmers are encouraged to use process objects in production code.
-@c (autoreap-policy [policy]) -! old-policy procedure
-@c 
-@c The scsh programmer can choose different policies for automatic processreaping. The policy is determined by applying this procedure to one of
-@c 
-@c the values 'early, 'late, or #f (i.e., no autoreap).
-@c early The child is reaped from the Unix kernel's process table into scshas soon as it dies. This is done by having a signal handler for the
-@c 
-@c SIGCHLD signal reap the process.
-@c late The child is not autoreaped until it dies and the scsh program dropsall pointers to its process object. That is, the process table is cleaned
-@c 
-@c out during garbage collection.
-@c #f If autoreaping is turned off, process reaping is completely under con-trol of the programmer, who can force outstanding zombies to be
-@c 
-@c reaped by manually calling the reap-zombies procedure (see be-low).
-@c 
-@c Note that under any of the autoreap policies, a particular process p canbe manually reaped into scsh by simply calling
-@c 
-@c (wait p). All zombiescan be manually reaped with
-@c reap-zombies.
-@c 
-@c The autoreap-policy procedure returns the policy's previous value.Calling
-@c 
-@c autoreap-policy with no arguments returns the current policywithout no change.
-@c 
-@c (reap-zombies) -! boolean procedure
-@c 
-@c This procedure reaps all outstanding exited child processes into scsh. Itreturns true if there are no more child processes to wait on, and false if
-@c 
-@c there are outstanding processes still running or suspended.
-@c 
-@c Issues with process reaping
-@c Reaping a process does not reveal its process group at the time of death; thisinformation is lost when the process reaped. This means that a dead, reaped
-@c 
-@c 59
-@c 
-@c process is not eligible as a return value for a future wait-process-group call.This is not likely to be a problem for most code, as programs almost never wait
-@c on exited processes by process group. Process group waiting is usually appliedto stopped processes, which are never reaped. So it is unlikely that this will be
-@c a problem for most programs.
-@c 
-@c Automatic process reaping is a useful programming convenience. How-ever, if a program is careful to wait for all children, and does not wish automatic reaping to happen, the programmer can simply turn process autoreapingoff.
-@c 
-@c Programs that do not wish to use automatic process reaping should beaware that some scsh routines create subprocesses but do not return the child's
-@c pid: run/port*, and its related procedures and special forms (run/strings, etal.). Automatic process reaping will clean the child processes created by these
-@c procedures out of the kernel's process table. If a program doesn't use processreaping, it should either avoid these forms, or use
-@c 
-@c wait-any to wait for thechildren to exit.
-@c 
+
+Scsh uses process objects to represent Unix processes. They are created
+by the @code{fork} procedure, and have the following exposed structure:
+
+@example
+(define-record @var{proc} @var{pid})
+@end example
+
+The only exposed slot in a @var{proc} record is the process' pid, the
+integer id assigned by Unix to the process. The only exported primitive
+procedures for manipulating process objects are @code{proc?}  and
+@code{proc:pid}. Process objects are created with the @code{fork}
+procedure.
+
+@deffn Procedure pid->proc pid [probe?]
+
+This procedure maps integer Unix process ids to scsh process objects. It
+is intended for use in interactive and debugging code, and is deprecated
+for use in production code. If there is no process object in the system
+indexed by the given @var{pid}, @code{pid->proc}'s action is determined
+by the @var{probe?}  parameter (default @code{#f}):
+
+@multitable @any
+@headitem @var{probe?} @tab Return 
+@item @code{#f}
+Signal error condition.
+@item 'create 
+Create new proc object.
+@item True value
+@code{#f}
+@end multitable
+
+Sometime after a child process terminates, scsh will perform a
+@code{wait} system call on the child in background, caching the process'
+exit status in the child's @var{proc} object. This is called "reaping"
+the process. Once the child has been waited, the Unix kernel can free
+the storage allocated for the dead process' exit information, so process
+reaping prevents the process table from becoming cluttered with
+un-@code{wait}ed dead child processes (a.k.a. ``zombies''). This can be
+especially severe if the scsh process never waits on child processes at
+all; if the process table overflows with forgotten zombies, the OS may
+be unable to fork further processes.
+
+Reaping a child process moves its exit status information from the
+kernel into the scsh process, where it is cached inside the child's
+process object. If the scsh user drops all pointers to the process
+object, it will simply be garbage collected. On the other hand, if the
+scsh program retains a pointer to the process object, it can use scsh's
+@code{wait} system call to synchronise with the child and retrieve its
+exit status multiple times (this is not possible with simple Unix
+integer pids in C---the programmer can only wait on a pid once).
+
+Thus, process objects allow the scsh programmer to do two things not
+allowed in other programming environments:
+
+@itemize
+@item
+Subprocesses that are never waited on are still removed from the
+process table, and their associated exit status data is eventually
+automatically garbage collected.
+@item
+Subprocesses can be waited on multiple times.
+@end itemize
+
+However, note that once a child has exited, if the scsh programmer drops
+all pointers to the child's @var{proc} object, the child's exit status
+will be reaped and thrown away. This is the intended behaviour, and it
+means that integer pids are not enough to cause a process's exit status
+to be retained by the scsh runtime.  (This is because it is clearly
+impossible to GC data referenced by integers.)
+
+As a convenience for interactive use and debugging, all procedures that
+take process objects will also accept integer Unix pids as arguments,
+coercing them to the corresponding process objects. Since integer
+process ids are not reliable ways to keep a child's exit status from
+being reaped and garbage collected, programmers are encouraged to use
+process objects in production code.
+@end deffn
+
+@deffn Procedure autoreap-policy [policy]
+
+The scsh programmer can choose different policies for automatic process
+reaping. The policy is determined by applying this procedure to one of
+the values @code{'early}, @code{'late}, or @code{#f} (i.e., no
+autoreap).
+
+@table @code
+@item early 
+The child is reaped from the Unix kernel's process table into scsh as
+soon as it dies. This is done by having a signal handler for the SIGCHLD
+signal reap the process.
+@item late
+The child is not autoreaped until it dies and the scsh program drops all
+pointers to its process object. That is, the process table is cleaned
+out during garbage collection.
+@item #f
+If autoreaping is turned off, process reaping is completely under
+control of the programmer, who can force outstanding zombies to be
+reaped by manually calling the @code{reap-zombies} procedure (see
+below).
+@end table
+
+Note that under any of the autoreap policies, a particular process
+@var{p} can be manually reaped into scsh by simply calling @code{(wait
+p)}. All zombies can be manually reaped with @code{reap-zombies}.
+
+The @code{autoreap-policy} procedure returns the policy's previous
+value. Calling @code{autoreap-policy} with no arguments returns the
+current policy with no change.
+@end deffn
+
+@deffn Procedure reap-zombies
+
+This procedure reaps all outstanding exited child processes into
+scsh. It returns true if there are no more child processes to wait on,
+and false if there are outstanding processes still running or suspended.
+@end deffn
+
+@subsubsection Issues with process reaping
+Reaping a process does not reveal its process group at the time of
+death; this information is lost when the process is reaped. This means
+that a dead, reaped process is not eligible as a return value for a
+future @code{wait-process-group} call. This is not likely to be a
+problem for most code, as programs almost never wait on exited processes
+by process group. Process group waiting is usually applied to stopped
+processes, which are never reaped. So it is unlikely that this will be a
+problem for most programs.
+
+Automatic process reaping is a useful programming convenience. However,
+if a program is careful to @code{wait} for all children, and does not
+wish automatic reaping to happen, the programmer can simply turn process
+autoreaping off.
+
+Programs that do not wish to use automatic process reaping should
+beaware that some scsh routines create subprocesses but do not return
+the child's pid: @code{run/port*}, and its related procedures and
+special forms (@code{run/strings}, @emph{et al.}). Automatic process
+reaping will clean the child processes created by these procedures out
+of the kernel's process table. If a program doesn't use process reaping,
+it should either avoid these forms, or use @code{wait-any} to wait for
+the children to exit.
+
 @c @subsection Process waiting
 @c (wait proc/pid [flags]) -! status procedure
 @c 
