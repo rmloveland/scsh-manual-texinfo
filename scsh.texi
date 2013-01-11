@@ -3414,51 +3414,68 @@ of the kernel's process table. If a program doesn't use process reaping,
 it should either avoid these forms, or use @code{wait-any} to wait for
 the children to exit.
 
-@c @subsection Process waiting
-@c (wait proc/pid [flags]) -! status procedure
-@c 
-@c This procedure waits until a child process exits, and returns its exit code.The proc/pid argument is either a process object (section @ref{3.4.1}) or an integer process id. Wait returns the child's exit status code (or suspensioncode, if the
-@c 
-@c wait/stopped-children option is used, see below). Statusvalues can be queried with the procedures in section @ref{3.4.3}.
-@c 
-@c The flags argument is an integer whose bits specify additional options. Itis composed by or'ing together the following flags:
-@c 
-@c Flag Meaning
-@c wait/poll Return #f immediately if child still active.
-@c wait/stopped-children Wait for suspend as well as exit.
-@c 
-@c (wait-any [flags]) -! [proc status] procedure
-@c 
-@c The optional flags argument is as for wait. This procedure waits for anychild process to exit (or stop, if the
-@c 
-@c wait/stopped-children flag is used)It returns the process' process object and status code. If there are no children left for which to wait, the two values [#f #t] are returned. If the
-@c wait/poll flag is used, and none of the children are immediately eligblefor waiting, then the values
-@c 
-@c [#f #f] are returned:
-@c 
-@c [#f #f] Poll, none ready[
-@c 
-@c #f #t] No children
-@c 
-@c 60
-@c 
-@c Wait-any will not return a process that has been previouslywaited by any other process-wait procedure (
-@c 
-@c wait, wait-any, and
-@c wait-process-group). It will return reaped processes that haven't yetbeen waited.
-@c 
-@c The use of wait-any is deprecated.
-@c 
-@c (wait-process-group proc/pid [flags]) -! [proc status] procedure
-@c 
-@c This procedure waits for any child whose process group is proc/pid (eithera process object or a pid). The flags argument is as for
-@c 
-@c wait.
-@c 
-@c Note that if the programmer wishes to wait for exited processes by pro-cess group, the program should take care not to use process reaping
-@c 
-@c (section @ref{3.4.1}), as this loses process group information. However, mostprocess-group waiting is for stopped processes (to implement job control), so this is rarely an issue, as stopped processes are not subject toreaping.
-@c 
+@subsection Process waiting
+@deffn Procedure wait proc/pid [flags]
+
+This procedure waits until a child process exits, and returns its exit
+code. The @var{proc/pid} argument is either a process object
+@ref{Process objects and process reaping} or an integer process
+id. @code{Wait} returns the child's exit status code (or suspension
+code, if the @var{wait/stopped-children} option is used, see
+below). Status values can be queried with the procedures in
+@ref{Analysing process status codes}.
+
+The @var{flags} argument is an integer whose bits specify additional
+options. It is composed by or'ing together the following flags:
+
+@table @code
+Flag Meaning
+@item wait/poll
+Return @code{#f} immediately if child still active.
+@item wait/stopped-children
+Wait for suspend as well as exit.
+@end table
+@end deffn
+
+@deffn Procedure wait-any [flags]
+
+The optional @var{flags} argument is as for @code{wait}. This procedure
+waits for any child process to exit (or stop, if the
+@var{wait/stopped-children} flag is used). It returns the process'
+process object and status code. If there are no children left for which
+to wait, the two values @code{#f} and @code{#t} are returned. If the
+@var{wait/poll} flag is used, and none of the children are immediately
+eligble for waiting, then the values @code{#f} and @code{#f} are returned:
+
+@table @code
+@item #f #f
+Poll, none ready
+@item #f #t
+No children
+@end table
+
+@code{Wait-any} will not return a process that has been previously
+waited by any other process-wait procedure (@code{wait},
+@code{wait-any}, or @code{wait-process-group}). It will return reaped
+processes that haven't yet been waited.
+
+The use of @code{wait-any} is deprecated.
+@end deffn
+
+@deffn Procedure wait-process-group proc/pid [flags]
+
+This procedure waits for any child whose process group is @var{proc/pid}
+(either a process object or a pid). The @var{flags} argument is as for
+@code{wait}.
+
+Note that if the programmer wishes to wait for exited processes by
+process group, the program should take care not to use process reaping
+@ref{Process objects and process reaping}, as this loses process group
+information. However, most process-group waiting is for stopped
+processes (to implement job control), so this is rarely an issue, as
+stopped processes are not subject to reaping.
+@end deffn
+
 @c @subsection Analysing process status codes
 @c When a child process dies (or is suspended), its parent can call the wait pro-cedure to recover the exit (or suspension) status of the child. The exit status is
 @c a small integer that encodes information describing how the child terminated.The bit-level format of the exit status is not defined by P
