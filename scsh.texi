@@ -3476,130 +3476,151 @@ processes (to implement job control), so this is rarely an issue, as
 stopped processes are not subject to reaping.
 @end deffn
 
-@c @subsection Analysing process status codes
-@c When a child process dies (or is suspended), its parent can call the wait pro-cedure to recover the exit (or suspension) status of the child. The exit status is
-@c a small integer that encodes information describing how the child terminated.The bit-level format of the exit status is not defined by P
-@c 
-@c OSIX; you must usethe following three functions to decode one. However, if a child terminates
-@c 
-@c normally with exit code 0, @acronym{POSIX} does require wait to return an exit status thatis exactly zero. So
-@c 
-@c (zero? status) is a correct way to test for non-error, normaltermination, e.g.,
-@c 
-@c (if (zero? (run (rcp scsh.tar.gz lambda.csd.hku.hk:)))
-@c 
-@c (delete-file "scsh.tar.gz"))
-@c 
-@c (status:exit-val status) -! integer or #f procedure
-@c (status:stop-sig status) -! integer or #f procedure
-@c (status:term-sig status) -! integer or #f procedure
-@c 
-@c For a given status value produced by calling wait, exactly one of theseroutines will return a true value.
-@c 
-@c If the child process exited normally, status:exit-val returns the exitcode for the child process (i.e., the value the child passed to
-@c 
-@c exit or re-turned from
-@c main). Otherwise, this function returns false.
-@c 
-@c 61
-@c 
-@c If the child process was suspended by a signal, status:stop-sig returnsthe signal that suspended the child. Otherwise, this function returns
-@c false.
-@c If the child process terminated abnormally, status:term-sig returns thesignal that terminated the child. Otherwise, this function returns false.
-@c 
+@subsection Analysing process status codes
+When a child process dies (or is suspended), its parent can call the
+@code{wait} procedure to recover the exit (or suspension) status of the
+child. The exit status is a small integer that encodes information
+describing how the child terminated. The bit-level format of the exit
+status is not defined by @acronym{POSIX}; you must use the following
+three functions to decode one. However, if a child terminates normally
+with exit code 0, @acronym{POSIX} does require @code{wait} to return an
+exit status that is exactly zero. So @code{(zero? status)} is a correct
+way to test for non-error, normal termination, e.g.,
+
+@example
+(if (zero? (run (rcp scsh.tar.gz lambda.csd.hku.hk:)))
+    (delete-file "scsh.tar.gz"))
+@end example
+
+@deffn Procedure status:exit-val status
+@deffnx Procedure status:stop-sig status
+@deffnx Procedure status:term-sig status
+
+For a given status value produced by calling @code{wait}, exactly one of
+these routines will return a true value.
+
+If the child process exited normally, @code{status:exit-val} returns the
+exit code for the child process (i.e., the value the child passed to
+@code{exit} or returned from @code{main}). Otherwise, this procedure
+returns false.
+
+If the child process was suspended by a signal, @code{status:stop-sig}
+returns the signal that suspended the child. Otherwise, this procedure
+returns false.
+
+If the child process terminated abnormally, @code{status:term-sig}
+returns the signal that terminated the child. Otherwise, this procedure
+returns false.
+@end deffn
+
 @section Process state
-@c (umask) -! fixnum procedure
-@c (set-umask perms) -! undefined procedure
-@c (with-umask* perms thunk) -! value(s) of thunk procedure
-@c (with-umask perms . body) -! value(s) of body syntax
-@c 
-@c The process' current umask is retrieved with umask, and set with
-@c (set-umask perms). Calling with-umask* changes the umask to permsfor the duration of the call to thunk. If the program throws out of thunk
-@c 
-@c by invoking a continuation, the umask is reset to its external value. Ifthe program throws back into thunk by calling a stored continuation, the
-@c umask is restored to the perms value. The special form with-umask isequivalent in effect to the procedure
-@c 
-@c with-umask*, but does not requirethe programmer to explicitly wrap a
-@c (* () ...) around the body of thecode to be executed.
-@c 
-@c (chdir [fname]) -! undefined procedure
-@c (cwd) -! string procedure
-@c (with-cwd* fname thunk) -! value(s) of thunk procedure
-@c (with-cwd fname . body) -! value(s) of body syntax
-@c 
-@c These forms manipulate the current working directory. The cwd can bechanged with
-@c 
-@c chdir (although in most cases, with-cwd is preferrable). If
-@c chdir is called with no arguments, it changes the cwd to the user's homedirectory. The
-@c 
-@c with-cwd* procedure calls thunk with the cwd temporar-ily set to fname; when thunk returns, or is exited in a non-local fashion
-@c 
-@c (e.g., by raising an exception or by invoking a continuation), the cwd isreturned to its original value. The special form
-@c 
-@c with-cwd is simply syn-tactic sugar for
-@c with-cwd*.
-@c 
-@c (pid) -! fixnum procedure
-@c (parent-pid) -! fixnum procedure
-@c (process-group) -! fixnum procedure
-@c (set-process-group [proc/pid] pgrp) -! undefined procedure
-@c 
-@c (pid) and (parent-pid) retrieve the process id for the current processand its parent.
-@c 
-@c (process-group) returns the process group of the current
-@c 
-@c 62
-@c 
-@c process. A process' process-group can be set with set-process-group;the value proc/pid specifies the affected process. It may be either a process
-@c object or an integer process id, and defaults to the current process.
-@c (set-priority which who priority) -! undefined procedure
-@c (priority which who) -! fixnum procedure
-@c (nice [proc/pid delta]) -! undefined procedure
-@c 
-@c These procedures set and access the priority of processes. I can't remem-ber how
-@c 
-@c set-priority and priority work, so no documentation, andbesides, they aren't implemented yet, anyway.
-@c 
-@c (user-login-name) -! string procedure
-@c (user-uid) -! fixnum procedure
-@c (user-gid) -! fixnum procedure
-@c (user-supplementary-gids) -! fixnum list procedure
-@c (set-uid uid) -! undefined procedure
-@c (set-gid gid) -! undefined procedure
-@c 
-@c These routines get and set the effective and real user and group ids. The
-@c set-uid and set-gid routines correspond to the @acronym{POSIX} setuid() and
-@c setgid() procedures.
-@c 
-@c (user-effective-uid) -! fixnum procedure
-@c (set-user-effective-uid fixnum) -! undefined procedure
-@c (with-user-effective-uid* fixnum thunk) -! value(s) of thunk procedure
-@c (with-user-effective-uid fixnum . body) -! value(s) of body syntax
-@c (user-effective-gid) -! fixnum procedure
-@c (set-user-effective-gid fixnum) -! undefined procedure
-@c (with-user-effective-gid* fixnum thunk) -! value(s) of thunk procedure
-@c (with-user-effective-gid fixnum . body) -! value(s) of body syntax
-@c 
-@c These forms manipulate the effective user/group IDs. Possible valuesfor setting this resource are either the real user/group ID or the saved
-@c 
-@c set-user/group-ID. The with-... forms perform the ususal tempraryassignment during the execution of the second argument. The effective
-@c user and group IDs are thread-local.
-@c (process-times) -! [fixnum fixnum fixnum fixnum] procedure
-@c 
-@c Returns four values:user CPU time in clock-ticks
-@c 
-@c system CPU time in clock-ticksuser CPU time of all descendant processes
-@c system CPU time of all descendant processesNote that CPU time clock resolution is not the same as the real-time clock
-@c resolution provided by time+ticks. That's Unix.
-@c 
-@c 63
-@c 
-@c (cpu-ticks/sec) -! integer procedure
-@c 
-@c Returns the resolution of the CPU timer in clock ticks per second. Thiscan be used to convert the times reported by
-@c 
-@c process-times to seconds.
-@c 
+@deffn Procedure umask
+@deffnx Procedure set-umask perms
+@deffnx Procedure with-umask* perms thunk
+@deffnx Syntax with-umask perms . body
+
+The process' current umask is retrieved with @code{umask}, and set with
+@code{(set-umask perms)}. Calling @code{with-umask*} changes the umask
+to @var{perms} for the duration of the call to @var{thunk}. If the
+program throws out of @var{thunk} by invoking a continuation, the umask
+is reset to its external value. If the program throws back into
+@var{thunk} by calling a stored continuation, the umask is restored to
+the @var{perms} value. The special form @code{with-umask} is equivalent
+in effect to the procedure @code{with-umask*}, but does not require the
+programmer to explicitly wrap a @code{(* () ...)} around the body of the
+code to be executed.
+@end deffn
+
+@deffn Procedure chdir [fname]
+@deffnx Procedure cwd
+@deffnx Procedure with-cwd* fname thunk
+@deffnx Syntax with-cwd fname . body
+
+These forms manipulate the current working directory. The cwd can be
+changed with @code{chdir} (although in most cases, @code{with-cwd} is
+preferrable). If @code{chdir} is called with no arguments, it changes
+the cwd to the user's home directory. The @code{with-cwd*} procedure
+calls @var{thunk} with the cwd temporarily set to @var{fname}; when
+@var{thunk} returns, or is exited in a non-local fashion (e.g., by
+raising an exception or by invoking a continuation), the cwd is returned
+to its original value. The special form @code{with-cwd} is simply
+syntactic sugar for @code{with-cwd*}.
+@end deffn
+
+@deffn Procedure pid
+@deffnx Procedure parent-pid
+@deffnx Procedure process-group
+@deffnx Procedure set-process-group [proc/pid] pgrp
+
+@code{(Pid)} and @code{(parent-pid)} retrieve the process id for the
+current process and its parent.
+
+@code{(Process-group)} returns the process group of the current
+process. A process' process-group can be set with
+@code{set-process-group}; the value @var{proc/pid} specifies the
+affected process. It may be either a process object or an integer
+process id, and defaults to the current process.
+@end deffn
+
+@deffn Procedure set-priority which who priority
+@deffnx Procedure priority which who
+@deffnx Procedure nice [proc/pid delta]
+
+These procedures set and access the priority of processes. I can't
+remember how @code{set-priority} and @code{priority} work, so no
+documentation, and besides, they aren't implemented yet, anyway.
+@end deffn
+
+@deffn Procedure user-login-name
+@deffnx Procedure user-uid
+@deffnx Procedure user-gid
+@deffnx Procedure user-supplementary-gids
+@deffnx Procedure set-uid uid
+@deffnx Procedure set-gid gid
+
+These routines get and set the effective and real user and group
+ids. The @code{set-uid} and @code{set-gid} routines correspond to the
+@acronym{POSIX} @code{setuid()} and @code{setgid()} procedures.
+@end deffn
+
+@deffn Procedure user-effective-uid
+@deffnx Procedure set-user-effective-uid fixnum
+@deffnx Procedure with-user-effective-uid* fixnum thunk
+@deffnx Syntax with-user-effective-uid fixnum . body
+@deffnx Procedure user-effective-gid
+@deffnx Procedure set-user-effective-gid fixnum
+@deffnx Procedure with-user-effective-gid* fixnum thunk
+@deffnx Syntax with-user-effective-gid fixnum . body
+
+These forms manipulate the effective user/group IDs. Possible values for
+setting this resource are either the real user/group ID or the saved
+set-user/group-ID. The @code{with-@dots{}} forms perform the usual
+temporary assignment during the execution of the second argument. The
+effective user and group IDs are thread-local.
+@end deffn
+
+@deffn Procedure process-times
+
+Returns four values:
+
+@itemize
+@item user CPU time in clock-ticks
+@item system CPU time in clock-ticks
+@item user CPU time of all descendant processes
+@item system CPU time of all descendant processes
+@end itemize
+
+Note that CPU time clock resolution is not the same as the real-time
+clock resolution provided by @code{time+ticks}. That's Unix.
+@end deffn
+
+@deffn Procedure cpu-ticks/sec
+
+Returns the resolution of the CPU timer in clock ticks per second. This
+can be used to convert the times reported by @code{process-times} to
+seconds.
+@end deffn
+
 @section User and group database access
 @c These procedures are used to access the user and group databases (e.g., theones traditionally stored in
 @c 
