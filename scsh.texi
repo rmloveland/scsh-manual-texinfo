@@ -3622,35 +3622,43 @@ seconds.
 @end deffn
 
 @section User and group database access
-@c These procedures are used to access the user and group databases (e.g., theones traditionally stored in
-@c 
-@c /etc/passwd and /etc/group.)
-@c 
-@c (user-info uid/name) -! record procedure
-@c 
-@c Return a user-info record giving the recorded information for a partic-ular user:
-@c 
-@c (define-record user-info
-@c 
-@c name uid gid home-dir shell)
-@c 
-@c The uid/name argument is either an integer uid or a string user-name.
-@c 
-@c (->uid uid/name) -! fixnum procedure
-@c (->username uid/name) -! string procedure
-@c 
-@c These two procedures coerce integer uid's and user names to a particularform.
-@c 
-@c (group-info gid/name) -! record procedure
-@c 
-@c Return a group-info record giving the recorded information for a partic-ular group:
-@c 
-@c (define-record group-info
-@c 
-@c name gid members)
-@c 
-@c The gid/name argument is either an integer gid or a string group-name.
-@c 
+These procedures are used to access the user and group databases (e.g.,
+the ones traditionally stored in @code{/etc/passwd} and
+@code{/etc/group}.)
+
+@deffn Procedure user-info uid/name
+
+Return a @code{user-info} record giving the recorded information for a
+particular user:
+
+@example
+(define-record user-info
+  name uid gid home-dir shell)
+@end example
+
+The @var{uid/name} argument is either an integer uid or a string
+username.
+@end deffn
+
+@deffn Procedure ->uid uid/name
+@deffnx Procedure ->username uid/name
+
+These two procedures coerce integer uid's and user names to a particularform.
+@end deffn
+
+@deffn Procedure group-info gid/name
+
+Return a @code{group-info} record giving the recorded information for a
+particular group:
+
+@example
+(define-record group-info
+  name gid members)
+@end example
+
+The @var{gid/name} argument is either an integer gid or a string group-name.
+@end deffn
+
 @section Accessing command-line arguments
 @c command-line-arguments string list
 @c (command-line) -! string list procedure
