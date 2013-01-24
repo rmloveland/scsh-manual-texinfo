@@ -3660,89 +3660,115 @@ The @var{gid/name} argument is either an integer gid or a string group-name.
 @end deffn
 
 @section Accessing command-line arguments
-@c command-line-arguments string list
-@c (command-line) -! string list procedure
-@c 
-@c The list of strings command-line-arguments contains the argumentspassed to the scsh process on the command line. Calling
-@c 
-@c (command-line)returns the complete
-@c argv string list, including the program. So if we runa scsh program
-@c 
-@c /usr/shivers/bin/myls -CF src
-@c 
-@c 64
-@c 
-@c then command-line-arguments is
-@c 
-@c ("-CF" "src")
-@c and (command-line) returns
-@c 
-@c ("/usr/shivers/bin/myls" "-CF" "src")
-@c command-line returns a fresh list each time it is called. In this way,the programmer can get a fresh copy of the original argument list if
-@c 
-@c command-line-arguments has been modified or is lexically shadowed.
-@c (arg arglist n [default]) -! string procedure
-@c (arg* arglist n [default-thunk]) -! string procedure
-@c (argv n [default]) -! string procedure
-@c 
-@c These procedures are useful for accessing arguments from argument lists.
-@c arg returns the nth element of arglist. The index is 1-based. If n is toolarge, default is returned; if no default, then an error is signaled.
-@c 
-@c arg* is similar, except that the default-thunk is called to generate the de-fault value.
-@c (argv n) is simply (arg (command-line) (+ n 1)). The +1 offset en-sures that the two forms
-@c 
-@c (arg command-line-arguments n)
-@c (argv n)
-@c 
-@c return the same argument (assuming the user has not rebound or modi-fied
-@c 
-@c command-line-arguments).
-@c 
-@c Example:
-@c 
-@c (if (null? command-line-arguments)
-@c 
-@c (& (xterm -n ,host -title ,host
-@c 
-@c -name ,(string-append "xterm_" host)))
-@c (let* ((progname (file-name-nondirectory (argv 1)))
-@c 
-@c (title (string-append host ":" progname)))
-@c (& (xterm -n ,title
-@c 
-@c -title ,title
-@c -e ,@command-line-arguments))))
-@c 
-@c A subtlety: when the scsh interpreter is used to execute a scsh program,the program name reported in the head of the
-@c 
-@c (command-line) list is thescsh program, not the interpreter. For example, if we have a shell script
-@c 
-@c in file fullecho:
-@c 
-@c #!/usr/local/bin/scsh -s
-@c !#
-@c (for-each (* (arg) (display arg) (display " "))
-@c 
-@c (command-line))
-@c 
-@c 65
-@c 
-@c and we run the program
-@c 
-@c fullecho hello world
-@c the program will print out
-@c 
-@c fullecho hello world
-@c not
-@c 
-@c /usr/local/bin/scsh -s fullecho hello world
-@c 
-@c This argument line processing ensures that if a scsh program is sub-sequently compiled into a standalone executable or byte-compiled to a
-@c heap-image executable by the Scheme 48 virtual machine, its semanticswill be unchanged--the arglist processing is invariant. In effect, the
-@c 
-@c /usr/local/bin/scsh -s
-@c is not part of the program; it's a specification for the machine to executethe program on, so it is not properly part of the program's argument list.
-@c 
+@deffn Variable command-line-arguments
+@deffnx Procedure command-line
+
+The list of strings @code{command-line-arguments} contains the arguments
+passed to the scsh process on the command line. Calling
+@code{(command-line)} returns the complete @code{argv} string list,
+including the program. So if we run a scsh program
+
+@example
+/usr/shivers/bin/myls -CF src
+@end example
+
+then @code{command-line-arguments} is
+
+@example
+("-CF" "src")
+@end example
+
+and @code{(command-line)} returns
+
+@example
+("/usr/shivers/bin/myls" "-CF" "src")
+@end example
+
+@code{command-line} returns a fresh list each time it is called. In this
+way, the programmer can get a fresh copy of the original argument list
+if @code{command-line-arguments} has been modified or is lexically
+shadowed.
+@end deffn
+
+@deffn Procedure arg arglist n [default]
+@deffnx Procedure arg* arglist n [default-thunk]
+@deffnx Procedure argv n [default]
+
+These procedures are useful for accessing arguments from argument lists.
+@code{Arg} returns the nth element of @var{arglist}. The index is
+1-based. If @var{n} is too large, @var{default} is returned; if no
+@var{default}, then an error is signalled.
+
+@code{Arg*} is similar, except that the @var{default-thunk} is called to
+generate the default value.
+
+@code{(argv n)} is simply @code{(arg (command-line) (+ n 1))}. The +1
+offset ensures that the two forms
+
+@example
+(arg command-line-arguments n)
+(argv n)
+@end example
+
+return the same argument (assuming the user has not rebound or modified
+@code{command-line-arguments}).
+
+Example:
+
+@example
+(if (null? command-line-arguments)
+  (& (xterm -n ,host -title ,host
+            -name ,(string-append "xterm_" host)))
+  (let* ((progname (file-name-nondirectory (argv 1)))
+         (title (string-append host ":" progname)))
+   (& (xterm -n ,title
+             -title ,title
+             -e ,@command-line-arguments))))
+@end example
+
+A subtlety: when the scsh interpreter is used to execute a scsh
+program,the program name reported in the head of the
+@code{(command-line)} list is the scsh program, not the interpreter. For
+example, if we have a shell script in file @code{fullecho}:
+
+@example
+#!/usr/local/bin/scsh -s
+!#
+(for-each (lambda (arg) (display arg) (display " "))
+          (command-line))
+@end example
+
+and we run the program
+
+@example
+fullecho hello world
+@end example
+
+the program will print out
+
+@example
+fullecho hello world
+@end example
+
+not
+
+@example
+/usr/local/bin/scsh -s fullecho hello world
+@end example
+
+This argument line processing ensures that if a scsh program is
+subsequently compiled into a standalone executable or byte-compiled to a
+heap-image executable by the Scheme 48 virtual machine, its semantics
+will be unchanged---the arglist processing is invariant. In effect, the
+
+@example
+/usr/local/bin/scsh -s
+@end example
+
+is not part of the program; it's a specification for the machine to
+execute the program on, so it is not properly part of the program's
+argument list.
+
 @section System parameters
 @c (system-name) -! string procedure
 @c 
