@@ -3723,7 +3723,7 @@ Example:
          (title (string-append host ":" progname)))
    (& (xterm -n ,title
              -title ,title
-             -e ,@command-line-arguments))))
+             -e ,@@command-line-arguments))))
 @end example
 
 A subtlety: when the scsh interpreter is used to execute a scsh
@@ -3768,32 +3768,37 @@ will be unchanged---the arglist processing is invariant. In effect, the
 is not part of the program; it's a specification for the machine to
 execute the program on, so it is not properly part of the program's
 argument list.
+@end deffn
 
 @section System parameters
-@c (system-name) -! string procedure
-@c 
-@c Returns the name of the host on which we are executing. This may be alocal name, such as "solar," as opposed to a fully-qualified domain name
-@c 
-@c such as "solar.csie.ntu.edu.tw."
-@c (uname) -! uname-record procedure
-@c 
-@c Returns a uname-record of the following structure:
-@c 
-@c (define-record uname
-@c 
-@c os-name
-@c node-name
-@c release
-@c version
-@c machine)
-@c 
-@c Each of the fields contains a string.
-@c Be aware that @acronym{POSIX} limits the length of all entries to 32 characters, andthat the node name does not necessarily correspond to the fully-qualified
-@c 
-@c domain name.
-@c 
-@c 66
-@c 
+
+@deffn Procedure system-name
+
+Returns the name of the host on which we are executing. This may be a
+local name, such as "solar," as opposed to a fully-qualified domain name
+such as "solar.csie.ntu.edu.tw."
+@end deffn
+
+@deffn Procedure uname
+
+Returns a @var{uname-record} of the following structure:
+
+@example
+(define-record uname
+   os-name
+   node-name
+   release
+   version
+   machine)
+@end example
+
+Each of the fields contains a string.
+
+Be aware that @acronym{POSIX} limits the length of all entries to 32
+characters, and that the node name does not necessarily correspond to
+the fully-qualified domain name.
+@end deffn
+
 @section Signal system
 @c Signal numbers are bound to the variables signal/hup, signal/int, . . . . Seetables 3.9 and 3.3 for the full list.
 @c 
