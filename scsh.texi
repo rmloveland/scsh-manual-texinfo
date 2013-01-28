@@ -3995,53 +3995,74 @@ the @code{interrupt-set} function). The @code{set-enabled-interrupts}
 procedure returns the previous value of the enabled-interrupt set.
 @end deffn
 
-@c (with-enabled-interrupts interrupt-set . body) -! value(s) of body syntax
-@c (with-enabled-interrupts* interrupt-set thunk) -! value(s) of thunk procedure
-@c 
-@c Run code with a given set of interrupts enabled. Note that "enabling"an interrupt means enabling delivery from the Scheme 48 vm to the scsh
-@c 
-@c program. Using the Scheme 48 interrupt system is fairly lightweight,and does not involve actually making a system call. Note that enabling
-@c an interrupt means that the assigned interrupt handler is allowed to runwhen the interrupt is delivered. Interrupts not enabled are held pending
-@c when delivered.
-@c Interrupt sets are represented as integer bit sets (constructed with the
-@c interrupt-set function).
-@c 
-@c (set-interrupt-handler interrupt handler) -! old-handler procedure
-@c 
-@c Assigns a handler for a given interrupt, and returns the interrupt's oldhandler. The handler argument is
-@c 
-@c #f (ignore), #t (default), or a proceduretaking an integer argument; the return value follows the same conventions. Note that the interrupt argument is an interrupt value, not a signalvalue. An interrupt is delivered to the Scheme 48 machine by (1) blocking all interrupts, and (2) applying the handler procedure to the set ofinterrupts that were enabled prior to the interrupt delivery. If the procedure returns normally (i.e., it doesn't throw to a continuation), the setof enabled interrupts will be returned to its previous value. (To restore
-@c the enabled-interrupt set before throwing out of an interrupt handler, see
-@c set-enabled-interrupts)
-@c 
-@c 70
-@c 
-@c {Note If you set a handler for the interrupt/chld interrupt, you maybreak scsh's autoreaping process machinery. See the discussion of autoreaping in section @ref{3.4.1}.}
-@c {Note We recommend you avoid using interrupt handlers unless you ab-solutely have to; Section @ref{9.4} describes a better interface to handling signals.}
-@c 
-@c (interrupt-handler interrupt) -! handler procedure
-@c 
-@c Return the handler for a given interrupt. Note that the argument is aninterrupt value, not a signal value. A handler is either
-@c 
-@c #f (ignore), #t(default), or a procedure taking an integer argument.
-@c 
-@c Note that scsh does not support interrupt handlers for "synchronous" Unixsignals, such as
-@c 
-@c signal/ill or signal/pipe (see table 3.3). Synchronous oc-currences of these signals are better handled by raising a Scheme exception.
-@c 
-@c There are, however, some rare situtations where it is necessary to ignore theoccurrence of a synchronous signal. For this case, the following procedures
-@c exist:
-@c (ignore-signal integer) -! undefined procedure
-@c (handle-signal-default integer) -! undefined procedure
-@c 
-@c The procedure ignore-signal tells the process to ignore the given signal.The procedure
-@c 
-@c handle-signal-default resets the signal handler to thedefault handler.
-@c 
-@c These procedures manipulate the raw signal handler of the scsh processand therfore undermine the signal handling facility of the VM. They are
-@c intended to be used for igoring synchronous signals if system calls can-not succeed otherwise. Do not use these procedures for asynchronous
-@c signals!
-@c 
+@deffn Syntax with-enabled-interrupts interrupt-set . body
+@deffnx Procedure with-enabled-interrupts* interrupt-set thunk
+
+Run code with a given set of interrupts enabled. Note that
+``enabling'' an interrupt means enabling delivery from the Scheme 48
+VM to the Scsh program. Using the Scheme 48 interrupt system is fairly
+lightweight, and does not involve actually making a system call. Note
+that enabling an interrupt means that the assigned interrupt handler
+is allowed to run when the interrupt is delivered. Interrupts not
+enabled are held pending when delivered. Interrupt sets are
+represented as integer bit sets (constructed with the
+@code{interrupt-set} procedure).
+@end deffn
+
+@deffn Procedure set-interrupt-handler interrupt handler
+
+Assigns a handler for a given interrupt, and returns the interrupt's
+old handler. The handler argument is @code{#f} (ignore), @code{#t}
+(default), or a procedure taking an integer argument; the return value
+follows the same conventions. Note that the interrupt argument is an
+interrupt value, not a signal value. An interrupt is delivered to the
+Scheme 48 machine by (1) blocking all interrupts, and (2) applying the
+handler procedure to the set of interrupts that were enabled prior to
+the interrupt delivery. If the procedure returns normally (i.e., it
+doesn't throw to a continuation), the set of enabled interrupts will
+be returned to its previous value. (To restore the enabled-interrupt
+set before throwing out of an interrupt handler, see
+@code{set-enabled-interrupts}.)
+
+@emph{Note:} If you set a handler for the interrupt/chld interrupt,
+you maybreak scsh's autoreaping process machinery. @xref{Process
+objects and process reaping}.
+
+@emph{Note:} We recommend you avoid using interrupt handlers unless
+you absolutely have to. There is a better interface to handling
+signals; @xref{9.4}.
+@end deffn
+
+@deffn Procedure interrupt-handler interrupt
+
+Return the handler for a given interrupt. Note that the argument is an
+interrupt value, not a signal value. A handler is either @code{#f}
+(ignore), @code{#t} (default), or a procedure taking an integer
+argument.
+@end deffn
+
+@c TODO: Create link to table below.
+Note that Scsh does not support interrupt handlers for ``synchronous''
+Unix signals, such as @code{signal/ill} or @code{signal/pipe} (see
+table 3.3). Synchronous occurrences of these signals are better
+handled by raising a Scheme exception.  There are, however, some rare
+situations where it is necessary to ignore the occurrence of a
+synchronous signal. For this case, the following procedures exist:
+
+@deffn Procedure ignore-signal integer
+@deffnx Procedure handle-signal-default integer
+
+The procedure @code{ignore-signal} tells the process to ignore the
+given signal. The procedure @code{handle-signal-default} resets the
+signal handler to the default handler.
+
+These procedures manipulate the raw signal handler of the Scsh process
+and therfore undermine the signal handling facility of the VM. They
+are intended to be used for ignoring synchronous signals if system
+calls cannot succeed otherwise. Do not use these procedures for
+asynchronous signals!
+@end deffn
+
 @section Time
 @c 
 @c Scsh's time system is fairly sophisticated, particularly with respect to its carefultreatment of time zones. However, casual users shouldn't be intimidated; all of
