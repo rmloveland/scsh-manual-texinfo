@@ -3800,120 +3800,201 @@ the fully-qualified domain name.
 @end deffn
 
 @section Signal system
-@c Signal numbers are bound to the variables signal/hup, signal/int, . . . . Seetables 3.9 and 3.3 for the full list.
-@c 
-@c (signal-process proc sig) -! undefined procedure
-@c (signal-process-group prgrp sig) -! undefined procedure
-@c 
-@c These two procedures send signals to a specific process, and all the pro-cesses in a specific process group, respectively. The proc and prgrp arguments are either processes or integer process ids.
-@c (itimer secs) -! undefined procedure
-@c 
-@c Schedules a timer interrupt in secs seconds.{
-@c Note As the thread system needs the timer interrupt for its own purpose,
-@c itimer works by spawning a thread which calls the interrupt handler for
-@c interrupt/alrm after the specified time.}
-@c 
-@c (process-sleep secs) -! undefined procedure
-@c (process-sleep-until time) -! undefined procedure
-@c 
-@c The sleep procedure causes the process to sleep for secs seconds. The
-@c sleep-until procedure causes the process to sleep until time (see section @ref{3.10}).
-@c 
-@c {Note The use of these procedures is deprecated as they suspend all run-ning threads, including the ones Scsh uses for administrtive purposes.
-@c Consider using the sleep procedure from the thread package.}
-@c 
-@c Interrupt handlers
-@c Scsh interrupt handlers are complicated by the fact that scsh is implemented ontop of the Scheme 48 virtual machine, which has its own interrupt system, independent of the Unix signal system. This means that Unix signals are deliveredin two stages: first, Unix delivers the signal to the Scheme 48 virtual machine,
-@c then the Scheme 48 virtual machine delivers the signal to the executing Schemeprogram as a Scheme 48 interrupt. This ensures that signal delivery happens
-@c between two VM instructions, keeping individual instructions atomic.
-@c 
-@c The Scheme 48 machine has its own set of interrupts, which includes theasynchronous Unix signals (table 3.9).
-@c 
-@c (signal->interrupt integer) -! integer procedure
-@c 
-@c The programmer maps from Unix signals to Scheme 48 interrupts withthe
-@c 
-@c signal->interrupt procedure. If the signal does not have a definedScheme 48 interrupt, an error is signaled.
-@c 
-@c 67
-@c 
-@c Interrupt Unix signal OS Variant
-@c interrupt/alrma signal/alrm @acronym{POSIX}
-@c interrupt/intb signal/int @acronym{POSIX}
-@c interrupt/memory-shortage N/A
-@c interrupt/chld signal/chld @acronym{POSIX}
-@c interrupt/cont signal/cont @acronym{POSIX}
-@c interrupt/hup signal/hup @acronym{POSIX}
-@c interrupt/quit signal/quit @acronym{POSIX}
-@c interrupt/term signal/term @acronym{POSIX}
-@c interrupt/tstp signal/tstp @acronym{POSIX}
-@c interrupt/usr1 signal/usr1 @acronym{POSIX}
-@c interrupt/usr2 signal/usr2 @acronym{POSIX}
-@c 
-@c interrupt/info signal/info BSD only
-@c interrupt/io signal/io BSD + SVR4
-@c interrupt/poll signal/poll SVR4 only
-@c interrupt/prof signal/prof BSD + SVR4
-@c interrupt/pwr signal/pwr SVR4 only
-@c interrupt/urg signal/urg BSD + SVR4
-@c interrupt/vtalrm signal/vtalrm BSD + SVR4
-@c interrupt/winch signal/winch BSD + SVR4
-@c interrupt/xcpu signal/xcpu BSD + SVR4
-@c interrupt/xfsz signal/xfsz BSD + SVR4
-@c 
-@c Table 3.2: Scheme 48 virtual-machine interrupts and related Unix signals. Onlythe P
-@c 
-@c OSIX signals are guaranteed to be defined; however, your implementationand OS may define other signals and interrupts not listed here.
-@c 
-@c aAlso bound to Scheme 48 interrupt interrupt/alarm.
-@c bAlso bound to Scheme 48 interrupt interrupt/keyboard.
-@c 
-@c 68
-@c 
-@c Unix signal Type OS Variant
-@c signal/stop Uncatchable @acronym{POSIX}
-@c signal/kill Uncatchable @acronym{POSIX}
-@c 
-@c signal/abrt Synchronous @acronym{POSIX}
-@c signal/fpe Synchronous @acronym{POSIX}
-@c signal/ill Synchronous @acronym{POSIX}
-@c signal/pipe Synchronous @acronym{POSIX}
-@c signal/segv Synchronous @acronym{POSIX}
-@c signal/ttin Synchronous @acronym{POSIX}
-@c signal/ttou Synchronous @acronym{POSIX}
-@c 
-@c signal/bus Synchronous BSD + SVR4
-@c signal/emt Synchronous BSD + SVR4
-@c signal/iot Synchronous BSD + SVR4
-@c signal/sys Synchronous BSD + SVR4
-@c signal/trap Synchronous BSD + SVR4
-@c 
-@c Table 3.3: Uncatchable and synchronous Unix signals. While these signals maybe sent with
-@c 
-@c signal-process or signal-process-group, there are no corre-sponding scsh interrupt handlers. Only the P
-@c 
-@c OSIX signals are guaranteed to bedefined; however, your implementation and OS may define other signals not
-@c 
-@c listed here.
-@c 
-@c 69
-@c 
-@c (interrupt-set integer1 . . . integern) -! integer procedure
-@c 
-@c This procedure builds interrupt sets from its interrupt arguments. A setis represented as an integer using a two's-complement representation of
-@c 
-@c the bit set.
-@c 
-@c (enabled-interrupts) -! interrupt-set procedure
-@c (set-enabled-interrupts interrupt-set) -! interrupt-set procedure
-@c 
-@c Get and set the value of the enabled-interrupt set. Only interrupts in thisset have their handlers called when delivered. When a disabled interrupt
-@c 
-@c is delivered to the Scheme 48 machine, it is held pending until it becomesenabled, at which time its handler is invoked.
-@c 
-@c Interrupt sets are represented as integer bit sets (constructed with the
-@c interrupt-set function). The set-enabled-interrupts procedure re-turns the previous value of the enabled-interrupt set.
-@c 
+Signal numbers are bound to the variables @code{signal/hup},
+@code{signal/int}, @dots{}. See tables 3.9 and 3.3 for the full list.
+@c TODO: Create links to tables.
+
+@deffn Procedure signal-process proc sig
+@deffnx Procedure signal-process-group prgrp sig
+
+These two procedures send signals to a specific process, and all the
+processes in a specific process group, respectively. The @var{proc}
+and @var{prgrp} arguments are either processes or integer process ids.
+@end deffn
+
+@deffn Procedure itimer secs
+Schedules a timer interrupt in @var{secs} seconds. @emph{Note:} As the
+thread system needs the timer interrupt for its own purpose,
+@var{itimer} works by spawning a thread which calls the interrupt
+handler for @code{interrupt/alrm} after the specified time.
+@end deffn
+
+@deffn Procedure process-sleep secs
+@deffnx Procedure process-sleep-until time
+
+The @code{sleep} procedure causes the process to sleep for @var{secs}
+seconds. The @code{sleep-until} procedure causes the process to sleep
+until @var{time}. @xref{Time}.
+
+@emph{Note:} The use of these procedures is deprecated as they suspend
+all running threads, including the ones Scsh uses for administrative
+purposes.  Consider using the @code{sleep} procedure from the
+@code{thread} package.
+@end deffn
+
+@subsection Interrupt handlers
+Scsh interrupt handlers are complicated by the fact that scsh is
+implemented on top of the Scheme 48 virtual machine, which has its own
+interrupt system, independent of the Unix signal system. This means
+that Unix signals are delivered in two stages: first, Unix delivers
+the signal to the Scheme 48 virtual machine, then the Scheme 48
+virtual machine delivers the signal to the executing Scheme program as
+a Scheme 48 interrupt. This ensures that signal delivery happens
+between two VM instructions, keeping individual instructions atomic.
+
+The Scheme 48 machine has its own set of interrupts, which includes
+the asynchronous Unix signals (table 3.9).
+@c TODO: Create table xref.
+
+@multitable @columnfractions .33 .33 .33 @code
+@headitem Interrupt @tab Unix signal @tab OS Variant
+@item @code{interrupt/alrm}@footnote{Also bound to Scheme 48 interrupt interrupt/alarm.}
+@tab @code{signal/alrm}
+@tab @acronym{POSIX}
+@item @code{interrupt/int}@footnote{bAlso bound to Scheme 48 interrupt interrupt/keyboard.}
+@tab @code{signal/int} 
+@tab @acronym{POSIX}
+@item @code{interrupt/memory-shortage }
+@tab @emph{N/A}
+@item @code{interrupt/chld}
+@tab @code{signal/chld} 
+@tab @acronym{POSIX}
+@item @code{interrupt/cont }
+@tab @code{signal/cont }
+@tab @acronym{POSIX}
+@item @code{interrupt/hup }
+@tab @code{signal/hup }
+@tab @acronym{POSIX}
+@item @code{interrupt/quit }
+@tab @code{signal/quit }
+@tab @acronym{POSIX}
+@item @code{interrupt/term }
+@tab @code{signal/term }
+@tab @acronym{POSIX}
+@item @code{interrupt/tstp }
+@tab @code{signal/tstp }
+@tab @acronym{POSIX}
+@item @code{interrupt/usr1 }
+@tab @code{signal/usr1 }
+@tab @acronym{POSIX}
+@item @code{interrupt/usr2 }
+@tab @code{signal/usr2 }
+@tab @acronym{POSIX}
+@item @code{interrupt/info }
+@tab @code{signal/info }
+@tab BSD only
+@item @code{interrupt/io }
+@tab @code{signal/io }
+@tab BSD + SVR4
+@item @code{interrupt/poll }
+@tab @code{signal/poll }
+@tab SVR4 only
+@item @code{interrupt/prof }
+@tab @code{signal/prof }
+@tab BSD + SVR4
+@item @code{interrupt/pwr }
+@tab @code{signal/pwr }
+@tab SVR4 only
+@item @code{interrupt/urg }
+@tab @code{signal/urg }
+@tab BSD + SVR4
+@item @code{interrupt/vtalrm }
+@tab @code{signal/vtalrm }
+@tab BSD + SVR4
+@item @code{interrupt/winch }
+@tab @code{signal/winch }
+@tab BSD + SVR4
+@item @code{interrupt/xcpu }
+@tab @code{signal/xcpu }
+@tab BSD + SVR4
+@item @code{interrupt/xfsz }
+@tab @code{signal/xfsz }
+@tab BSD + SVR4
+@end multitable
+
+Table 3.2: Scheme 48 virtual-machine interrupts and related Unix
+signals. Only the @acronym{POSIX} signals are guaranteed to be
+defined; however, your implementation and OS may define other signals
+and interrupts not listed here.
+
+@multitable @columnfractions .33 .33 .33
+@headitem Unix signal @tab Type @tab OS Variant
+@item @code{signal/stop }
+@tab Uncatchable 
+@tab @acronym{POSIX}
+@item @code{signal/kill }
+@tab Uncatchable 
+@tab @acronym{POSIX}
+@item @code{signal/abrt }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/fpe }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/ill }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/pipe }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/segv }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/ttin }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/ttou }
+@tab Synchronous 
+@tab @acronym{POSIX}
+@item @code{signal/bus }
+@tab Synchronous 
+@tab BSD + SVR4
+@item @code{signal/emt }
+@tab Synchronous 
+@tab BSD + SVR4
+@item @code{signal/iot }
+@tab Synchronous 
+@tab BSD + SVR4
+@item @code{signal/sys }
+@tab Synchronous 
+@tab BSD + SVR4
+@item @code{signal/trap }
+@tab Synchronous 
+@tab BSD + SVR4
+@end multitable 
+
+Table 3.3: Uncatchable and synchronous Unix signals. While these
+signals may be sent with @code{signal-process} or
+@code{signal-process-group}, there are no corresponding scsh interrupt
+handlers. Only the @acronym{POSIX} signals are guaranteed to be
+defined; however, your implementation and OS may define other signals
+not listed here.
+
+@deffn Procedure signal->interrupt integer
+The programmer maps from Unix signals to Scheme 48 interrupts with the
+@code{signal->interrupt} procedure. If the signal does not have a
+defined Scheme 48 interrupt, an error is signaled.
+@end deffn
+
+@deffn Procedure interrupt-set @math{integer_1} @dots{} @math{integer_n}
+This procedure builds interrupt sets from its interrupt arguments. A
+set is represented as an integer using a two's-complement
+representation of the bit set.
+@end deffn
+
+@deffn Procedure enabled-interrupts
+@deffnx Procedure set-enabled-interrupts interrupt-set
+
+Get and set the value of the enabled-interrupt set. Only interrupts in
+this set have their handlers called when delivered. When a disabled
+interrupt is delivered to the Scheme 48 machine, it is held pending
+until it becomes enabled, at which time its handler is invoked.
+
+Interrupt sets are represented as integer bit sets (constructed with
+the @code{interrupt-set} function). The @code{set-enabled-interrupts}
+procedure returns the previous value of the enabled-interrupt set.
+@end deffn
+
 @c (with-enabled-interrupts interrupt-set . body) -! value(s) of body syntax
 @c (with-enabled-interrupts* interrupt-set thunk) -! value(s) of thunk procedure
 @c 
