@@ -1190,7 +1190,7 @@ files as communication channels.
 @section Conditional process sequencing forms
 These forms allow conditional execution of a sequence of processes.
 
-@deffn Macro || @math{pf_1} @dots{} @math{pf_n})
+@deffn Macro || @math{pf_1} @dots{} @math{pf_n}
 Run each proc until one completes successfully (i.e., exit status
 zero). Return true if some proc completes successfully; otherwise
 @code{#f}.
