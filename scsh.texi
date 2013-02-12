@@ -4057,7 +4057,7 @@ given signal. The procedure @code{handle-signal-default} resets the
 signal handler to the default handler.
 
 These procedures manipulate the raw signal handler of the Scsh process
-and therfore undermine the signal handling facility of the VM. They
+and therefore undermine the signal handling facility of the VM. They
 are intended to be used for ignoring synchronous signals if system
 calls cannot succeed otherwise. Do not use these procedures for
 asynchronous signals!
