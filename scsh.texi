@@ -3292,16 +3292,21 @@ This procedure maps integer Unix process ids to scsh process objects. It
 is intended for use in interactive and debugging code, and is deprecated
 for use in production code. If there is no process object in the system
 indexed by the given @var{pid}, @code{pid->proc}'s action is determined
-by the @var{probe?}  parameter (default @code{#f}):
+by the @var{probe?} parameter (default @code{#f}). The following table
+lists the possible values of @var{probe?} and the resulting action:
 
-@multitable @any
-@headitem @var{probe?} @tab Return 
+@multitable @columnfractions .50 .50
+@headitem Value of @var{probe?} @tab Returns
+
 @item @code{#f}
-Signal error condition.
-@item 'create 
-Create new proc object.
+@tab Signal error condition.
+
+@item 'create
+@tab Create new proc object.
+
 @item True value
-@code{#f}
+@tab @code{#f}
+
 @end multitable
 
 Sometime after a child process terminates, scsh will perform a
