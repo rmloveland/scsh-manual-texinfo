@@ -4069,215 +4069,323 @@ asynchronous signals!
 @end deffn
 
 @section Time
-@c 
-@c Scsh's time system is fairly sophisticated, particularly with respect to its carefultreatment of time zones. However, casual users shouldn't be intimidated; all of
-@c the complexity is optional, and defaulting all the optional arguments reducesthe system to a simple interface.
-@c 
-@c 71
-@c 
-@c @subsection Terminology
-@c 
-@c "UTC" and "UCT" stand for "universal coordinated time," which is the officialname for what is colloquially referred to as "Greenwich Mean Time."
-@c 
-@c @acronym{POSIX} allows a single time zone to specify two different offsets from UTC:one standard one, and one for "summer time." Summer time is frequently
-@c some sort of daylight savings time.
-@c 
-@c The scsh time package consistently uses this terminology: we never say"gmt" or "dst;" we always say "utc" and "summer time."
-@c 
-@c @subsection Basic data types
-@c 
-@c We have two types: time and date.
-@c 
-@c A time specifies an instant in the history of the universe. It is location andtime-zone independent.4 A time is a real value giving the number of elapsed
-@c 
-@c seconds since the Unix "epoch" (Midnight, January 1, 1970 UTC). Time valuesprovide arbitrary time resolution, limited only by the number system of the
-@c underlying Scheme system.
-@c 
-@c A date is a name for an instant in time that is specified relative to somelocation/time-zone in the world, e.g.:
-@c 
-@c Friday October 31, 1994 3:47:21 pm EST.Dates provide one-second resolution, and are expressed with the following
-@c record type:
-@c 
-@c (define-record date ; A Posix tm struct
-@c 
-@c seconds ; Seconds after the minute [0-59]
-@c minute ; Minutes after the hour [0-59]
-@c hour ; Hours since midnight [0-23]
-@c month-day ; Day of the month [1-31]
-@c month ; Months since January [0-11]
-@c year ; Years since 1900
-@c tz-name ; Time-zone name: #f or a string.
-@c tz-secs ; Time-zone offset: #f or an integer.
-@c summer? ; Summer (Daylight Savings) time in effect?
-@c week-day ; Days since Sunday [0-6]
-@c year-day) ; Days since Jan. 1 [0-365]
-@c 
-@c If the tz-secs field is given, it specifies the time-zone's offset from UTC inseconds. If it is specified, the
-@c 
-@c tz-name and summer? fields are ignored whenusing the date structure to determine a specific instant in time.
-@c 
-@c 4Physics pedants please note: The scsh authors live in a Newtonian universe. We disclaim
-@c responsibility for calculations performed in non-@acronym{ANSI} standard light-cones.
-@c 
-@c 72
-@c 
-@c If the tz-name field is given, it is a time-zone string such as "EST" or
-@c "HKT" understood by the OS. Since @acronym{POSIX} time-zone strings can specify dualstandard/summer time-zones (e.g., "EST5EDT" specifies U.S. Eastern Standard/Eastern Daylight Time), the value of the summer? field is used to resolvethe amiguous boundary cases. For example, on the morning of the Fall daylight savings change-over, 1:00am-2:00am happens twice. Hence the date 1:30am on this morning can specify two different seconds; the
-@c 
-@c summer? flag sayswhich one.
-@c 
-@c A date with tz-name = tz-secs = #f is a date that is specified in terms ofthe system's current time zone.
-@c There is redundancy in the date data structure. For example, the year-dayfield is redundant with the
-@c 
-@c month-day and month fields. Either of these impliesthe values of the
-@c week-day field. The summer? and tz-name fields are redun-dant with the
-@c tz-secs field in terms of specifying an instant in time. Thisredundancy is provided because consumers of dates may want it broken out
-@c 
-@c in different ways. The scsh procedures that produce date records fill them outcompletely. However, when date records produced by the programmer are
-@c passed to scsh procedures, the redundancy is resolved by ignoring some of thesecondary fields. This is described for each procedure below.
-@c 
-@c (make-date s min h mday mon y [tzn tzs summ? wday yday]) -! date procedure
-@c 
-@c When making a date record, the last five elements of the record are op-tional, and default to
-@c 
-@c #f, #f, #f, 0, and 0 respectively. This is useful whencreating a
-@c date record to pass as an argument to time. Other procedures,however, may refuse to work with these incomplete
-@c 
-@c date records.
-@c 
-@c @subsection Time zones
-@c 
-@c Several time procedures take time zones as arguments. When optional, thetime zone defaults to local time zone. Otherwise the time zone can be one of:
-@c 
-@c #f Local timeInteger Seconds of offset from UTC. For example, New York City is -18000 (-5 hours), San Francisco is-28800 (-8 hours).
-@c 
-@c String A @acronym{POSIX} time zone string understood by the OS(i.e.., the sort of time zone assigned to the $TZ environment variable).
-@c 
-@c An integer time zone gives the number of seconds you must add to UTC to gettime in that zone. It is not "seconds west" of UTC--that flips the sign.
-@c 
-@c To get UTC time, use a time zone of either 0 or "UCT0".
-@c 
-@c 73
-@c 
-@c @subsection Procedures
-@c 
-@c (time+ticks) -! [secs ticks] procedure
-@c (ticks/sec) -! real procedure
-@c 
-@c The current time, with sub-second resolution. Sub-second resolution is not provided by @acronym{POSIX}, but is available on many systems. The time isreturned as elapsed seconds since the Unix epoch, plus a number of subsecond "ticks." The length of a tick may vary from implementation toimplementation; it can be determined from
-@c 
-@c (ticks/sec).
-@c 
-@c The system clock is not required to report time at the full resolution givenby
-@c 
-@c (ticks/sec). For example, on BSD, time is reported at 1us resolution,so
-@c 
-@c (ticks/sec) is 1,000,000. That doesn't mean the system clock hasmicro-second resolution.
-@c 
-@c If the OS does not support sub-second resolution, the ticks value is always0, and
-@c 
-@c (ticks/sec) returns 1.
-@c 
-@c Remark: I chose to represent system clock resolution as ticks/secinstead of sec/tick to increase the odds that the value could be represented as an exact integer, increasing efficiency and making it easierfor Scheme implementations that don't have sophisticated numeric
-@c support to deal with the quantity.
-@c You can convert seconds and ticks to seconds with the expression
-@c 
-@c (+ secs (/ ticks (ticks/sec)))
-@c 
-@c Given that, why not have the fine-grain time procedure just return anon-integer real for time? Following Common Lisp, I chose to allow
-@c 
-@c the system clock to report sub-second time in its own units to lowerthe overhead of determining the time. This would be important for a
-@c system that wanted to precisely time the duration of some event. Timestamps could be collected with little overhead, deferring the overhead
-@c of precisely calculating with them until after collection.
-@c This is all a bit academic for the Scheme 48 implementation, where wedetermine time with a heavyweight system call, but it's nice to plan
-@c 
-@c for the future.
-@c 
-@c (date) -! date-record procedure
-@c (date [time tz]) -! date-record procedure
-@c 
-@c Simple (date) returns the current date, in the local time zone.
-@c With the optional arguments, date converts the time to the date as spec-ified by the time zone tz. Time defaults to the current time; tz defaults to
-@c 
-@c local time, and is as described in the time-zone section.
-@c If the tz argument is an integer, the date's tz-name field is a @acronym{POSIX} timezone of the form "
-@c 
-@c UTC+hh :mm :ss "; the trailing :mm :ss portion is deletedif it is zeroes.
-@c 
-@c 74
-@c 
-@c Oops: The Posix facility for converting dates to times, mktime(), hasa broken design: it indicates an error by returning -1, which is also a
-@c legal return value (for date 23:59:59 UCT, 12/31/1969). Scsh resolvesthe ambiguity in a paranoid fashion: it always reports an error if the
-@c underlying Unix facility returns -1. We feel your pain.
-@c 
-@c (time) -! integer procedure
-@c (time [date]) -! integer procedure
-@c 
-@c Simple (time) returns the current time.
-@c With the optional date argument, time converts a date to a time. Datedefaults to the current date.
-@c 
-@c Note that the input date record is overconstrained. time ignores date's
-@c week-day and year-day fields. If the date's tz-secs field is set, the
-@c tz-name and summer? fields are ignored.
-@c 
-@c If the tz-secs field is #f, then the time-zone is taken from the tz-namefield. A false
-@c 
-@c tz-name means the system's current time zone. When cal-culating with time-zones, the date's
-@c 
-@c summer? field is used to resolve am-biguities:
-@c 
-@c #f Resolve an ambiguous time in favor of non-summer time.true Resolve an ambiguous time in favor of summer time.
-@c This is useful in boundary cases during the change-over. For example, inthe Fall, when US daylight savings time changes over at 2:00 am, 1:30 am
-@c happens twice--it names two instants in time, an hour apart.
-@c Outside of these boundary cases, the summer? flag is ignored. For ex-ample, if the standard/summer change-overs happen in the Fall and the
-@c 
-@c Spring, then the value of summer? is ignored for a January or July date. AJanuary date would be resolved with standard time, and a July date with
-@c summer time, regardless of the summer? value.
-@c The summer? flag is also ignored if the time zone doesn't have a summertime--for example, simple UTC.
-@c 
-@c (date->string date) -! string procedure
-@c (format-date fmt date) -! string procedure
-@c 
-@c Date->string formats the date as a 24-character string of the form:Sun Sep 16 01:03:52 1973
-@c 
-@c Format-date formats the date according to the format string fmt. Theformat string is copied verbatim, except that tilde characters indicate conversion specifiers that are replaced by fields from the date record. Figure3.1 gives the full set of conversion specifiers supported by
-@c 
-@c format-date.
-@c 
+
+Scsh's time system is fairly sophisticated, particularly with respect to
+its careful treatment of time zones. However, casual users shouldn't be
+intimidated; all of the complexity is optional, and defaulting all the
+optional arguments reduces the system to a simple interface.
+
+@subsection Terminology
+
+``@acronym{UTC}'' and ``@acronym{UCT}'' stand for ``universal
+coordinated time'', which is the official name for what is colloquially
+referred to as ``Greenwich Mean Time''.
+
+@acronym{POSIX} allows a single time zone to specify two different
+offsets from @acronym{UTC}: one standard one, and one for ``summer
+time''. Summer time is frequently some sort of daylight savings time.
+
+The Scsh time package consistently uses this terminology: we never say
+``@acronym{GMT}'' or ``@acronym{dst}''; we always say ``@acronym{utc}''
+and ``summer time''.
+
+@subsection Basic data types
+
+We have two types: @emph{time} and @emph{date}.
+
+A @emph{time} specifies an instant in the history of the universe. It is
+location and time-zone independent@footnote{Physics pedants please note:
+The Scsh authors live in a Newtonian universe. We disclaim
+responsibility for calculations performed in non-@acronym{ANSI} standard
+light-cones.}. A @emph{time} is a real value giving the number of
+elapsed seconds since the UNIX ``epoch'' (Midnight, January 1,
+1970 @acronym{UTC}). Time values provide arbitrary time resolution,
+limited only by the number system of the underlying Scheme system.
+
+A @emph{date} is a name for an instant in time that is specified
+relative to some location/time-zone in the world, @emph{e.g.}:
+
+@example
+Friday October 31, 1994 3:47:21 pm EST.
+@end example
+
+Dates provide one-second resolution, and are expressed with the
+following record type:
+
+@example
+(define-record date ; A Posix tm struct
+  seconds       ; Seconds after the minute [0-59]
+  minute        ; Minutes after the hour [0-59]
+  hour          ; Hours since midnight [0-23]
+  month-day     ; Day of the month [1-31]
+  month         ; Months since January [0-11]
+  year          ; Years since 1900
+  tz-name       ; Time-zone name: #f or a string.
+  tz-secs       ; Time-zone offset: #f or an integer.
+  summer?       ; Summer (Daylight Savings) time in effect?
+  week-day      ; Days since Sunday [0-6]
+  year-day)     ; Days since Jan. 1 [0-365]
+@end example
+
+If the @code{tz-secs} field is given, it specifies the time-zone's
+offset from @acronym{UTC} in seconds. If it is specified, the
+@code{tz-name} and @code{summer?} fields are ignored when using the date
+structure to determine a specific instant in time.
+
+If the @code{tz-name} field is given, it is a time-zone string such as
+``EST'' or ``HKT'' understood by the OS. Since @acronym{POSIX} time-zone
+strings can specify dual standard/summer time-zones (@emph{e.g.},
+``EST5EDT'' specifies U.S. Eastern Standard/Eastern Daylight Time), the
+value of the @code{summer?} field is used to resolvethe ambiguous
+boundary cases. For example, on the morning of the Fall daylight savings
+change-over, 1:00am-2:00am happens twice. Hence the date 1:30am on this
+morning can specify two different seconds; the @code{summer?} flag says
+which one.
+
+A date with @code{tz-name} = @code{tz-secs} = @code{#f} is a date that
+is specified in terms ofthe system's current time zone.
+
+There is redundancy in the @code{date} data structure. For example, the
+@code{year-day} field is redundant with the @code{month-day} and
+@code{month} fields. Either of these implies the values of the
+@code{week-day} field. The @code{summer?} and @code{tz-name} fields are
+redundant with the @code{tz-secs} field in terms of specifying an
+instant in time. This redundancy is provided because consumers of dates
+may want it broken out in different ways. The Scsh procedures that
+produce date records fill them out completely. However, when date
+records produced by the programmer are passed to Scsh procedures, the
+redundancy is resolved by ignoring some of the secondary fields. This is
+described for each procedure below.
+
+@deffn Procedure make-date s min h mday mon y [tzn tzs summ? wday yday]
+
+When making a @code{date} record, the last five elements of the record
+are optional, and default to @code{#f}, @code{#f}, @code{#f}, @code{0},
+and @code{0} respectively.  This is useful when creating a @code{date}
+record to pass as an argument to @code{time}. Other procedures, however,
+may refuse to work with these incomplete date records.
+
+@subsection Time zones
+
+Several time procedures take time zones as arguments. When optional, the
+time zone defaults to local time zone. Otherwise the time zone can be
+one of:
+
+@table @code
+
+@item #f
+Local time.
+
+@item Integer
+Seconds of offset from @acronym{UTC}. For example, New York City is
+-18000 (-5 hours), San Francisco is -28800 (-8 hours).
+
+@item String
+A @acronym{POSIX} time zone string understood by the OS (@emph{i.e.},
+the sort of time zone assigned to the @code{$TZ} environment variable).
+@end table
+
+An integer time zone gives the number of seconds you must add to
+@acronym{UTC} to get time in that zone. It is not ``seconds west'' of
+@acronym{UTC}---that flips the sign.
+
+To get @acronym{UTC} time, use a time zone of either @code{0} or
+@code{"UCT0"}.
+@end deffn
+
+@subsection Procedures
+
+@deffn Procedure time+ticks
+@deffnx Procedure ticks/sec
+
+The current time, with sub-second resolution. Sub-second resolution is
+not provided by @acronym{POSIX}, but is available on many systems. The
+time is returned as elapsed seconds since the UNIX epoch, plus a number
+of subsecond ``ticks''. The length of a tick may vary from
+implementation to implementation; it can be determined from
+@code{(ticks/sec)}.
+
+The system clock is not required to report time at the full resolution
+given by @code{(ticks/sec)}. For example, on BSD, time is reported at 1
+micro-second resolution, so @code{(ticks/sec)} is 1,000,000. That
+doesn't mean the system clock has micro-second resolution.
+
+If the OS does not support sub-second resolution, the @var{ticks} value
+is always 0, and @code{(ticks/sec)} returns 1.
+
+@emph{Remark:} I chose to represent system clock resolution as ticks per
+second instead of seconds per tick to increase the odds that the value
+could be represented as an exact integer, increasing efficiency and
+making it easier for Scheme implementations that don't have
+sophisticated numeric support to deal with the quantity.
+
+You can convert seconds and ticks to seconds with the expression
+
+@example
+(+ secs (/ ticks (ticks/sec)))
+@end example
+
+Given that, why not have the fine-grained @code{time} procedure just
+return a non-integer real for time? Following Common Lisp, I chose to
+allow the system clock to report sub-second time in its own units to
+lower the overhead of determining the time. This would be important for
+a system that wanted to precisely time the duration of some event.
+Timestamps could be collected with little overhead, deferring the
+overhead of precisely calculating with them until after collection.
+
+This is all a bit academic for the Scheme 48 implementation, where we
+determine time with a heavyweight system call, but it's nice to plan for
+the future.
+@end deffn
+
+@deffn Procedure date
+@deffnx Procedure date [time tz]
+
+Simple @code{(date)} returns the current date, in the local time zone.
+
+With the optional arguments, @code{date} converts the time to the date as specified by the time zone @var{tz}. @var{Time} defaults to the current time; @var{tz} defaults to
+local time, and is as described in the time-zone section.
+
+If the @var{tz} argument is an integer, the date's @code{tz-name} field
+is a @acronym{POSIX} time zone of the form ``@code{UTC+hh:mm:ss}''; the
+trailing @code{:mm:ss} portion is deleted if it is zeroes.
+
+@emph{Oops:} The @acronym{POSIX} facility for converting dates to times,
+@code{mktime()}, has a broken design: it indicates an error by returning
+-1, which is also a legal return value (for date 23:59:59 @acronym{UCT},
+12/31/1969). Scsh resolves the ambiguity in a paranoid fashion: it
+always reports an error if the underlying Unix facility returns -1. We
+feel your pain.
+@end deffn
+
+@deffn Procedure time
+@deffnx Procedure time [date]
+
+Simple @code{(time)} returns the current time.
+
+With the optional @var{date} argument, @code{time} converts a date to a
+time. @var{Date} defaults to the current date.
+
+Note that the input date record is overconstrained. @code{Time} ignores
+@var{date}'s @code{week-day} and @code{year-day} fields. If the date's
+@code{tz-secs} field is set, the @code{tz-name} and @code{summer?}
+fields are ignored.
+
+If the @code{tz-secs} field is @code{#f}, then the time-zone is taken
+from the @code{tz-name} field. A false
+@code{tz-name} means the system's current time zone. When calculating with time-zones, the date's
+@code{summer?} field is used to resolve am-biguities:
+
+@table @code
+
+@item #f
+Resolve an ambiguous time in favor of non-summer time.
+
+@item true
+Resolve an ambiguous time in favor of summer time.
+
+@end table
+
+This is useful in boundary cases during the change-over. For example, in
+the Fall, when US daylight savings time changes over at 2:00 am, 1:30 am
+happens twice--it names two instants in time, an hour apart.  Outside of
+these boundary cases, the @code{summer?} flag is ignored. For example,
+if the standard/summer change-overs happen in the Fall and the Spring,
+then the value of @code{summer?} is ignored for a January or July date.
+A January date would be resolved with standard time, and a July date
+with summer time, regardless of the @code{summer?} value.
+
+The @code{summer?} flag is also ignored if the time zone doesn't have a
+summer time---for example, simple @acronym{UTC}.
+@end deffn
+
+@deffn Procedure date->string date
+@deffnx Procedure format-date fmt date
+
+@code{Date->string} formats the date as a 24-character string of the
+form: 
+
+@example
+Sun Sep 16 01:03:52 1973
+@end example
+
+@code{Format-date} formats the date according to the format string
+@var{fmt}. The format string is copied verbatim, except that tilde
+characters indicate conversion specifiers that are replaced by fields
+from the date record. The table below gives the full set of conversion
+specifiers supported by @code{format-date}.
+
+@table @code
+@item ~~
+Converted to the @code{~} character
+
+@item ~a 
+Abbreviated weekday name
+
+@item ~A 
+Full weekday name
+
+@item ~b 
+Abbreviated month name
+
+@item ~B 
+Full month name
+
+@item ~c 
+Time and date using the time and date representation for the locale(~X ~x)
+
+@item ~d 
+Day of the month as a decimal number (01-31)
+
+@item ~H 
+Hour based on a 24-hour clock as a decimal number (00-23)
+
+@item ~I 
+Hour based on a 12-hour clock as a decimal number (01-12)
+
+@item ~j 
+Day of the year as a decimal number (001-366)
+
+@item ~m 
+Month as a decimal number (01-12)
+
+@item ~M 
+Minute as a decimal number (00-59)
+
+@item ~p 
+AM/PM designation associated with a 12-hour clock
+
+@item ~S 
+Second as a decimal number (00-61)
+
+@item ~U 
+Week number of the year; Sunday is first day of week (00-53)
+
+@item ~w 
+Weekday as a decimal number (0-6), where Sunday is 0
+
+@item ~W 
+Week number of the year; Monday is first day of week (00-53)
+
+@item ~x 
+Date using the date representation for the locale
+
+@item ~X 
+Time using the time representation for the locale
+
+@item ~y 
+Year without century (00-99)
+
+@item ~Y 
+Year with century (@emph{e.g.}, 1990)
+
+@item ~Z 
+Time zone name or abbreviation, or no characters if no time zone can be determined
+
+@end table
+@end deffn
+
 @c (fill-in-date! date) -! date procedure
-@c 
-@c 75
-@c 
-@c ~~ Converted to the ~ character.
-@c ~a abbreviated weekday name
-@c ~A full weekday name
-@c ~b abbreviated month name
-@c ~B full month name
-@c ~c time and date using the time and date representation for the locale(
-@c 
-@c ~X ~x)
-@c 
-@c ~d day of the month as a decimal number (01-31)
-@c ~H hour based on a 24-hour clock as a decimal number (00-23)
-@c ~I hour based on a 12-hour clock as a decimal number (01-12)
-@c ~j day of the year as a decimal number (001-366)
-@c ~m month as a decimal number (01-12)
-@c ~M minute as a decimal number (00-59)
-@c ~p AM/PM designation associated with a 12-hour clock
-@c ~S second as a decimal number (00-61)
-@c ~U week number of the year; Sunday is first day of week (00-53)
-@c ~w weekday as a decimal number (0-6), where Sunday is 0
-@c ~W week number of the year; Monday is first day of week (00-53)
-@c ~x date using the date representation for the locale
-@c ~X time using the time representation for the locale
-@c ~y year without century (00-99)
-@c ~Y year with century (e.g.1990)
-@c ~Z time zone name or abbreviation, or no characters if no time zone isdeterminable
-@c 
-@c Figure 3.1: format-date conversion specifiers
-@c 
-@c 76
-@c 
 @c This procedure fills in missing, redundant slots in a date record. In de-creasing order of priority:
 @c 
 @c * year, month, month-day ) year-dayIf the
