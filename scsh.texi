@@ -4563,62 +4563,72 @@ Example: These four pieces of code all run the mailer with special
 
 @end deffn
 
-@c @subsection Path lists and colon lists
-@c 
-@c When environment variables such as $PATH need to encode a list of strings(such as a list of directories to be searched), the common Unix convention is
-@c to separate the list elements with colon delimiters.5 To convert between thecolon-separated string encoding and the list-of-strings representation, see the
-@c infix-splitter function (section @ref{8.1.2}) and the string library's string-joinfunction. For example,
-@c 
-@c (define split (infix-splitter (rx ":")))
-@c (split "/sbin:/bin::/usr/bin") )
-@c 
-@c '("/sbin" "/bin" "" "/usr/bin")
-@c (string-join ":" '("/sbin" "/bin" "" "/usr/bin")) )
-@c 
-@c "/sbin:/bin::/usr/bin"
-@c 
-@c The following two functions are useful for manipulating these ordered lists,once they have been parsed from their colon-separated form.
-@c 
-@c (add-before elt before list) -! list procedure
-@c (add-after elt after list) -! list procedure
-@c 
-@c These functions are for modifying search-path lists, where element orderis significant.
-@c 
-@c add-before adds elt to the list immediately before the first occurrence ofbefore in the list. If before is not in the list, elt is added to the end of the list.
-@c add-after is similar: elt is added after the last occurrence of after. If afteris not found, elt is added to the beginning of the list.
-@c Neither function destructively alters the original path-list. The result mayshare structure with the original list. Both functions use
-@c 
-@c equal? for com-paring elements.
-@c 
-@c 5. . . and hope the individual list elements don't contain colons themselves.
-@c 
-@c 80
-@c 
-@c @subsection $USER, $HOME, and $PATH
-@c 
-@c Like sh and unlike csh, scsh has no interactive dependencies on environmentvariables. It does, however, initialise certain internal values at startup time
-@c from the initial process environment, in particular $HOME and $PATH. Scshnever uses
-@c 
-@c $USER at all. It computes (user-login-name) from the system call
-@c (user-uid).
-@c 
-@c home-directory string
-@c exec-path-list string list thread-fluid
-@c 
-@c Scsh accesses $HOME at start-up time, and stores the value in the globalvariable
-@c 
-@c home-directory. It uses this value for ~ lookups and for return-ing to home on
-@c 
-@c (chdir).
-@c 
-@c Scsh accesses $PATH at start-up time, colon-splits the path list, and storesthe value in the thread fluid
-@c 
-@c exec-path-list. This list is used for
-@c exec-path and exec-path/env searches.
-@c 
-@c To access, rebind or side-effect thread-fluid cells, you must open the
-@c thread-fluids package.
-@c 
+@subsection Path lists and colon lists
+
+When environment variables such as @code{$PATH} need to encode a list of
+strings (such as a list of directories to be searched), the common UNIX
+convention is to separate the list elements with colon
+delimiters@footnote{@dots{}and hope the individual list elements don't
+contain colons themselves.}. To convert between the colon-separated
+string encoding and the list-of-strings representation, see the
+@code{infix-splitter} function. (@xref{Parsing fields}.) and the string
+library's @code{string-join} function. For example,
+
+@example
+(define split (infix-splitter (rx ":")))
+(split "/sbin:/bin::/usr/bin")
+==> '("/sbin" "/bin" "" "/usr/bin")
+
+(string-join ":" '("/sbin" "/bin" "" "/usr/bin"))
+==> "/sbin:/bin::/usr/bin"
+@end example
+
+The following two functions are useful for manipulating these ordered
+lists, once they have been parsed from their colon-separated form.
+
+@deffn Procedure add-before elt before list
+@deffnx Procedure add-after elt after list
+
+These functions are for modifying search-path lists, where element order
+is significant.
+
+@code{Add-before} adds @var{elt} to the list immediately before the
+first occurrence of @var{before} in the list. If @var{before} is not in
+the list, @var{elt} is added to the end of the list.
+
+@code{Add-after} is similar: @var{elt} is added after the last
+occurrence of @var{after}. If @var{after} is not found, @var{elt} is
+added to the beginning of the list.
+
+Neither function destructively alters the original path-list. The result
+may share structure with the original list. Both functions use
+@code{equal?} for comparing elements.
+@end deffn
+
+@subsection $USER, $HOME, and $PATH
+
+Like @code{sh} and unlike @code{csh}, Scsh has no interactive
+dependencies on environment variables. It does, however, initialise
+certain internal values at startup time from the initial process
+environment, in particular @code{$HOME} and @code{$PATH}. Scsh never
+uses @code{$USER} at all. It computes @code{(user-login-name)} from the
+system call @code{(user-uid)}.
+
+@deffn Variable home-directory string
+@deffnx Variable exec-path-list string list thread-fluid
+
+Scsh accesses @code{$HOME} at start-up time, and stores the value in the
+global variable @code{home-directory}. It uses this value for @code{~}
+lookups and for returning to home on @code{(chdir)}.
+
+Scsh accesses @code{$PATH} at start-up time, colon-splits the path list,
+and stores the value in the thread fluid @code{exec-path-list}. This
+list is used for @code{exec-path} and @code{exec-path/env} searches.
+
+To access, rebind or side-effect thread-fluid cells, you must open the
+@code{thread-fluids} package.
+@end deffn
+
 @section Terminal device control
 @c 
 @c Scsh provides a complete set of routines for manipulating terminal devices--putting them in "raw" mode, changing and querying their special characters,
