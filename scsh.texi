@@ -4385,45 +4385,53 @@ Time zone name or abbreviation, or no characters if no time zone can be determin
 @end table
 @end deffn
 
-@c (fill-in-date! date) -! date procedure
-@c This procedure fills in missing, redundant slots in a date record. In de-creasing order of priority:
-@c 
-@c * year, month, month-day ) year-dayIf the
-@c 
-@c year, month, and month-day fields are all defined (are all inte-gers), the
-@c 
-@c year-day field is set to the corresponding value.*
-@c 
-@c year, year-day ) month, month-dayIf the
-@c 
-@c month and month-day fields aren't set, but the year and
-@c year-day fields are set, then month and month-day are calculated.*
-@c 
-@c year, month, month-day, year-day ) week-dayIf either of the above rules is able to determine what day it is, the
-@c 
-@c week-day field is then set.*
-@c tz-secs ) tz-nameIf
-@c 
-@c tz-secs is defined, but tz-name is not, it is assigned a time-zonename of the form "
-@c 
-@c UTC+hh :mm :ss "; the trailing :mm :ss portion isdeleted if it is zeroes.
-@c 
-@c * tz-name, date, summer? ) tz-secs, summer?If the date information is provided up to second resolution,
-@c 
-@c tz-nameis also provided, and
-@c tz-secs is not set, then tz-secs and summer?are set to their correct values. Summer-time ambiguities are resolved using the original value of summer?. If the time zone doesn'thave a summer time variant, then
-@c 
-@c summer? is set to #f.*
-@c 
-@c local time, date, summer? ) tz-name, tz-secs, summer?If the date information is provided up to second resolution, but no
-@c 
-@c time zone information is provided (both tz-name and tz-secs aren'tset), then we proceed as in the above case, except the system's current time zone is used.
-@c These rules allow one particular ambiguity to escape: if both tz-nameand
-@c 
-@c tz-secs are set, they are not brought into agreement. It isn't clearhow to do this, nor is it clear which one should take precedence.
-@c 
-@c Oops: fill-in-date! isn't implemented yet.
-@c 
+@deffn Procedure fill-in-date! date
+This procedure fills in missing, redundant slots in a date record. In
+decreasing order of priority:
+
+@itemize
+@item year, month, month-day -> year-day
+If the @code{year}, @code{month}, and @code{month-day} fields are all
+defined (are all integers), the @code{year-day} field is set to the
+corresponding value.
+
+@item year, year-day -> month, month-day
+If the @code{month} and @code{month-day} fields aren't set, but the
+@code{year} and @code{year-day} fields are set, then @code{month} and
+@code{month-day} are calculated.
+
+@item year, month, month-day, year-day -> week-day
+If either of the above rules is able to determine what day it is, the
+@code{week-day} field is then set.
+
+@item tz-secs -> tz-name
+If @code{tz-secs} is defined, but @code{tz-name} is not, it is assigned
+a time-zone name of the form ``@code{UTC+hh:mm:ss}''; the trailing
+@code{:mm:ss} portion is deleted if it is zeroes.
+
+@item tz-name, date, summer? -> tz-secs, summer?
+If the date information is provided up to second resolution,
+@code{tz-name} is also provided, and @code{tz-secs} is not set, then
+@code{tz-secs} and @code{summer?} are set to their correct values.
+Summer-time ambiguities are resolved using the original value of
+@code{summer?}. If the time zone doesn't have a summertime variant, then
+@code{summer?} is set to @code{#f}.
+
+@item local time, date, summer? -> tz-name, tz-secs, summer?
+If the date information is provided up to second resolution, but no time
+zone information is provided (both @code{tz-name} and @code{tz-secs}
+aren't set), then we proceed as in the above case, except the system's
+current time zone is used.
+@end itemize
+
+These rules allow one particular ambiguity to escape: if both
+@code{tz-name} and @code{tz-secs} are set, they are not brought into
+agreement. It isn't clear how to do this, nor is it clear which one
+should take precedence.
+
+@emph{Oops:} @code{fill-in-date!} isn't implemented yet.
+@end deffn
+
 @section Environment variables
 @c 
 @c (setenv var val) -! undefined procedure
