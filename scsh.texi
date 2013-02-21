@@ -75,7 +75,7 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 @c * Naming conventions::
 @c * Lexical issues::
 @c * Record types and the define-record form::
-@c * A word about Unix standards::
+@c * A word about UNIX standards::
 
 @c Process notation
 
@@ -206,9 +206,9 @@ September 4, 1994
 @node Introduction
 @chapter Introduction
 
-This is the reference manual for scsh, a Unix shell that is embedded
+This is the reference manual for scsh, a UNIX shell that is embedded
 within Scheme. Scsh is a Scheme system designed for writing useful
-standalone Unix programs and shell scripts---it spans a wide range of
+standalone UNIX programs and shell scripts---it spans a wide range of
 application, from ``script'' applications usually handled with perl or
 sh, to more standard systems applications usually written in C.
 
@@ -255,11 +255,11 @@ sites storing the most recent release of scsh, choose one close to your
 site, and download the tar file.
 
 @section Building scsh
-Scsh currently runs on a fairly large set of Unix systems, including
+Scsh currently runs on a fairly large set of UNIX systems, including
 Linux, FreeBSD, OpenBSD, NetBSD, MacOS X, SunOS, Solaris, AIX, NeXTSTEP,
 Irix, and HP-UX. We use the Gnu project's autoconfig tool to generate
 self-configuring shell scripts that customise the scsh Makefile for
-different OS variants. This means that if you use one of the common Unix
+different OS variants. This means that if you use one of the common UNIX
 implementations, building scsh should require exactly the following
 steps:
 
@@ -291,7 +291,7 @@ shell immediately after the initial make by simply saying
 See @ref{Running scsh} for full details on installation locations and
 startup options.
 
-It is not too difficult to port scsh to another Unix platform if your OS
+It is not too difficult to port scsh to another UNIX platform if your OS
 is not supported by the current release. See the release notes for more
 details on how to do this.
 
@@ -313,7 +313,7 @@ of things.  Some of the common ones are:
 
 @table @code
 @item fdes
-Means ``file descriptor'', a small integer used in Unix to represent I/O
+Means ``file descriptor'', a small integer used in UNIX to represent I/O
 channels.
 
 @item ...*
@@ -384,7 +384,7 @@ frequently end in @dots{}@code{-info}. Examples: @code{user-info},
 
 Enumerated constants from some set @emph{s} are usually named
 @code{s/@math{const_1}}, @code{s/@math{const_2}}, @dots{}. For
-example, the various Unix signal integers have the names
+example, the various UNIX signal integers have the names
 @code{signal/cont}, @code{signal/kill}, @code{signal/int},
 @code{signal/hup}, and so forth.
 
@@ -437,7 +437,7 @@ Scsh allows source files to begin with a header of the form
 #!/usr/local/bin/scsh -s
 @end example
 
-The Unix operating system treats source files beginning with the headers
+The UNIX operating system treats source files beginning with the headers
 of this form specially; they can be directly executed by the operating
 system (see @ref{Running scsh} for information on how to use this
 feature). The scsh interpreter ignores this special header by treating
@@ -446,7 +446,7 @@ encounters @code{#!}, it skips characters until it finds the closing
 sequence newline/exclamation-point/sharp-sign/newline.
 
 Although the form of the @code{#!} read-macro was chosen to support
-interpreter-triggers for executable Unix scripts, it is a general
+interpreter-triggers for executable UNIX scripts, it is a general
 block-comment sequence and can be used as such anywhere in a scsh
 program.
 
@@ -509,7 +509,7 @@ is the same thing as
 
 Line-delimited here-strings are useful for writing down long, constant
 strings---such as long, multi-line @code{format} strings, or arguments
-to Unix programs, e.g.,
+to UNIX programs, e.g.,
 
 @example
 ;; Free up some disk space for my netnews files.
@@ -545,7 +545,7 @@ signalled.
 
 @subsection Dot
 It is unfortunate that the single-dot token, ``.'', is both a
-fundamental Unix filename and a deep, primitive syntactic token in
+fundamental UNIX filename and a deep, primitive syntactic token in
 Scheme -- it means the following will not parse correctly in scsh:
 
 @example
@@ -628,8 +628,8 @@ prefers @footnote{He wrote it.}. It can be found in the
 
 Alternatively, you may define your own, of course.
 
-@section A word about Unix standards
-``The wonderful thing about Unix standards is that there are so many to
+@section A word about UNIX standards
+``The wonderful thing about UNIX standards is that there are so many to
 choose from''. You may be totally bewildered about the multitude of
 various standards that exist. Rest assured that nowhere in this manual
 will you encounter an attempt to spell it all out for you; you could not
@@ -647,14 +647,14 @@ symbolic links, which aren't in @acronym{POSIX} (see---it really
 @node Process notation
 @chapter Process notation
 
-Scsh has a notation for controlling Unix processes that takes the form
+Scsh has a notation for controlling UNIX processes that takes the form
 of s-expressions; this notation can then be embedded inside of
 standard Scheme code. The basic elements of this notation are
 @emph{process forms}, @emph{extended process forms}, and
 @emph{redirections}.
 
 @section Extended process forms and I/O redirections
-An extended process form is a specification of a Unix process to run,
+An extended process form is a specification of a UNIX process to run,
 in a particular I/O environment:
 
 @example
@@ -754,15 +754,15 @@ full control of I/O redirection from Scheme.
 It's important to remember that rebinding Scheme's current I/O ports
 (e.g.,using @code{call-with-input-file} to rebind the value of
 @code{(current-input-port)}) does @emph{not} automatically ``rebind''
-the file referenced by the Unix stdio file descriptors 0, 1, and
+the file referenced by the UNIX stdio file descriptors 0, 1, and
 2. This is impossible to do in general, since some Scheme ports are
-not representable as Unix file descriptors. For example, many Scheme
+not representable as UNIX file descriptors. For example, many Scheme
 implementations provide ``string ports'', that is, ports that collect
 characters sent to them into memory buffers. The accumulated string
 can later be retrieved from the port as a string. If a user were to
 bind @code{(current-output-port)} to such a port, it would be
 impossible to associate file descriptor 1 with this port, as it cannot
-be represented in Unix. So, if the user subsequently forked off some
+be represented in UNIX. So, if the user subsequently forked off some
 other program as a subprocess, that program would of course not see
 the Scheme string port as its standard output.
 
@@ -778,14 +778,14 @@ the three redirections:
 @end example
 
 The redirections are done in the indicated order. This will cause an
-error if one of the current I/O ports isn't a Unix port (e.g., if one is
-a string port). This Scheme/Unix I/O synchronisation can also be had in
+error if one of the current I/O ports isn't a UNIX port (e.g., if one is
+a string port). This Scheme/UNIX I/O synchronisation can also be had in
 Scheme code (as opposed to a redirection spec) with the
 @code{(stdports->stdio)} procedure.
 
 @section Process forms
 A @emph{process form} specifies a computation to perform as an
-independent Unix process. It can be one of the following:
+independent UNIX process. It can be one of the following:
 
 @table @code 
 @item (begin . @var{scheme-code})
@@ -1116,7 +1116,7 @@ might produce the list
 What is the deadlock hazard that causes @code{run/collecting} to use
 tempfiles? Processes with multiple output streams can lock up if they
 use pipes to communicate with Scheme I/O readers. For example, suppose
-some Unix program @code{myprog} does the following:
+some UNIX program @code{myprog} does the following:
 
 @enumerate
 @item
@@ -1128,7 +1128,7 @@ Finally, outputs a single ")" to stderr, and exits.
 @end enumerate
 
 Our scsh programmer decides to run @code{myprog} with stdout and
-stderr redirected via Unix pipes to the ports @var{port1} and
+stderr redirected via UNIX pipes to the ports @var{port1} and
 @var{port2}, respectively. He gets into trouble when he subsequently
 says @code{(read @var{port2})}. The Scheme @code{read} routine reads
 the open paren, and then hangs in a @code{read(2)} system call trying
@@ -1212,7 +1212,7 @@ character from the current input port, applies @emph{filter} to the
 character, and writes the result to the current output port. The
 procedure returns upon reaching @acronym{eof} on the input port.  For example,
 to downcase a stream of text in a spell-checking pipeline, instead of
-using the Unix @code{tr A-Z a-z} command, we can say:
+using the UNIX @code{tr A-Z a-z} command, we can say:
 
 @example
 (run (| (delatex)
@@ -1241,7 +1241,7 @@ default @var{buflen} value is 1024.
 @node System Calls
 @chapter System Calls
 
-Scsh provides (almost) complete access to the basic Unix kernel
+Scsh provides (almost) complete access to the basic UNIX kernel
 services: processes, files, signals and so forth. These procedures
 comprise a Scheme binding for @acronym{POSIX}, with a few of the more
 standard extensions thrown in (e.g., symbolic links, @code{fchown},
@@ -1261,27 +1261,27 @@ exception handlers. When a standard exception system is defined, scsh
 will move to it. For now, scsh uses the Scheme 48 exception system,
 with a simple sugaring on top to hide the details in the common case.
 
-System call error exceptions contain the Unix @code{errno} code
+System call error exceptions contain the UNIX @code{errno} code
 reported by the system call. Unlike C, the @code{errno} value is a
 part of the exception packet, it is not accessed through a global
 variable.
 
-For reference purposes, the Unix @code{errno} numbers are bound to the
+For reference purposes, the UNIX @code{errno} numbers are bound to the
 variables @code{errno/perm}, @code{errno/noent}, etc. System calls
 never return @code{error/intr}---they automatically retry.
 
 @deffn Procedure errno-error @var{errno} @var{syscall} . @var{data}
-Raises a Unix error exception for Unix error number @code{errno}. The
+Raises a UNIX error exception for UNIX error number @code{errno}. The
 syscall and data arguments are packaged up in the exception packet
 passed to the exception handler.
 @end deffn
 
 @deffn Procedure with-errno-handler* @var{handler} @var{thunk}
 @deffnx Macro with-errno-handler @var{handler-spec} . @var{body}
-Unix syscalls raise error exceptions by calling @code{errno-error}. Programs can use 
+UNIX syscalls raise error exceptions by calling @code{errno-error}. Programs can use 
 @code{with-errno-handler*} to establish handlers for these exceptions.
 
-If a Unix error arises while @var{thunk} is executing, @var{handler} is
+If a UNIX error arises while @var{thunk} is executing, @var{handler} is
 called on two arguments like this:
 
 @example
@@ -1294,7 +1294,7 @@ called on two arguments like this:
 @var{packet} @equiv{} (@var{errno-msg} @var{syscall} . @var{data}),
 @end example
 
-where @var{errno-msg} is the standard Unix error message for the
+where @var{errno-msg} is the standard UNIX error message for the
 error, @var{syscall} is the procedure that generated the error, and @var{data} is
 a list of information generated by the error, which varies from
 syscall to syscall.
@@ -1389,7 +1389,7 @@ well as ports.
 
 The procedures @code{peek-char} and @code{read} do @emph{not} accept
 file descriptor arguments, since these functions require the ability
-to read ahead in the input stream, a feature not supported by Unix
+to read ahead in the input stream, a feature not supported by UNIX
 I/O.
 
 @subsection Port manipulation and standard ports
@@ -1453,7 +1453,7 @@ already closed, it returns false; this is not an error.
 
 @deffn Procedure stdports->stdio
 @deffnx Procedure stdio->stdports
-These two procedures are used to synchronise Unix' standard I/O file
+These two procedures are used to synchronise UNIX' standard I/O file
 descriptors and Scheme's current I/O ports.
 
 @code{Stdports->stdio} causes the standard I/O file descriptors (0, 1,
@@ -1527,8 +1527,8 @@ The material in this section and the following one is not critical for
 most applications. You may safely skim or completely skip this section
 on a first reading.
 
-Dealing with Unix file descriptors in a Scheme environment is
-difficult. In Unix, open files are part of the process environment,
+Dealing with UNIX file descriptors in a Scheme environment is
+difficult. In UNIX, open files are part of the process environment,
 and are referenced by small integers called @emph{file
 descriptors}. Open file descriptors are the fundamental way I/O
 redirections are passed to subprocesses, since file descriptors are
@@ -1633,9 +1633,9 @@ port, so the @code{exec}'d process certainly can't refer to it.
 
 This facility preserves the transparent close-on-collect property for
 file ports that are used in straightforward ways, yet allows access to
-the underlying Unix substrate without interference from the garbage
+the underlying UNIX substrate without interference from the garbage
 collector. This is critical, since shell programming absolutely
-requires access to the Unix file descriptors, as their numerical
+requires access to the UNIX file descriptors, as their numerical
 values are a critical part of the process interface.
 
 A port's underlying file descriptor can be shifted around with @code{dup(2)}
@@ -1752,7 +1752,7 @@ port already using @var{target-fd}, it is first relocated to some
 other file descriptor.
 @end deffn
 
-@subsection Unix I/O
+@subsection UNIX I/O
 @deffn Procedure dup @var{fd/port} [@var{newfd}]
 @deffnx Procedure dup->inport @var{fd/port} [@var{newfd}]
 @deffnx Procedure dup->outport @var{fd/port} [@var{newfd}]
@@ -1761,7 +1761,7 @@ These procedures provide the functionality of C's @code{dup()} and
 @code{dup2()}. @code{Dup}'s return value depends on on the type of
 @var{fd/port}--it maps fd->fd and port->port.
 
-These procedures use the Unix @code{dup()} syscall to replicate the file
+These procedures use the UNIX @code{dup()} syscall to replicate the file
 descriptor or file port @var{fd/port}. If a @var{newfd} file descriptor
 is given, it is used as the target of the @code{dup} operation, i.e.,
 the operation is a @code{dup2()}. In this case, procedures that return a
@@ -1844,7 +1844,7 @@ Returns a file descriptor.
 @deffnx Procedure set-fdes-flags @var{fd/port} @var{integer}
 These procedures allow reading and writing of an open file's flags. The
 only such flag defined by @acronym{POSIX} is
-@code{fdflags/close-on-exec}; your Unix implementation may provide
+@code{fdflags/close-on-exec}; your UNIX implementation may provide
 others.
 
 These procedures should not be particularly useful to the programmer, as
@@ -1918,7 +1918,7 @@ will also have changed @emph{a}'s status flags.
 @end deffn
 
 @deffn Procedure pipe
-Returns two ports, the read and write end-points of a Unix pipe.
+Returns two ports, the read and write end-points of a UNIX pipe.
 @end deffn
 
 @deffn Procedure read-string @var{nbytes} [@var{fd/port}]
@@ -2379,7 +2379,7 @@ Return the filename referenced by symbolic link @var{fname}.
 
 If you override an existing object, then @var{old-fname} and
 @var{new-fname} must type-match--either both directories, or both
-non-directories. This is required by the semantics of Unix
+non-directories. This is required by the semantics of UNIX
 @code{rename()}.
 
 @emph{Remark}: There is an unfortunate atomicity problem with the
@@ -2387,7 +2387,7 @@ non-directories. This is required by the semantics of Unix
 file @var{new-fname} sometime between @code{rename-file} 's existence
 check and the actual rename operation, your file will be clobbered
 with @code{old-fname}.There is no way to fix this problem, given the
-semantics of Unix @code{rename()}; at least it is highly unlikely to
+semantics of UNIX @code{rename()}; at least it is highly unlikely to
 occur in practice.
 @end deffn
 
@@ -2414,7 +2414,7 @@ time.
 @deffn Procedure sync-file @var{fd/port}
 @deffnx Procedure sync-file-system
 
-Calling @code{sync-file} causes Unix to update the disk data
+Calling @code{sync-file} causes UNIX to update the disk data
 structures for a given file. If @var{fd/port} is a port, any buffered
 data it may have is first flushed.
 
@@ -2424,7 +2424,7 @@ system with the disk.
 These procedures are not @acronym{POSIX}. Interestingly enough,
 @code{sync-filesystem} doesn't actually do what it is claimed to
 do. We just threw it in for humor value. See the @code{sync(2)} man
-page for Unix enlightenment.
+page for UNIX enlightenment.
 @end deffn
 
 @deffn Procedure truncate-file @var{fname/fd/port} @var{len}
@@ -2720,7 +2720,7 @@ special meaning of @{, @}, *, [, ], and ?.
 Note that the rules of backslash for Scheme strings and glob patterns
 work together to require four backslashes in a row to specify a single
 literal backslash. Fortunately, it is very rare that a backslash
-occurs in a Unix file name.
+occurs in a UNIX file name.
 
 A glob subpattern will not match against dot files unless the first
 character of the subpattern is a literal ".". Further, a dot
@@ -3041,7 +3041,7 @@ home directory).
 This procedure can be used to provide an interprocess communications
 channel with arbitrary-sized buffering. It returns two values, an input
 port and an output port, both open on a new temp file.  The temp file
-itself is deleted from the Unix file tree before
+itself is deleted from the UNIX file tree before
 @code{temp-file-channel} returns, so the file is essentially unnamed,
 and its disk storage is reclaimed as soon as the two ports are closed.
 
@@ -3273,7 +3273,7 @@ process form for a description of connection lists.
 
 @subsection Process objects and process reaping
 
-Scsh uses process objects to represent Unix processes. They are created
+Scsh uses process objects to represent UNIX processes. They are created
 by the @code{fork} procedure, and have the following exposed structure:
 
 @example
@@ -3281,14 +3281,14 @@ by the @code{fork} procedure, and have the following exposed structure:
 @end example
 
 The only exposed slot in a @var{proc} record is the process' pid, the
-integer id assigned by Unix to the process. The only exported primitive
+integer id assigned by UNIX to the process. The only exported primitive
 procedures for manipulating process objects are @code{proc?}  and
 @code{proc:pid}. Process objects are created with the @code{fork}
 procedure.
 
 @deffn Procedure pid->proc pid [probe?]
 
-This procedure maps integer Unix process ids to scsh process objects. It
+This procedure maps integer UNIX process ids to scsh process objects. It
 is intended for use in interactive and debugging code, and is deprecated
 for use in production code. If there is no process object in the system
 indexed by the given @var{pid}, @code{pid->proc}'s action is determined
@@ -3312,7 +3312,7 @@ lists the possible values of @var{probe?} and the resulting action:
 Sometime after a child process terminates, scsh will perform a
 @code{wait} system call on the child in background, caching the process'
 exit status in the child's @var{proc} object. This is called "reaping"
-the process. Once the child has been waited, the Unix kernel can free
+the process. Once the child has been waited, the UNIX kernel can free
 the storage allocated for the dead process' exit information, so process
 reaping prevents the process table from becoming cluttered with
 un-@code{wait}ed dead child processes (a.k.a. ``zombies''). This can be
@@ -3326,7 +3326,7 @@ process object. If the scsh user drops all pointers to the process
 object, it will simply be garbage collected. On the other hand, if the
 scsh program retains a pointer to the process object, it can use scsh's
 @code{wait} system call to synchronise with the child and retrieve its
-exit status multiple times (this is not possible with simple Unix
+exit status multiple times (this is not possible with simple UNIX
 integer pids in C---the programmer can only wait on a pid once).
 
 Thus, process objects allow the scsh programmer to do two things not
@@ -3349,7 +3349,7 @@ to be retained by the scsh runtime.  (This is because it is clearly
 impossible to GC data referenced by integers.)
 
 As a convenience for interactive use and debugging, all procedures that
-take process objects will also accept integer Unix pids as arguments,
+take process objects will also accept integer UNIX pids as arguments,
 coercing them to the corresponding process objects. Since integer
 process ids are not reliable ways to keep a child's exit status from
 being reaped and garbage collected, programmers are encouraged to use
@@ -3365,7 +3365,7 @@ autoreap).
 
 @table @code
 @item early 
-The child is reaped from the Unix kernel's process table into scsh as
+The child is reaped from the UNIX kernel's process table into scsh as
 soon as it dies. This is done by having a signal handler for the SIGCHLD
 signal reap the process.
 @item late
@@ -3616,7 +3616,7 @@ Returns four values:
 @end itemize
 
 Note that CPU time clock resolution is not the same as the real-time
-clock resolution provided by @code{time+ticks}. That's Unix.
+clock resolution provided by @code{time+ticks}. That's UNIX.
 @end deffn
 
 @deffn Procedure cpu-ticks/sec
@@ -3840,19 +3840,19 @@ purposes.  Consider using the @code{sleep} procedure from the
 @subsection Interrupt handlers
 Scsh interrupt handlers are complicated by the fact that scsh is
 implemented on top of the Scheme 48 virtual machine, which has its own
-interrupt system, independent of the Unix signal system. This means
-that Unix signals are delivered in two stages: first, Unix delivers
+interrupt system, independent of the UNIX signal system. This means
+that UNIX signals are delivered in two stages: first, UNIX delivers
 the signal to the Scheme 48 virtual machine, then the Scheme 48
 virtual machine delivers the signal to the executing Scheme program as
 a Scheme 48 interrupt. This ensures that signal delivery happens
 between two VM instructions, keeping individual instructions atomic.
 
 The Scheme 48 machine has its own set of interrupts, which includes
-the asynchronous Unix signals (table 3.9).
+the asynchronous UNIX signals (table 3.9).
 @c TODO: Create table xref.
 
 @multitable @columnfractions .33 .33 .33 @code
-@headitem Interrupt @tab Unix signal @tab OS Variant
+@headitem Interrupt @tab UNIX signal @tab OS Variant
 @item @code{interrupt/alrm}@footnote{Also bound to Scheme 48 interrupt interrupt/alarm.}
 @tab @code{signal/alrm}
 @tab @acronym{POSIX}
@@ -3917,13 +3917,13 @@ the asynchronous Unix signals (table 3.9).
 @tab BSD + SVR4
 @end multitable
 
-Table 3.2: Scheme 48 virtual-machine interrupts and related Unix
+Table 3.2: Scheme 48 virtual-machine interrupts and related UNIX
 signals. Only the @acronym{POSIX} signals are guaranteed to be
 defined; however, your implementation and OS may define other signals
 and interrupts not listed here.
 
 @multitable @columnfractions .33 .33 .33
-@headitem Unix signal @tab Type @tab OS Variant
+@headitem UNIX signal @tab Type @tab OS Variant
 @item @code{signal/stop }
 @tab Uncatchable 
 @tab @acronym{POSIX}
@@ -3968,7 +3968,7 @@ and interrupts not listed here.
 @tab BSD + SVR4
 @end multitable 
 
-Table 3.3: Uncatchable and synchronous Unix signals. While these
+Table 3.3: Uncatchable and synchronous UNIX signals. While these
 signals may be sent with @code{signal-process} or
 @code{signal-process-group}, there are no corresponding scsh interrupt
 handlers. Only the @acronym{POSIX} signals are guaranteed to be
@@ -3976,7 +3976,7 @@ defined; however, your implementation and OS may define other signals
 not listed here.
 
 @deffn Procedure signal->interrupt integer
-The programmer maps from Unix signals to Scheme 48 interrupts with the
+The programmer maps from UNIX signals to Scheme 48 interrupts with the
 @code{signal->interrupt} procedure. If the signal does not have a
 defined Scheme 48 interrupt, an error is signaled.
 @end deffn
@@ -4048,7 +4048,7 @@ argument.
 
 @c TODO: Create link to table below.
 Note that Scsh does not support interrupt handlers for ``synchronous''
-Unix signals, such as @code{signal/ill} or @code{signal/pipe} (see
+UNIX signals, such as @code{signal/ill} or @code{signal/pipe} (see
 table 3.3). Synchronous occurrences of these signals are better
 handled by raising a Scheme exception.  There are, however, some rare
 situations where it is necessary to ignore the occurrence of a
@@ -4254,7 +4254,7 @@ trailing @code{:mm:ss} portion is deleted if it is zeroes.
 @code{mktime()}, has a broken design: it indicates an error by returning
 -1, which is also a legal return value (for date 23:59:59 @acronym{UCT},
 12/31/1969). Scsh resolves the ambiguity in a paranoid fashion: it
-always reports an error if the underlying Unix facility returns -1. We
+always reports an error if the underlying UNIX facility returns -1. We
 feel your pain.
 @end deffn
 
@@ -4630,38 +4630,58 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @end deffn
 
 @section Terminal device control
-@c 
-@c Scsh provides a complete set of routines for manipulating terminal devices--putting them in "raw" mode, changing and querying their special characters,
-@c modifying their I/O speeds, and so forth. The scsh interface is designed bothfor generality and portability across different Unix platforms, so you don't
-@c have to rewrite your program each time you move to a new system. We'vealso made an effort to use reasonable, Scheme-like names for the multitudinous named constants involved, so when you are reading code, you'll haveless likelihood of getting lost in a bewildering maze of obfuscatory constants
-@c named ICRNL, INPCK, IUCLC, and ONOCR.
-@c 
-@c This section can only lay out the basic functionality of the terminal deviceinterface. For further details, see the termios(3) man page on your system, or
-@c 
-@c consult one of the standard Unix texts.
-@c 
-@c @subsection Portability across OS variants
-@c 
-@c Terminal-control software is inescapably complex, ugly, and low-level. Unixvariants each provide their own way of controlling terminal devices, making
-@c it difficult to provide interfaces that are portable across different Unix systems.Scsh's terminal support is based primarily upon the @acronym{POSIX} termios interface.Programs that can be written using only the @acronym{POSIX} interface are likely to bewidely portable.
-@c 
-@c 81
-@c 
-@c The bulk of the documentation that follows consists of several pages worthof tables defining different named constants that enable and disable different
-@c features of the terminal driver. Some of these flags are @acronym{POSIX}; others are takenfrom the two common branches of Unix development, SVR4 and 4.3+ Berkeley.
-@c Scsh guarantees that the non-@acronym{POSIX} constants will be bound identifiers.
-@c 
-@c * If your OS supports a particular non-@acronym{POSIX} flag, its named constant willbe bound to the flag's value.
-@c 
-@c * If your OS doesn't support the flag, its named constant will be present,but bound to
-@c 
-@c #f.
-@c 
-@c This means that if you want to use SVR4 or Berkeley features in a program,your program can portably test the values of the flags before using them--the
-@c flags can reliably be referenced without producing OS-dependent "unboundvariable" errors.
-@c 
-@c Finally, note that although @acronym{POSIX}, SVR4, and Berkeley cover the lion's shareof the terminal-driver functionality, each operating system inevitably has nonstandard extensions. While a particular scsh implementation may providethese extensions, they are not portable, and so are not documented here.
-@c 
+
+Scsh provides a complete set of routines for manipulating terminal
+devices---putting them in ``raw'' mode, changing and querying their
+special characters, modifying their I/O speeds, and so forth. The Scsh
+interface is designed both for generality and portability across
+different UNIX platforms, so you don't have to rewrite your program each
+time you move to a new system. We've also made an effort to use
+reasonable, Scheme-like names for the multitudinous named constants
+involved, so when you are reading code, you'll have less likelihood of
+getting lost in a bewildering maze of obfuscatory constants named
+@code{ICRNL}, @code{INPCK}, @code{IUCLC}, and @code{ONOCR}.
+
+This section can only lay out the basic functionality of the terminal
+device interface. For further details, see the @code{termios(3)} man
+page on your system, or consult one of the standard UNIX texts.
+
+@subsection Portability across OS variants
+
+Terminal-control software is inescapably complex, ugly, and low-level.
+UNIX variants each provide their own way of controlling terminal
+devices, making it difficult to provide interfaces that are portable
+across different UNIX systems. Scsh's terminal support is based
+primarily upon the @acronym{POSIX} @code{termios} interface. Programs
+that can be written using only the @acronym{POSIX} interface are likely
+to be widely portable.
+
+The bulk of the documentation that follows consists of several pages
+worth of tables defining different named constants that enable and
+disable different features of the terminal driver. Some of these flags
+are @acronym{POSIX}; others are taken from the two common branches of
+UNIX development, SVR4 and 4.3+ Berkeley.  Scsh guarantees that the
+non-@acronym{POSIX} constants will be bound identifiers.
+
+@itemize
+@item If your OS supports a particular non-@acronym{POSIX} flag, its
+named constant will be bound to the flag's value.
+
+@item If your OS doesn't support the flag, its named constant will be
+present, but bound to @code{#f}.
+@end itemize
+
+This means that if you want to use SVR4 or Berkeley features in a
+program, your program can portably test the values of the flags before
+using them---the flags can reliably be referenced without producing
+OS-dependent ``unbound variable'' errors.
+
+Finally, note that although @acronym{POSIX}, SVR4, and Berkeley cover
+the lion's share of the terminal-driver functionality, each operating
+system inevitably has nonstandard extensions. While a particular Scsh
+implementation may provide these extensions, they are not portable, and
+so are not documented here.
+
 @c @subsection Miscellaneous procedures
 @c 
 @c (tty? fd/port) -! boolean procedure
@@ -4736,7 +4756,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c time field and the ttychar/eolelement of the control-characters string. Many implementations in fact do this.
 @c 
 @c To stay out of trouble, set the min and time fields only if you are putting theterminal into raw mode; set the @acronym{eof} and eol control-characters only if you are
-@c putting the terminal into canonical mode. It's ugly, but it's Unix.
+@c putting the terminal into canonical mode. It's ugly, but it's UNIX.
 @c 
 @c @subsection Using tty-info records
 @c 
@@ -4756,8 +4776,8 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c string. Similarly, the control-character string in the record produced by
 @c copy-tty-info does not share structure with the string in the record be-ing copied, so you may mutate it freely.
 @c 
-@c 6 Why? Because the length of the string varies from Unix to Unix. For example, the word-erase
-@c control character (typically control-w) is provided by most Unixes, but not part of the @acronym{POSIX} spec.
+@c 6 Why? Because the length of the string varies from UNIX to UNIX. For example, the word-erase
+@c control character (typically control-w) is provided by most UNIXes, but not part of the @acronym{POSIX} spec.
 @c 
 @c 84
 @c 
@@ -4867,7 +4887,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c (control-tty-file-name) -! string procedure
 @c 
-@c Return the file-name of the process' control tty. On every version of Unixof which we are aware, this is just the string
+@c Return the file-name of the process' control tty. On every version of UNIXof which we are aware, this is just the string
 @c 
 @c "/dev/tty". However, thisprocedure uses the official Posix interface, so it is more portable than simply using a constant string.
 @c 
@@ -4910,8 +4930,8 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c (pty-name->tty-name "/dev/ptyq3") =) "/dev/ttyq3"
 @c (tty-name->pty-name "/dev/ttyrc") =) "/dev/ptyrc"
 @c 
-@c Remark: This is rather Berkeley-specific. SVR4 ptys are rare enoughthat I've no real idea if it generalises across the Unix gap. Experts are
-@c invited to advise. Users feel free to not worry--the predominance ofcurrent popular Unix systems use Berkeley ptys.
+@c Remark: This is rather Berkeley-specific. SVR4 ptys are rare enoughthat I've no real idea if it generalises across the UNIX gap. Experts are
+@c invited to advise. Users feel free to not worry--the predominance ofcurrent popular UNIX systems use Berkeley ptys.
 @c 
 @c (make-pty-generator) -! procedure procedure
 @c 
@@ -5110,7 +5130,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @chapter Networking
  
 @c The Scheme Shell provides a BSD-style sockets interface. There is not an of-ficial standard for a network interface for scsh to adopt (this is the subject of
-@c the forthcoming Posix.8 standard). However, Berkeley sockets are a de factostandard, being found on most Unix workstations and PC operating systems.
+@c the forthcoming Posix.8 standard). However, Berkeley sockets are a de factostandard, being found on most UNIX workstations and PC operating systems.
 @c 
 @c It is fairly straightforward to add higher-level network protocols such assmtp, telnet, or http on top of the the basic socket-level support scsh provides.
 @c The Scheme Underground has also released a network library with many ofthese protocols as a companion to the current release of scsh. See this code for
@@ -5126,13 +5146,13 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c socket-connect is intended for creating client applications.protocol-family is specified as either the
 @c 
 @c protocol-family/internetor
-@c protocol-family/unix. socket-type is specified as either
+@c protocol-family/UNIX. socket-type is specified as either
 @c socket-type/stream or socket-type/datagram. See socket for amore complete description of these terms.
 @c 
 @c 94
 @c 
 @c The variable args list is meant to specify protocol family specific informa-tion. For Internet sockets, this consists of two arguments: a host name
-@c and a port number. For Unix sockets, this consists of a pathname.
+@c and a port number. For UNIX sockets, this consists of a pathname.
 @c socket-connect returns a socket which can be used for input and out-put from a remote server. See
 @c 
 @c socket for a description of the socket record.
@@ -5142,9 +5162,9 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c bind-listen-accept-loop is intended for creating server applications.protocol-family is specified as either the
 @c 
 @c protocol-family/internet or
-@c protocol-family/unix. proc is a procedure of two arguments: a socketand a socket-address. arg specifies a port number for Internet sockets or a
+@c protocol-family/UNIX. proc is a procedure of two arguments: a socketand a socket-address. arg specifies a port number for Internet sockets or a
 @c 
-@c pathname for Unix sockets. See socket for a more complete descriptionof these terms.
+@c pathname for UNIX sockets. See socket for a more complete descriptionof these terms.
 @c 
 @c proc is called with a socket and a socket address each time there is a con-nection from a client application. The socket allows communications
 @c with the client. The socket address specifies the address of the remoteclient.
@@ -5168,13 +5188,13 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c protocol.
 @c The protocol-family specifies the protocol family to be used with thesocket. This also determines the address family of socket addresses,
 @c 
-@c which are described in more detail below. Scsh currently supports theUnix internal protocols and the Internet protocols using the following
+@c which are described in more detail below. Scsh currently supports theUNIX internal protocols and the Internet protocols using the following
 @c constants:
 @c 
 @c 95
 @c 
 @c protocol-family/unspecified
-@c protocol-family/unix
+@c protocol-family/UNIX
 @c protocol-family/internet
 @c 
 @c The type specifies the style of communication. Examples that your oper-ating system probably provides are stream and datagram sockets. Others
@@ -5190,7 +5210,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c New sockets are typically created with create-socket. However,
 @c create-socket-pair can also be used to create a pair of connected sock-ets in the
 @c 
-@c protocol-family/unix protocol-family. The value of a re-turned socket is a socket record, defined to have the following structure:
+@c protocol-family/UNIX protocol-family. The value of a re-turned socket is a socket record, defined to have the following structure:
 @c 
 @c (define-record socket
 @c 
@@ -5233,12 +5253,12 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c The family is one of the following constants:
 @c 
 @c address-family/unspecified
-@c address-family/unix
+@c address-family/UNIX
 @c address-family/internet
 @c 
-@c (unix-address->socket-address pathname) -! socket-address procedure
+@c (UNIX-address->socket-address pathname) -! socket-address procedure
 @c 
-@c unix-address->socket-address returns a socket-address based on thestring pathname. There is a system dependent limit on the length of
+@c UNIX-address->socket-address returns a socket-address based on thestring pathname. There is a system dependent limit on the length of
 @c 
 @c pathname.
 @c (internet-address->socket-address host-address service-port) -! socket-address procedure
@@ -5258,18 +5278,18 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c For information on obtaining a host's address, see the host-info func-tion.
 @c 
-@c (socket-address->unix-address socket-address) -! pathname procedure
+@c (socket-address->UNIX-address socket-address) -! pathname procedure
 @c (socket-address->internet-address socket-address) -! [host-address service-port] procedure
 @c 
 @c The routines socket-address->internet-address and
-@c socket-address->unix-address return the address-family-specificaddresses. Be aware that most implementations don't correctly return anything more than an empty string for addresses in the Unixaddress-family.
+@c socket-address->UNIX-address return the address-family-specificaddresses. Be aware that most implementations don't correctly return anything more than an empty string for addresses in the UNIXaddress-family.
 @c 
 @c 97
 @c 
 @section Socket primitives
 @c 
 @c The procedures in this section are presented in the order in which a typicalprogram will use them. Consult a text on network systems programming for
-@c more information on sockets.1 The last two tutorials are freely available as partof BSD. In the absence of these, your Unix manual pages for socket might be a
+@c more information on sockets.1 The last two tutorials are freely available as partof BSD. In the absence of these, your UNIX manual pages for socket might be a
 @c good starting point for information.
 @c (connect-socket socket socket-address) -! undefined procedure
 @c 
@@ -5300,7 +5320,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c Binding an Internet socket with a host address of internet-address/anyindicates that the caller does not care to specify from which local network
 @c 1 Some recommended ones are:
 @c 
-@c * "Unix Network Programming" by W. Richard Stevens*
+@c * "UNIX Network Programming" by W. Richard Stevens*
 @c 
 @c "An Introductory 4.3BSD Interprocess Communication Tutorial." (reprinted in UNIX Pro-grammer's Supplementary Documents Volume 1, PS1:7)
 @c 
@@ -5310,7 +5330,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c interface connections are received. Binding an Internet socket with a ser-vice port number of zero indicates that the caller has no preference as to
 @c the port number assigned.
-@c Binding a socket in the Unix address family creates a socket special filein the file system that must be deleted before the address can be reused.
+@c Binding a socket in the UNIX address family creates a socket special filein the file system that must be deleted before the address can be reused.
 @c 
 @c See delete-file.
 @c (listen-socket socket backlog) -! undefined procedure
@@ -5482,7 +5502,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @node Strings and characters
 @chapter Strings and characters
 
-@c Strings are the basic communication medium for Unix processes, so a Unix pro-gramming environment must have reasonable facilities for manipulating them.
+@c Strings are the basic communication medium for UNIX processes, so a UNIX pro-gramming environment must have reasonable facilities for manipulating them.
 @c Scsh provides a powerful set of procedures for processing strings and charac-ters. Besides the the facilities described in this chapter, scsh also provides
 @c 
 @c * Regular expressions (chapter 6)A complete regular-expression system.
@@ -5521,7 +5541,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @section Manipulating file names
 @c 
-@c These procedures do not access the file-system at all; they merely operate onfile-name strings. Much of this structure is patterned after the gnu emacs design. Perhaps a more sophisticated system would be better, something likethe pathname abstractions of COMMON LISP or MIT Scheme. However, beingUnix-specific, we can be a little less general.
+@c These procedures do not access the file-system at all; they merely operate onfile-name strings. Much of this structure is patterned after the gnu emacs design. Perhaps a more sophisticated system would be better, something likethe pathname abstractions of COMMON LISP or MIT Scheme. However, beingUNIX-specific, we can be a little less general.
 @c 
 @c @subsection Terminology
 @c 
@@ -7013,7 +7033,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c Scsh provides a set of procedures that read delimited strings from input ports.There are procedures to read a single line of text (terminated by a newline character), a single paragraph (terminated by a blank line), and general delimitedstrings (terminated by a character belonging to an arbitrary character set).
 @c 
 @c These procedures can be applied to any Scheme input port. However, thescsh virtual machine has native-code support for performing delimited reads
-@c on Unix ports, and these input operations should be particularly fast--muchfaster than doing the equivalent character-at-a-time operation from Scheme
+@c on UNIX ports, and these input operations should be particularly fast--muchfaster than doing the equivalent character-at-a-time operation from Scheme
 @c code.
 @c 
 @c All of the delimited input operations described below take a handle-delimparameter, which determines what the procedure does with the terminating
@@ -7099,7 +7119,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @node Awk record I/O and field parsing
 @chapter Awk record I/O and field parsing
 
-@c Unix programs frequently process streams of records, where each record isdelimited by a newline, and records are broken into fields with other delimiters (for example, the colon character in /etc/passwd). Scsh has proceduresthat allow the programmer to easily do this kind of processing. Scsh's field
+@c UNIX programs frequently process streams of records, where each record isdelimited by a newline, and records are broken into fields with other delimiters (for example, the colon character in /etc/passwd). Scsh has proceduresthat allow the programmer to easily do this kind of processing. Scsh's field
 @c parsers can also be used to parse other kinds of delimited strings, such ascolon-separated
 @c 
 @c $PATH lists. These routines can be used with scsh's awk loopconstruct to conveniently perform pattern-directed computation over streams
@@ -7266,8 +7286,8 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c Figure 8.1: Using different grammars to split records into fields.
 @c 
 @c It fails when x or y are the empty string. Terminator semantics doespreserve a similar isomorphism.
-@c However, separator semantics is frequently what other Unix soft-ware uses, so to parse their strings, we need to use it. For example,
-@c Unix $PATH lists have separator semantics. The path list "/bin:" isbroken up into
+@c However, separator semantics is frequently what other UNIX soft-ware uses, so to parse their strings, we need to use it. For example,
+@c UNIX $PATH lists have separator semantics. The path list "/bin:" isbroken up into
 @c 
 @c ("/bin" ""), not ("/bin"). Comma-separated listsshould also be parsed this way.
 @c 
@@ -7332,7 +7352,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c The field-parser defaults to the value of (field-splitter), a parser thatpicks out sequences of non-white-space strings.
 @c 
 @c The rec-reader defaults to read-line.
-@c Figure 8.2 shows field-reader being used to read different kinds ofUnix records.
+@c Figure 8.2 shows field-reader being used to read different kinds ofUNIX records.
 @c 
 @c @subsection Forward-progress guarantees and empty-string matches
 @c 
@@ -7406,7 +7426,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c @subsection Reader limitations
 @c 
 @c Since all of the readers in this package require the ability to peek ahead onechar in the input stream, they cannot be applied to raw integer file descriptors,
-@c only Scheme input ports. This is because Unix doesn't support peeking aheadinto input streams.
+@c only Scheme input ports. This is because UNIX doesn't support peeking aheadinto input streams.
 @c 
 @section Awk
 @c 
@@ -7780,7 +7800,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c 158
 @c 
-@c sigevent which corresponds to the single occurrence of a signal. A sigevent hastwo fields: the Unix signal that occurred and a pointer to the sigevent that
+@c sigevent which corresponds to the single occurrence of a signal. A sigevent hastwo fields: the UNIX signal that occurred and a pointer to the sigevent that
 @c happened or will happen. That is, events are kept in a linked list in increasing-time order. Scsh's structure
 @c 
 @c sigevents provides various procedures to accessthis list:
@@ -7831,7 +7851,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 
 @section Interaction between threads and process state
 @c 
-@c In Unix, a number of resources are global to the process: signal handlers, work-ing directory, umask, environment, user and group ids. Modular programming is difficult in the context of this global state and for concurrent program-ming things get even worse. Section @ref{9.4} presents how scsh turns the global,
+@c In UNIX, a number of resources are global to the process: signal handlers, work-ing directory, umask, environment, user and group ids. Modular programming is difficult in the context of this global state and for concurrent program-ming things get even worse. Section @ref{9.4} presents how scsh turns the global,
 @c asynchronous signals handlers into modular, synchronous sigevents. Concur-rent programming also benefit from sigevents as every thread may chase down
 @c the sigevent chain separately.
 @c 
@@ -7950,7 +7970,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c The procedures in this section provide access to the 4.2BSD syslog facil-ity present in most @acronym{POSIX} systems. The functionality is in a structure called
 @c syslog. There's an additional structure syslog-channels documented below.The scsh interface to the syslog facility differs significantly from that of the
-@c Unix library functionality in order to support multiple simultaneous connec-tions to the syslog facility.
+@c UNIX library functionality in order to support multiple simultaneous connec-tions to the syslog facility.
 @c 
 @c Log messages carry a variety of parameters beside the text of the messageitself, namely a set of options controlling the output format and destination,
 @c the facility identifying the class of programs the message is coming from, anidentifier specifying the conrete program, and the level identifying the importance of the message. Moreover, a log mask can prevent messages at certainlevels to be actually sent to the syslog daemon.
@@ -8201,9 +8221,9 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c allows for an initial #!/usr/local/lib/scsh/scshvm trigger on the first lineof the image, making heap images directly executable as another kind of shell
 @c script.
 @c 
-@c Finally, scsh's static linker system allows dumped heap images to be com-piled to a raw Unix a.out(5) format, which can be linked into the text section of
+@c Finally, scsh's static linker system allows dumped heap images to be com-piled to a raw UNIX a.out(5) format, which can be linked into the text section of
 @c 
-@c the vm binary. This produces a true Unix executable binary file. Since the bytecodes comprising the program are in the file's text section, they are not traced
+@c the vm binary. This produces a true UNIX executable binary file. Since the bytecodes comprising the program are in the file's text section, they are not traced
 @c or copied by the garbage collector, do not occupy space in the vm's heap, and
 @c 
 @c 169
@@ -8232,13 +8252,13 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c @subsection Inserting interpreter triggers into scsh programs
 @c 
-@c When Unix tries to execute an executable file whose first 16 bits are the charac-ter pair "
+@c When UNIX tries to execute an executable file whose first 16 bits are the charac-ter pair "
 @c 
 @c #!", it treats the file not as machine-code to be directly executed by thenative processor, but as source code to be executed by some interpreter. The
 @c 
 @c interpreter to use is specified immediately after the "#!" sequence on the firstline of the source file (along with one optional initial argument). The kernel
 @c reads in the name of the interpreter, and executes that instead. The interpreteris passed the source filename as its first argument, with the original arguments
-@c following. Consult the Unix man page for the exec system call for more infor-mation.
+@c following. Consult the UNIX man page for the exec system call for more infor-mation.
 @c 
 @c 170
 @c 
@@ -8612,7 +8632,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c #! line can only specify a single argument after the interpreter. Forexample, we might hope the following scsh script,
 @c 
-@c ekko, would implement asimple-minded version of the Unix
+@c ekko, would implement asimple-minded version of the UNIX
 @c echo program:
 @c 
 @c 179
@@ -8637,11 +8657,11 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c (main '("ekko" "Hi" "there."))
 @c and exit.
 @c 
-@c Unfortunately, the Unix exec(2) syscall's support for scripts is not verygeneral or well-designed. It will not handle multiple arguments; the
+@c Unfortunately, the UNIX exec(2) syscall's support for scripts is not verygeneral or well-designed. It will not handle multiple arguments; the
 @c 
 @c #! lineis usually required to contain no more than 32 characters; it is not recursive.
 @c 
-@c If these restrictions are violated, most Unix systems will not provide accurateerror reporting, but either fail silently, or simply incorrectly implement the desired functionality. These are the facts of Unix life.
+@c If these restrictions are violated, most UNIX systems will not provide accurateerror reporting, but either fail silently, or simply incorrectly implement the desired functionality. These are the facts of UNIX life.
 @c 
 @c In the ekko example above, our #! trigger line has three arguments ("-e","
 @c main", and "-s"), so it will not work. The meta-argument is how we workaround this problem. We must instead invoke the scsh interpreter with the single \ argument, and put the rest of the arguments on line two of the program.Here's the correct program:
@@ -8737,7 +8757,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c * Program ekkoThis shell script, called
 @c 
-@c ekko, implements a version of the Unix echo pro-gram:
+@c ekko, implements a version of the UNIX echo pro-gram:
 @c 
 @c #!/usr/local/bin/scsh -s
 @c !#
@@ -8745,7 +8765,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c 
 @c command-line-args)
 @c 
-@c Note this short program is an example of a script--it executes as it loads.The Unix rule for executing
+@c Note this short program is an example of a script--it executes as it loads.The UNIX rule for executing
 @c 
 @c #! shell scripts causes
 @c 
@@ -8778,7 +8798,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c /usr/local/bin/scsh \ ekko Hello, world.=)
 @c /usr/local/bin/scsh -e top -s ekko Hello, world.
 @c 
-@c * Program sortThis is a program to replace the Unix
+@c * Program sortThis is a program to replace the UNIX
 @c 
 @c sort utility--sorting lines read fromstdin, and printing the results on stdout. Note that the source code defines a general sorting package, which is useful (1) as a Scheme moduleexporting sort procedures to other Scheme code, and (2) as a standalone
 @c program invoked from the top procedure.
@@ -8788,7 +8808,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c !#
 @c 
 @c ;;; This is a sorting module. TOP procedure exports
-@c ;;; the functionality as a Unix program akin to sort(1).
+@c ;;; the functionality as a UNIX program akin to sort(1).
 @c (define-structures ((sort-struct (export sort-list
 @c 
 @c sort-vector!))
@@ -8823,7 +8843,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c -n #f -o sort-toplevel
 @c sequence of switches to specify a top-level package.
 @c 
-@c Note that the sort example can be compiled into a Unix program by loadingthe file into an scsh process, and dumping a heap with top-level
+@c Note that the sort example can be compiled into a UNIX program by loadingthe file into an scsh process, and dumping a heap with top-level
 @c 
 @c top. Even ifwe don't want to export the sort's functionality as a subroutine library, it is still
 @c 
@@ -8946,7 +8966,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c #!/usr/local/lib/scsh/scshvm \
 @c -o /usr/local/lib/scsh/scshvm -i
 @c 
-@c to the top of the heap image will turn it into an executable Unix file.
+@c to the top of the heap image will turn it into an executable UNIX file.
 @c 
 @c You can create heap images with the following two procedures.
 @c 
@@ -9561,7 +9581,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c @c sloppy-suffix-splitter, 144
 @c @c socket-address->internet-address,97
 @c 
-@c @c socket-address->unix-address,97
+@c @c socket-address->UNIX-address,97
 @c @c socket-connect, 94
 @c @c socket-local-address, 99
 @c @c socket-option, 100
@@ -9741,7 +9761,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @c @c uncase, 134
 @c @c uncase-char-set, 134
 @c @c uncase-string, 134
-@c @c unix-address->socket-address,97
+@c @c UNIX-address->socket-address,97
 @c 
 @c @c unlock-region, 41
 @c @c user-effective-gid, 63
