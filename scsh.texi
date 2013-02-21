@@ -4682,82 +4682,105 @@ system inevitably has nonstandard extensions. While a particular Scsh
 implementation may provide these extensions, they are not portable, and
 so are not documented here.
 
-@c @subsection Miscellaneous procedures
-@c 
-@c (tty? fd/port) -! boolean procedure
-@c 
-@c Return true if the argument is a tty.
-@c 
-@c (tty-file-name fd/port) -! string procedure
-@c 
-@c The argument fd/port must be a file descriptor or port open on a tty. Re-turn the file-name of the tty.
-@c 
-@c @subsection The tty-info record type
-@c 
-@c The primary data-structure that describes a terminal's mode is a tty-inforecord, defined as follows:
-@c 
-@c 82
-@c 
-@c (define-record tty-info
-@c 
-@c control-chars ; String: Magic input chars
-@c input-flags ; Int: Input processing
-@c output-flags ; Int: Output processing
-@c control-flags ; Int: Serial-line control
-@c local-flags ; Int: Line-editting UI
-@c input-speed ; Int: Code for input speed
-@c output-speed ; Int: Code for output speed
-@c min ; Int: Raw-mode input policy
-@c time) ; Int: Raw-mode input policy
-@c 
-@c The control-characters string
-@c The control-chars field is a character string; its characters may be indexed byinteger values taken from table 3.4.
-@c 
-@c As discussed above, only the @acronym{POSIX} entries in table 3.4 are guaranteed tobe legal, integer indices. A program can reliably test the OS to see if the non@acronym{POSIX} characters are supported by checking the index constants. If the control-character function is supported by the terminal driver, then the corresponding
-@c index will be bound to an integer; if it is not supported, the index will be boundto
-@c 
-@c #f.
-@c 
-@c To disable a given control-character function, set its correspondingentry in the
-@c 
-@c tty-info:control-chars string to the special character
-@c disable-tty-char (and then use the (set-tty-info fd/port info) procedureto update the terminal's state).
-@c 
-@c The flag fields
-@c The tty-info record's input-flags, output-flags, control-flags, and
-@c local-flags fields are all bit sets represented as two's-complement integers.Their values are composed by or'ing together values taken from the named
-@c 
-@c constants listed in tables 3.5 through 3.9.
-@c 
-@c As discussed above, only the @acronym{POSIX} entries listed in these tables are guar-anteed to be legal, integer flag values. A program can reliably test the OS to see
-@c 
-@c if the non-@acronym{POSIX} flags are supported by checking the named constants. If thefeature is supported by the terminal driver, then the corresponding flag will be
-@c bound to an integer; if it is not supported, the flag will be bound to #f.
-@c 
-@c 83
-@c 
-@c The speed fields
-@c The input-speed and output-speed fields determine the I/O rate of the ter-minal's line. The value of these fields is an integer giving the speed in bits-persecond. The following speeds are supported by @acronym{POSIX}:
-@c 
-@c 0 134 600 480050 150 1200 9600
-@c 
-@c 75 200 1800 19200110 300 2400 38400
-@c 
-@c Your OS may accept others; it may also allow the special symbols 'exta and
-@c 'extb.
-@c 
-@c The min and time fields
-@c The integer min and time fields determine input blocking behaviour duringnon-canonical (raw) input; otherwise, they are ignored. See the termios(3) man
-@c page for further details.
-@c 
-@c Be warned that @acronym{POSIX} allows the base system call's representation of the
-@c tty-info record to share storage for the min field and the ttychar/eof elementof the control-characters string, and for the
-@c 
-@c time field and the ttychar/eolelement of the control-characters string. Many implementations in fact do this.
-@c 
-@c To stay out of trouble, set the min and time fields only if you are putting theterminal into raw mode; set the @acronym{eof} and eol control-characters only if you are
-@c putting the terminal into canonical mode. It's ugly, but it's UNIX.
-@c 
+@subsection Miscellaneous procedures
+
+@deffn Procedure tty? fd/port
+Return true if the argument is a tty.
+@end deffn
+
+@deffn Procedure tty-file-name fd/port
+The argument @var{fd/port} must be a file descriptor or port open on a
+tty. Return the filename of the tty.
+@end deffn
+
+@subsection The tty-info record type
+
+The primary data structure that describes a terminal's mode is a
+@code{tty-info} record, defined as follows:
+
+@example
+(define-record tty-info
+  control-chars         ; String: Magic input chars
+  input-flags           ; Int: Input processing
+  output-flags          ; Int: Output processing
+  control-flags         ; Int: Serial-line control
+  local-flags           ; Int: Line-editting UI
+  input-speed           ; Int: Code for input speed
+  output-speed          ; Int: Code for output speed
+  min                   ; Int: Raw-mode input policy
+  time)                 ; Int: Raw-mode input policy
+@end example
+
+@subsubsection The control-characters string
+
+@c TODO: Link to table (in two places) below.
+The @code{control-chars} field is a character string; its characters may
+be indexed by integer values taken from table 4.
+
+As discussed above, only the @acronym{POSIX} entries in table 4 are
+guaranteed to be legal, integer indices. A program can reliably test the
+OS to see if the non-@acronym{POSIX} characters are supported by
+checking the index constants. If the control-character function is
+supported by the terminal driver, then the corresponding index will be
+bound to an integer; if it is not supported, the index will be bound to
+@code{#f}.
+
+To disable a given control-character function, set its corresponding
+entry in the @code{tty-info:control-chars} string to the special
+character @code{disable-tty-char} (and then use the @code{(set-tty-info
+@var{fd/port} @var{info})} procedure to update the terminal's state).
+
+@subsubsection The flag fields
+
+The @code{tty-info} record's @code{input-flags}, @code{output-flags},
+@code{control-flags}, and @code{local-flags} fields are all bit sets
+represented as two's-complement integers. Their values are composed by
+or'ing together values taken from the named constants listed in tables
+3.5 through 3.9.
+@c TODO: Perhaps change to say: ``referred to in the tables below''?
+
+As discussed above, only the @acronym{POSIX} entries listed in these
+tables are guaranteed to be legal, integer flag values. A program can
+reliably test the OS to see if the non-@acronym{POSIX} flags are
+supported by checking the named constants. If the feature is supported
+by the terminal driver, then the corresponding flag will be bound to an
+integer; if it is not supported, the flag will be bound to @code{#f}.
+
+@subsubsection The speed fields
+
+The @code{input-speed} and @code{output-speed} fields determine the I/O
+rate of the terminal's line. The value of these fields is an integer
+giving the speed in bits-per-second. The following speeds are supported
+by @acronym{POSIX}:
+
+@example
+0   134  600  4800
+50  150 1200  9600
+75  200 1800 19200
+110 300 2400 38400
+@end example
+
+Your OS may accept others; it may also allow the special symbols
+@code{'exta} and @code{'extb}.
+
+@subsubsection The min and time fields
+
+The integer @code{min} and @code{time} fields determine input blocking
+behaviour during non-canonical (raw) input; otherwise, they are ignored.
+See the @code{termios(3)} man page for further details.
+
+Be warned that @acronym{POSIX} allows the base system call's
+representation of the @code{tty-info} record to share storage for the
+@code{min} field and the @code{ttychar/eof} element of the
+control-characters string, and for the @code{time} field and the
+@code{ttychar/eolelement} of the control-characters string. Many
+implementations in fact do this.
+
+To stay out of trouble, set the @code{min} and @code{time} fields only
+if you are putting the terminal into raw mode; set the @acronym{EOF} and
+@acronym{EOL} control-characters only if you are putting the terminal
+into canonical mode. It's ugly, but it's UNIX.
+
 @c @subsection Using tty-info records
 @c 
 @c (make-tty-info if of cf lf ispeed ospeed min time) -! tty-info-record procedure
