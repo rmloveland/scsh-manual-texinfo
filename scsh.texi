@@ -4433,123 +4433,136 @@ should take precedence.
 @end deffn
 
 @section Environment variables
-@c 
-@c (setenv var val) -! undefined procedure
-@c (getenv var) -! string procedure
-@c 
-@c These functions get and set the process environment, stored in the exter-nal C variable
-@c 
-@c char **environ. An environment variable var is a string.If an environment variable is set to a string val, then the process' global
-@c 
-@c 77
-@c 
-@c environment structure is altered with an entry of the form "var=val". Ifval is
-@c 
-@c #f, then any entry for var is deleted.
-@c 
-@c (env->alist) -! string!string alist procedure
-@c 
-@c The env->alist procedure converts the entire environment into an alist,e.g.,
-@c 
-@c (("TERM" . "vt100")
-@c 
-@c ("SHELL" . "/usr/local/bin/scsh")
-@c ("PATH" . "/sbin:/usr/sbin:/bin:/usr/bin")
-@c ("EDITOR" . "emacs")
-@c ...)
-@c 
-@c (alist->env alist) -! undefined procedure
-@c 
-@c Alist must be an alist whose keys are all strings, and whose values areall either strings or string lists. String lists are converted to colon lists
-@c 
-@c (see below). The alist is installed as the current Unix environment (i.e.,converted to a null-terminated C vector of
-@c 
-@c "var=val" strings which is as-signed to the global
-@c char **environ).
-@c 
-@c ;;; Note $PATH entry is converted
-@c ;;; to /sbin:/usr/sbin:/bin:/usr/bin.
-@c (alist->env '(("TERM" . "vt100")
-@c 
-@c ("PATH" "/sbin" "/usr/sbin" "/bin")
-@c ("SHELL" . "/usr/local/bin/scsh")))
-@c 
-@c Note that env->alist and alist->env are not exact inverses--
-@c alist->env will convert a list value into a single colon-separated string,but
-@c 
-@c env->alist will not parse colon-separated values into lists. (See the
-@c $PATH element in the examples given for each procedure.)
-@c 
-@c The following three functions help the programmer manipulate alist tablesin some generally useful ways. They are all defined using
-@c 
-@c equal? for key com-parison.
-@c 
-@c (alist-delete key alist) -! alist procedure
-@c 
-@c Delete any entry labelled by value key.
-@c 
-@c (alist-update key val alist) -! alist procedure
-@c 
-@c Delete key from alist, then cons on a (key . val) entry.
-@c 
-@c 78
-@c 
-@c (alist-compress alist) -! alist procedure
-@c 
-@c Compresses alist by removing shadowed entries. Example:
-@c 
-@c ;;; Shadowed (1 . c) entry removed.
-@c (alist-compress '( (1 . a) (2 . b) (1 . c) (3 . d) ))=)
-@c 
-@c ((1 . a) (2 . b) (3 . d))
-@c 
-@c (with-env* env-alist-delta thunk) -! value(s) of thunk procedure
-@c (with-total-env* env-alist thunk) -! value(s) of thunk procedure
-@c 
-@c These procedures call thunk in the context of an altered environment.They return whatever values thunk returns. Non-local returns restore the
-@c 
-@c environment to its outer value; throwing back into the thunk by invokinga stored continuation restores the environment back to its inner value.
-@c 
-@c The env-alist-delta argument specifies a modification to the current environ-ment--thunk's environment is the original environment overridden with
-@c the bindings specified by the alist delta.
-@c The env-alist argument specifies a complete environment that is installedfor thunk.
-@c 
-@c (with-env env-alist-delta . body) -! value(s) of body syntax
-@c (with-total-env env-alist . body) -! value(s) of body syntax
-@c 
-@c These special forms provide syntactic sugar for with-env* and withtotal-env*. The env alists are not evaluated positions, but are implicitlybackquoted. In this way, they tend to resemble binding lists for
-@c 
-@c let and
-@c let* forms.
-@c 
-@c Example: These four pieces of code all run the mailer with special $TERMand
-@c 
-@c $EDITOR values.
-@c 
-@c (with-env (("TERM" . "xterm") ("EDITOR" . ,my-editor))
-@c 
-@c (run (mail shivers@lcs.mit.edu)))
-@c 
-@c (with-env* `(("TERM" . "xterm") ("EDITOR" . ,my-editor))
-@c 
-@c (* () (run (mail shivers@csd.hku.hk))))
-@c 
-@c (run (begin (setenv "TERM" "xterm") ; Env mutation happens
-@c 
-@c (setenv "EDITOR" my-editor) ; in the subshell.
-@c (exec-epf (mail shivers@research.att.com))))
-@c 
-@c 79
-@c 
-@c ;; In this example, we compute an alternate environment ENV2
-@c ;; as an alist, and install it with an explicit call to the
-@c ;; EXEC-PATH/ENV procedure.
-@c (let* ((env (env->alist)) ; Get the current environment,
-@c 
-@c (env1 (alist-update env "TERM" "xterm")) ; and compute
-@c (env2 (alist-update env1 "EDITOR" my-editor))) ; the new env.
-@c (run (begin (exec-path/env "mail" env2 "shivers@cs.cmu.edu"))))
-@c 
+
+@deffn Procedure setenv var val
+@deffnx Procedure getenv var
+
+These procedures get and set the process environment, stored in the
+external C variable @code{char **environ}. An environment variable
+@var{var} is a string. If an environment variable is set to a string
+@var{val}, then the process' global environment structure is altered
+with an entry of the form ``@code{var=val}''. If @var{val} is @code{#f},
+then any entry for @var{var} is deleted.
+@end deffn
+
+@deffn Procedure env->alist
+
+The @code{env->alist} procedure converts the entire environment into an
+alist, @emph{e.g.},
+
+@example
+(("TERM" . "vt100")
+ ("SHELL" . "/usr/local/bin/scsh")
+ ("PATH" . "/sbin:/usr/sbin:/bin:/usr/bin")
+ ("EDITOR" . "emacs")
+ ...)
+@end example
+
+@end deffn
+
+@deffn Procedure alist->env alist
+
+@var{Alist} must be an alist whose keys are all strings, and whose
+values are all either strings or string lists. String lists are
+converted to colon lists (see below). The alist is installed as the
+current UNIX environment (@emph{i.e.}, converted to a null-terminated C
+vector of ``@code{var=val}'' strings which is assigned to the global
+@code{char **environ}).
+
+@example
+;;; Note $PATH entry is converted
+;;; to /sbin:/usr/sbin:/bin:/usr/bin.
+(alist->env '(("TERM" . "vt100")
+              ("PATH" "/sbin" "/usr/sbin" "/bin")
+              ("SHELL" . "/usr/local/bin/scsh")))
+@end example
+
+Note that @code{env->alist} and @code{alist->env} are not exact
+inverses---@code{alist->env} will convert a list value into a single
+colon-separated string, but @code{env->alist} will not parse
+colon-separated values into lists. (See the @code{$PATH} element in the
+examples given for each procedure.)
+@end deffn
+
+The following three functions help the programmer manipulate alist
+tables in some generally useful ways. They are all defined using
+@code{equal?} for key comparison.
+
+@deffn Procedure alist-delete key alist
+Delete any entry labelled by value @var{key}.
+@end deffn
+
+@deffn Procedure alist-update key val alist
+Delete @var{key} from @var{alist}, then cons on a @code{(key . val)}
+entry.
+@end deffn
+
+@deffn Procedure alist-compress alist
+Compresses @var{alist} by removing shadowed entries. Example:
+
+@example
+;;; Shadowed (1 . c) entry removed.
+(alist-compress '( (1 . a) (2 . b) (1 . c) (3 . d)))
+==>  ((1 . a) (2 . b) (3 . d))
+@end example
+@end deffn
+
+@deffn Procedure with-env* env-alist-delta thunk
+@deffnx Procedure with-total-env* env-alist thunk
+
+These procedures call @var{thunk} in the context of an altered
+environment. They return whatever values @var{thunk} returns. Non-local
+returns restore the environment to its outer value; throwing back into
+the thunk by invoking a stored continuation restores the environment
+back to its inner value.
+
+The @var{env-alist-delta} argument specifies a modification to the
+current environment---@var{thunk}'s environment is the original
+environment overridden with the bindings specified by the alist delta.
+
+The @var{env-alist} argument specifies a complete environment that is
+installed for @var{thunk}.
+@end deffn
+
+@deffn Macro with-env env-alist-delta . body
+@deffnx Macro with-total-env env-alist . body
+
+These special forms provide syntactic sugar for @code{with-env*} and
+@code{with-total-env*}. The environment alists are not evaluated
+positions, but are implicitly backquoted. In this way, they tend to
+resemble binding lists for @code{let} and @code{let*} forms.
+
+Example: These four pieces of code all run the mailer with special
+@code{$TERM} and @code{$EDITOR} values.
+
+@example
+(with-env (("TERM" . "xterm") ("EDITOR" . ,my-editor))
+  (run (mail shivers@@lcs.mit.edu)))
+@end example
+
+@example
+(with-env* `(("TERM" . "xterm") ("EDITOR" . ,my-editor))
+  (lambda () (run (mail shivers@@csd.hku.hk))))
+@end example
+
+@example
+(run (begin (setenv "TERM" "xterm")     ; Env mutation happens
+            (setenv "EDITOR" my-editor) ; in the subshell.
+            (exec-epf (mail shivers@@research.att.com))))
+@end example
+
+@example
+;; In this example, we compute an alternate environment ENV2
+;; as an alist, and install it with an explicit call to the
+;; EXEC-PATH/ENV procedure.
+(let* ((env (env->alist))               ; Get the current environment,
+       (env1 (alist-update env "TERM" "xterm"))         ; and compute
+       (env2 (alist-update env1 "EDITOR" my-editor)))   ; the new env.
+  (run (begin (exec-path/env "mail" env2 "shivers@@cs.cmu.edu"))))
+@end example
+
+@end deffn
+
 @c @subsection Path lists and colon lists
 @c 
 @c When environment variables such as $PATH need to encode a list of strings(such as a list of directories to be searched), the common Unix convention is
