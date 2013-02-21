@@ -4781,50 +4781,58 @@ if you are putting the terminal into raw mode; set the @acronym{EOF} and
 @acronym{EOL} control-characters only if you are putting the terminal
 into canonical mode. It's ugly, but it's UNIX.
 
-@c @subsection Using tty-info records
-@c 
-@c (make-tty-info if of cf lf ispeed ospeed min time) -! tty-info-record procedure
-@c (copy-tty-info tty-info-record) -! tty-info-record procedure
-@c 
-@c These procedures make it possible to create new tty-info records. Thetypical method for creating a new record is to copy one retrieved by a call
-@c 
-@c to the tty-info procedure, then modify the copy as desired. Note thatthe
-@c 
-@c make-tty-info procedure does not take a parameter to define thenew record's control characters.6 Instead, it simply returns a
-@c 
-@c tty-inforecord whose control-character string has all elements initialised to A
-@c 
-@c SCIInul. You may then install the special characters by assigning to the
-@c 
-@c string. Similarly, the control-character string in the record produced by
-@c copy-tty-info does not share structure with the string in the record be-ing copied, so you may mutate it freely.
-@c 
-@c 6 Why? Because the length of the string varies from UNIX to UNIX. For example, the word-erase
-@c control character (typically control-w) is provided by most UNIXes, but not part of the @acronym{POSIX} spec.
-@c 
-@c 84
-@c 
-@c (tty-info [fd/port/fname]) -! tty-info-record procedure
-@c 
-@c The fd/port/fname parameter is an integer file descriptor or Scheme I/Oport opened on a terminal device, or a file-name for a terminal device;
-@c 
-@c it defaults to the current input port. This procedure returns a tty-inforecord describing the terminal's current mode.
-@c 
-@c (set-tty-info/now fd/port/fname info) -! no-value procedure
-@c (set-tty-info/drain fd/port/fname info) -! no-value procedure
-@c (set-tty-info/flush fd/port/fname info) -! no-value procedure
-@c 
-@c The fd/port/fname parameter is an integer file descriptor or Scheme I/Oport opened on a terminal device, or a file-name for a terminal device.
-@c 
-@c The procedure chosen determines when and how the terminal's mode isaltered:
-@c 
-@c Procedure Meaning
-@c set-tty-info/now Make change immediately.
-@c set-tty-info/drain Drain output, then change.
-@c set-tty-info/flush Drain output, flush input, then change.
-@c 
-@c Oops: If I had defined these with the parameters in the reverse order,I could have made fd/port/fname optional. Too late now.
-@c 
+@subsection Using tty-info records
+
+@deffn Procedure make-tty-info if of cf lf ispeed ospeed min time
+@deffnx Procedure copy-tty-info tty-info-record
+
+These procedures make it possible to create new @code{tty-info} records.
+The typical method for creating a new record is to copy one retrieved by
+a call to the @code{tty-info} procedure, then modify the copy as
+desired. Note that the @code{make-tty-info} procedure does not take a
+parameter to define the new record's control characters@footnote{Why?
+Because the length of the string varies from UNIX to UNIX. For example,
+the word-erase control character (typically control-w) is provided by
+most UNIXes, but is not part of the @acronym{POSIX} spec.}. Instead, it
+simply returns a @code{tty-info} record whose control-character string
+has all elements initialised to @acronym{ASCII} nul. You may then
+install the special characters by assigning to the string. Similarly,
+the control-character string in the record produced by
+@code{copy-tty-info} does not share structure with the string in the
+record being copied, so you may mutate it freely.
+@end deffn
+
+@deffn Procedure tty-info [fd/port/fname]
+The @var{fd/port/fname} parameter is an integer file descriptor or
+Scheme I/O port opened on a terminal device, or a file-name for a
+terminal device; it defaults to the current input port. This procedure
+returns a @code{tty-info} record describing the terminal's current mode.
+@end deffn
+
+@deffn Procedure set-tty-info/now fd/port/fname info
+@deffnx Procedure set-tty-info/drain fd/port/fname info
+@deffnx Procedure set-tty-info/flush fd/port/fname info
+
+The @var{fd/port/fname} parameter is an integer file descriptor or
+Scheme I/O port opened on a terminal device, or a file-name for a
+terminal device.  The procedure chosen determines when and how the
+terminal's mode is altered, as shown in the table below:
+
+@table @code
+@item set-tty-info/now
+Make change immediately.
+
+@item set-tty-info/drain 
+Drain output, then change.
+
+@item set-tty-info/flush 
+Drain output, flush input, then change.
+@end table
+
+@emph{Oops:} If I had defined these with the parameters in the reverse
+order, I could have made @var{fd/port/fname} optional. Too late now.
+@end deffn
+
 @c @subsection Other terminal-device procedures
 @c 
 @c (send-tty-break [fd/port/fname duration]) -! no-value procedure
