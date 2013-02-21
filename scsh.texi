@@ -4713,9 +4713,8 @@ The primary data structure that describes a terminal's mode is a
 
 @subsubsection The control-characters string
 
-@c TODO: Link to table (in two places) below.
 The @code{control-chars} field is a character string; its characters may
-be indexed by integer values taken from table 4.
+be indexed by integer values taken from @pxref{Table 4}.
 
 As discussed above, only the @acronym{POSIX} entries in table 4 are
 guaranteed to be legal, integer indices. A program can reliably test the
@@ -4735,9 +4734,9 @@ character @code{disable-tty-char} (and then use the @code{(set-tty-info
 The @code{tty-info} record's @code{input-flags}, @code{output-flags},
 @code{control-flags}, and @code{local-flags} fields are all bit sets
 represented as two's-complement integers. Their values are composed by
-or'ing together values taken from the named constants listed in tables
-3.5 through 3.9.
-@c TODO: Perhaps change to say: ``referred to in the tables below''?
+or'ing together values taken from the named constants listed in
+@pxref{Table 4}, @pxref{Table 5}, @pxref{Table 6}, @pxref{Table 7}, and
+@pxref{Table 8}.
 
 As discussed above, only the @acronym{POSIX} entries listed in these
 tables are guaranteed to be legal, integer flag values. A program can
@@ -4833,329 +4832,665 @@ Drain output, flush input, then change.
 order, I could have made @var{fd/port/fname} optional. Too late now.
 @end deffn
 
-@c @subsection Other terminal-device procedures
-@c 
-@c (send-tty-break [fd/port/fname duration]) -! no-value procedure
-@c 
-@c The fd/port/fname parameter is an integer file descriptor or Scheme I/Oport opened on a terminal device, or a file-name for a terminal device;
-@c 
-@c it defaults to the current output port. Send a break signal to the desig-nated terminal. A break signal is a sequence of continuous zeros on the
-@c terminal's transmission line.
-@c The duration argument determines the length of the break signal. A zerovalue (the default) causes a break of between 0.25 and 0.5 seconds to be
-@c 
-@c sent; other values determine a period in a manner that will depend uponlocal community standards.
-@c 
-@c (drain-tty [fd/port/fname]) -! no-value procedure
-@c 
-@c The fd/port/fname parameter is an integer file descriptor or Scheme I/Oport opened on a terminal device, or a file-name for a terminal device; it
-@c 
-@c defaults to the current output port.
-@c This procedure waits until all the output written to the terminal devicehas been transmitted to the device. If fd/port/fname is an output port with
-@c 
-@c buffered I/O enabled, then the port's buffered characters are flushed be-fore waiting for the device to drain.
-@c 
-@c 85
-@c 
-@c (flush-tty/input [fd/port/fname]) -! no-value procedure
-@c (flush-tty/output [fd/port/fname]) -! no-value procedure
-@c (flush-tty/both [fd/port/fname]) -! no-value procedure
-@c 
-@c The fd/port/fname parameter is an integer file descriptor or SchemeI/O port opened on a terminal device, or a file-name for a terminal device; it defaults to the current input port (flush-tty/input and
-@c flush-tty/both), or output port (flush-tty/output).
-@c 
-@c These procedures discard the unread input chars or unwritten outputchars in the tty's kernel buffers.
-@c 
-@c (start-tty-output [fd/port/fname]) -! no-value procedure
-@c (stop-tty-output [fd/port/fname]) -! no-value procedure
-@c (start-tty-input [fd/port/fname]) -! no-value procedure
-@c (stop-tty-input [fd/port/fname]) -! no-value procedure
-@c 
-@c These procedures can be used to control a terminal's input and outputflow. The fd/port/fname parameter is an integer file descriptor or Scheme
-@c 
-@c I/O port opened on a terminal device, or a file-name for a terminal de-vice; it defaults to the current input or output port.
-@c 
-@c The stop-tty-output and start-tty-output procedures suspend andresume output from a terminal device. The
-@c 
-@c stop-tty-input and
-@c start-tty-input procedures transmit the special STOP and STARTcharacters to the terminal with the intention of stopping and starting terminal input flow.
-@c 
-@c @subsection Control terminals, sessions, and terminal process groups
-@c 
-@c (open-control-tty tty-name [flags]) -! port procedure
-@c 
-@c This procedure opens terminal device tty-name as the process' control ter-minal (see the
-@c 
-@c termios man page for more information on control termi-nals). The tty-name argument is a file-name such as
-@c 
-@c /dev/ttya. The flagsargument is a value suitable as the second argument to the
-@c 
-@c open-filecall; it defaults to
-@c open/read+write, causing the terminal to be openedfor both input and output.
-@c 
-@c The port returned is an input port if the flags permit it, otherwise an out-put port. R5RS/Scheme 48/scsh do not have input/output ports, so it's
-@c one or the other. However, you can get both read and write ports openon a terminal by opening it read/write, taking the result input port, and
-@c duping it to an output port with dup->outport.
-@c This procedure guarantees to make the opened terminal the process' con-trol terminal only if the process does not have an assigned control terminal at the time of the call. If the scsh process already has a controlterminal, the results are undefined.
-@c 
-@c 86
-@c 
-@c To arrange for the process to have no control terminal prior to calling thisprocedure, use the
-@c 
-@c become-session-leader procedure.
-@c 
-@c (become-session-leader) -! integer procedure
-@c 
-@c This is the C setsid() call. @acronym{POSIX} job-control has a three-level hierarchy:session/process-group/process. Every session has an associated control
-@c 
-@c terminal. This procedure places the current process into a brand newsession, and disassociates the process from any previous control terminal. You may subsequently use open-control-tty to open a new controlterminal.
-@c 
-@c It is an error to call this procedure if the current process is already aprocess-group leader. One way to guarantee this is not the case is only to
-@c call this procedure after forking.
-@c (tty-process-group fd/port/fname) -! integer procedure
-@c (set-tty-process-group fd/port/fname pgrp) -! undefined procedure
-@c 
-@c This pair of procedures gets and sets the process group of a given termi-nal.
-@c 
-@c (control-tty-file-name) -! string procedure
-@c 
-@c Return the file-name of the process' control tty. On every version of UNIXof which we are aware, this is just the string
-@c 
-@c "/dev/tty". However, thisprocedure uses the official Posix interface, so it is more portable than simply using a constant string.
-@c 
-@c @subsection Pseudo-terminals
-@c 
-@c Scsh implements an interface to Berkeley-style pseudo-terminals.
-@c (fork-pty-session thunk) -! [process pty-in pty-out tty-name] procedure
-@c 
-@c This procedure gives a convenient high-level interface to pseudo-terminals. It first allocates a pty/tty pair of devices, and then forks a
-@c 
-@c child to execute procedure thunk. In the child process
-@c 
-@c * Stdio and the current I/O ports are bound to the terminal device.*
-@c 
-@c The child is placed in its own, new session (see become-sessionleader).*
-@c 
-@c The terminal device becomes the new session's controlling terminal(see
-@c 
-@c open-control-tty).*
-@c 
-@c The (error-output-port) is unbuffered.
-@c 
-@c 87
-@c 
-@c The fork-pty-session procedure returns four values: the child's processobject, two ports open on the controlling pty device, and the name of the
-@c child's corresponding terminal device.
-@c (open-pty) -! pty-inport tty-name procedure
-@c 
-@c This procedure finds a free pty/tty pair, and opens the pty device withread/write access. It returns a port on the pty, and the name of the corresponding terminal device.
-@c The port returned is an input port--Scheme doesn't allow input/outputports. However, you can easily use
-@c 
-@c (dup->outport pty-inport) to pro-duce a matching output port. You may wish to turn off I/O buffering for
-@c 
-@c this output port.
-@c (pty-name->tty-name pty-name) -! tty-name procedure
-@c (tty-name->pty-name tty-name) -! pty-name procedure
-@c 
-@c These two procedures map between corresponding terminal and pty con-troller names. For example,
-@c 
-@c (pty-name->tty-name "/dev/ptyq3") =) "/dev/ttyq3"
-@c (tty-name->pty-name "/dev/ttyrc") =) "/dev/ptyrc"
-@c 
-@c Remark: This is rather Berkeley-specific. SVR4 ptys are rare enoughthat I've no real idea if it generalises across the UNIX gap. Experts are
-@c invited to advise. Users feel free to not worry--the predominance ofcurrent popular UNIX systems use Berkeley ptys.
-@c 
-@c (make-pty-generator) -! procedure procedure
-@c 
-@c This procedure returns a generator of candidate pty names. Each time thereturned procedure is called, it produces a new candidate. Software that
-@c 
-@c wishes to search through the set of available ptys can use a pty generatorto iterate over them. After producing all the possible ptys, a generator
-@c returns #f every time it is called. Example:
-@c 
-@c (define pg (make-pty-generator))
-@c (pg) =) "/dev/ptyp0"
-@c (pg) =) "/dev/ptyp1"
-@c 
-@c ...
-@c 
-@c (pg) =) "/dev/ptyqe"
-@c (pg) =) "/dev/ptyqf" (Last one)
-@c (pg) =) #f
-@c (pg) =) #f
-@c 
-@c ...
-@c 
-@c 88
-@c 
-@c Scsh C Typical char
-@c 
-@c @acronym{POSIX}
-@c ttychar/delete-char ERASE del
-@c ttychar/delete-line KILL ^U
-@c ttychar/eof EOF ^D
-@c ttychar/eol EOL
-@c ttychar/interrupt INTR ^C
-@c ttychar/quit QUIT ^\
-@c ttychar/suspend SUSP ^Z
-@c ttychar/start START ^Q
-@c ttychar/stop STOP ^S
-@c 
-@c SVR4 and 4.3+BSD
-@c ttychar/delayed-suspend DSUSP ^Y
-@c ttychar/delete-word WERASE ^W
-@c ttychar/discard DISCARD ^O
-@c ttychar/eol2 EOL2
-@c ttychar/literal-next LNEXT ^V
-@c ttychar/reprint REPRINT ^R
-@c 
-@c 4.3+BSD
-@c ttychar/status STATUS ^T
-@c 
-@c Table 3.4: Indices into the tty-info record's control-chars string, and the char-acter traditionally found at each index. Only the indices for the P
-@c 
-@c OSIX entriesare guaranteed to be non#f.
-@c 
-@c 89
-@c 
-@c Scsh C Meaning
-@c 
-@c @acronym{POSIX}
-@c ttyin/check-parity INPCK Check parity.
-@c ttyin/ignore-bad-parity-chars IGNPAR Ignore chars with parity errors.
-@c ttyin/mark-parity-errors PARMRK Insert chars to mark parity errors.
-@c ttyin/ignore-break IGNBRK Ignore breaks.
-@c ttyin/interrupt-on-break BRKINT Signal on breaks.
-@c ttyin/7bits ISTRIP Strip char to seven bits.
-@c ttyin/cr->nl ICRNL Map carriage-return to newline.
-@c ttyin/ignore-cr IGNCR Ignore carriage-returns.
-@c ttyin/nl->cr INLCR Map newline to carriage-return.
-@c ttyin/input-flow-ctl IXOFF Enable input flow control.
-@c ttyin/output-flow-ctl IXON Enable output flow control.
-@c 
-@c SVR4 and 4.3+BSD
-@c ttyin/xon-any IXANY Any char restarts after stop.
-@c ttyin/beep-on-overflow IMAXBEL Ring bell when queue full.
-@c 
-@c SVR4
-@c ttyin/lowercase IUCLC Map upper case to lower case.
-@c 
-@c Table 3.5: Input-flags. These are the named flags for the tty-info record'sinput-flags field. These flags generally control the processing of input chars.
-@c Only the @acronym{POSIX} entries are guaranteed to be non-#f.
-@c 
-@c Scsh C Meaning
-@c 
-@c @acronym{POSIX}
-@c ttyout/enable OPOST Enable output processing.
-@c 
-@c SVR4 and 4.3+BSD
-@c ttyout/nl->crnl ONLCR Map nl to cr-nl.
-@c 
-@c 4.3+BSD
-@c ttyout/discard-eot ONOEOT Discard EOT chars.
-@c ttyout/expand-tabs OXTABS7 Expand tabs.
-@c 
-@c SVR4
-@c ttyout/cr->nl OCRNL Map cr to nl.
-@c ttyout/nl-does-cr ONLRET Nl performs cr as well.
-@c ttyout/no-col0-cr ONOCR No cr output in column 0.
-@c ttyout/delay-w/fill-char OFILL Send fill char to delay.
-@c ttyout/fill-w/del OFDEL Fill char is ASCII DEL.
-@c ttyout/uppercase OLCUC Map lower to upper case.
-@c 
-@c Table 3.6: Output-flags. These are the named flags for the tty-info record'soutput-flags field. These flags generally control the processing of output chars.
-@c Only the @acronym{POSIX} entries are guaranteed to be non-#f.
-@c 
-@c 90
-@c 
-@c Value CommentBackspace delay
-@c ttyout/bs-delay Bit-field mask
-@c 
-@c ttyout/bs-delay0
-@c ttyout/bs-delay1Carriage-return delay
-@c ttyout/cr-delay Bit-field mask
-@c 
-@c ttyout/cr-delay0
-@c ttyout/cr-delay1
-@c ttyout/cr-delay2
-@c ttyout/cr-delay3Form-feed delay
-@c ttyout/ff-delay Bit-field mask
-@c 
-@c ttyout/ff-delay0
-@c ttyout/ff-delay1Horizontal-tab delay
-@c ttyout/tab-delay Bit-field mask
-@c 
-@c ttyout/tab-delay0
-@c ttyout/tab-delay1
-@c ttyout/tab-delay2
-@c ttyout/tab-delayx Expand tabsNewline delay
-@c ttyout/nl-delay Bit-field mask
-@c 
-@c ttyout/nl-delay0
-@c ttyout/nl-delay1Vertical tab delay
-@c ttyout/vtab-delay Bit-field mask
-@c 
-@c ttyout/vtab-delay0
-@c ttyout/vtab-delay1All
-@c ttyout/all-delay Total bit-field mask
-@c 
-@c Table 3.7: Delay constants. These are the named flags for the tty-info record'soutput-flags field. These flags control the output delays associated with printing special characters. They are non-@acronym{POSIX}, and have non-#f values only on SVR4systems.
-@c 
-@c 91
-@c 
-@c Scsh C Meaning
-@c 
-@c @acronym{POSIX}
-@c ttyc/char-size CSIZE Character size mask
-@c ttyc/char-size5 CS5 5 bits
-@c ttyc/char-size6 CS6 6 bits
-@c ttyc/char-size7 CS7 7 bits
-@c ttyc/char-size8 CS8 8 bits
-@c ttyc/enable-parity PARENB Generate and detect parity.
-@c ttyc/odd-parity PARODD Odd parity.
-@c ttyc/enable-read CREAD Enable reception of chars.
-@c ttyc/hup-on-close HUPCL Hang up on last close.
-@c ttyc/no-modem-sync LOCAL Ignore modem lines.
-@c ttyc/2-stop-bits CSTOPB Send two stop bits.
-@c 
-@c 4.3+BSD
-@c ttyc/ignore-flags CIGNORE Ignore control flags.
-@c ttyc/CTS-output-flow-ctl CCTS_OFLOW CTS flow control of output
-@c ttyc/RTS-input-flow-ctl CRTS_IFLOW RTS flow control of input
-@c ttyc/carrier-flow-ctl MDMBUF
-@c 
-@c Table 3.8: Control-flags. These are the named flags for the tty-info record'scontrol-flags field. These flags generally control the details of the terminal's
-@c serial line. Only the @acronym{POSIX} entries are guaranteed to be non-#f.
-@c 
-@c 92
-@c 
-@c Scsh C Meaning
-@c 
-@c @acronym{POSIX}
-@c ttyl/canonical ICANON Canonical input processing.
-@c ttyl/echo ECHO Enable echoing.
-@c ttyl/echo-delete-line ECHOK Echo newline after line kill.
-@c ttyl/echo-nl ECHONL Echo newline even if echo is off.
-@c ttyl/visual-delete ECHOE Visually erase chars.
-@c ttyl/enable-signals ISIG Enable ^C, ^Z signalling.
-@c ttyl/extended IEXTEN Enable extensions.
-@c ttyl/no-flush-on-interrupt NOFLSH Don't flush after interrupt.
-@c ttyl/ttou-signal ITOSTOP SIGTTOU on background output.
-@c 
-@c SVR4 and 4.3+BSD
-@c ttyl/echo-ctl ECHOCTL Echo control chars as "^X".
-@c ttyl/flush-output FLUSHO Output is being flushed.
-@c ttyl/hardcopy-delete ECHOPRT Visual erase for hardcopy.
-@c ttyl/reprint-unread-chars PENDIN Retype pending input.
-@c ttyl/visual-delete-line ECHOKE Visually erase a line-kill.
-@c 
-@c 4.3+BSD
-@c ttyl/alt-delete-word ALTWERASE Alternate word erase algorithm
-@c ttyl/no-kernel-status NOKERNINFO No kernel status on ^T.
-@c 
-@c SVR4
-@c ttyl/case-map XCASE Canonical case presentation
-@c 
-@c Table 3.9: Local-flags. These are the named flags for the tty-info record'slocal-flags field. These flags generally control the details of the line-editting
-@c user interface. Only the @acronym{POSIX} entries are guaranteed to be non-#f.
+@subsection Other terminal-device procedures
+
+@deffn Procedure send-tty-break [fd/port/fname duration]
+
+The @var{fd/port/fname} parameter is an integer file descriptor or
+Scheme I/O port opened on a terminal device, or a filename for a
+terminal device; it defaults to the current output port. Sends a break
+signal to the designated terminal. A break signal is a sequence of
+continuous zeroes on the terminal's transmission line.
+
+The duration argument determines the length of the break signal. A zero
+value (the default) causes a break of between 0.25 and 0.5 seconds to be
+sent; other values determine a period in a manner that will depend upon
+local community standards.
+@end deffn
+
+@deffn Procedure drain-tty [fd/port/fname]
+
+The @var{fd/port/fname} parameter is an integer file descriptor or
+Scheme I/O port opened on a terminal device, or a filename for a
+terminal device; it defaults to the current output port.
+
+This procedure waits until all the output written to the terminal device
+has been transmitted to the device. If @var{fd/port/fname} is an output
+port with buffered I/O enabled, then the port's buffered characters are
+flushed before waiting for the device to drain.
+@end deffn
+
+@deffn Procedure flush-tty/input [fd/port/fname]
+@deffnx Procedure flush-tty/output [fd/port/fname]
+@deffnx Procedure flush-tty/both [fd/port/fname]
+
+The @var{fd/port/fname} parameter is an integer file descriptor or
+Scheme I/O port opened on a terminal device, or a filename for a
+terminal device; it defaults to the current input port
+(@code{flush-tty/input} and @code{flush-tty/both}), or output port
+(@code{flush-tty/output}).
+
+These procedures discard the unread input chars or unwritten output
+chars in the tty's kernel buffers.
+@end deffn
+
+@deffn Procedure start-tty-output [fd/port/fname]
+@deffnx Procedure stop-tty-output [fd/port/fname]
+@deffnx Procedure start-tty-input [fd/port/fname]
+@deffnx Procedure stop-tty-input [fd/port/fname]
+
+These procedures can be used to control a terminal's input and output
+flow. The @var{fd/port/fname} parameter is an integer file descriptor or
+Scheme I/O port opened on a terminal device, or a filename for a
+terminal device; it defaults to the current input or output port.
+
+The @code{stop-tty-output} and @code{start-tty-output} procedures
+suspend and resume output from a terminal device. The
+@code{stop-tty-input} and @code{start-tty-input} procedures transmit the
+special STOP and START characters to the terminal with the intention of
+stopping and starting terminal input flow.
+@end deffn
+
+@subsection Control terminals, sessions, and terminal process groups
+
+@deffn Procedure open-control-tty tty-name [flags]
+
+This procedure opens terminal device @var{tty-name} as the process'
+control terminal (see the @code{termios} man page for more information
+on control terminals). The @var{tty-name} argument is a filename such as
+@code{/dev/ttya}. The @var{flags} argument is a value suitable as the
+second argument to the @code{open-file} call; it defaults to
+@code{open/read+write}, causing the terminal to be opened for both input
+and output.
+
+The port returned is an input port if the flags permit it, otherwise an
+output port. R5RS/Scheme 48/scsh do not have input/output ports, so it's
+one or the other. However, you can get both read and write ports open on
+a terminal by opening it read/write, taking the result input port, and
+duping it to an output port with @code{dup->outport}.
+
+This procedure guarantees to make the opened terminal the process'
+control terminal only if the process does not have an assigned control
+terminal at the time of the call. If the scsh process already has a
+control terminal, the results are undefined.
+
+To arrange for the process to have no control terminal prior to calling
+this procedure, use the @code{become-session-leader} procedure.
+@end deffn
+
+@deffn Procedure become-session-leader
+
+This is the C @code{setsid()} call. @acronym{POSIX} job-control has a
+three-level hierarchy: session -> process-group -> process. Every
+session has an associated control terminal. This procedure places the
+current process into a brand new session, and disassociates the process
+from any previous control terminal. You may subsequently use
+@code{open-control-tty} to open a new control terminal.
+
+It is an error to call this procedure if the current process is already
+a process-group leader. One way to guarantee this is not the case is
+only to call this procedure after forking.
+@end deffn
+
+@deffn Procedure tty-process-group fd/port/fname
+@deffnx Procedure set-tty-process-group fd/port/fname pgrp
+
+This pair of procedures gets and sets the process group of a given
+terminal.
+@end deffn
+
+@deffn Procedure control-tty-file-name
+
+Return the filename of the process' control tty. On every version of
+UNIX of which we are aware, this is just the string ``@code{/dev/tty}''.
+However, this procedure uses the official @acronym{POSIX} interface, so
+it is more portable than simply using a constant string.
+@end deffn
+
+@subsection Pseudo-terminals
+
+Scsh implements an interface to Berkeley-style pseudo-terminals.
+
+@deffn Procedure fork-pty-session thunk
+
+This procedure gives a convenient high-level interface to
+pseudo-terminals. It first allocates a pty/tty pair of devices, and then
+forks a child to execute procedure @var{thunk}. In the child process
+
+@itemize
+@item Stdio and the current I/O ports are bound to the terminal device.
+
+@item The child is placed in its own, new session. (See
+@code{become-session-leader}.)
+
+@item The terminal device becomes the new session's controlling
+terminal. (See @code{open-control-tty}.)
+
+@item The @code{(error-output-port)} is unbuffered.
+@end itemize
+
+The @code{fork-pty-session} procedure returns four values: the child's
+process object, two ports open on the controlling pty device, and the
+name of the child's corresponding terminal device.
+@end deffn
+
+@deffn Procedure open-pty
+
+This procedure finds a free pty/tty pair, and opens the pty device with
+read/write access. It returns a port on the pty, and the name of the
+corresponding terminal device.  The port returned is an input
+port---Scheme doesn't allow input/output ports. However, you can easily
+use @code{(dup->outport pty-inport)} to produce a matching output port.
+You may wish to turn off I/O buffering for this output port.
+@end deffn
+
+@deffn Procedure pty-name->tty-name pty-name
+@deffnx Procedure tty-name->pty-name tty-name
+
+These two procedures map between corresponding terminal and pty
+controller names. For example,
+
+@example
+(pty-name->tty-name "/dev/ptyq3") ==> "/dev/ttyq3"
+(tty-name->pty-name "/dev/ttyrc") ==> "/dev/ptyrc"
+@end example
+
+@emph{Remark:} This is rather Berkeley-specific. SVR4 ptys are rare
+enough that I've no real idea if it generalises across the UNIX gap.
+Experts are invited to advise. Users feel free to not worry---the
+predominance of current popular UNIX systems use Berkeley ptys.
+@end deffn
+
+@deffn Procedure make-pty-generator
+
+This procedure returns a generator of candidate pty names. Each time the
+returned procedure is called, it produces a new candidate. Software that
+wishes to search through the set of available ptys can use a pty
+generator to iterate over them. After producing all the possible ptys, a
+generator returns @code{#f} every time it is called. Example:
+
+@example
+(define pg (make-pty-generator))
+(pg) =) "/dev/ptyp0"
+(pg) =) "/dev/ptyp1"
+@dots{}
+(pg) =) "/dev/ptyqe"
+(pg) =) "/dev/ptyqf" (Last one)
+(pg) =) #f
+(pg) =) #f
+@dots{}
+@end example
+@end deffn
+
+@multitable @columnfractions .33 .33 .33
+@headitem Scsh @tab C @tab Typical character
+@item @acronym{POSIX}
+
+@item ttychar/delete-char
+@tab ERASE 
+@tab del
+
+@item ttychar/delete-line 
+@tab KILL 
+@tab ^U
+
+@item ttychar/eof 
+@tab EOF 
+@tab ^D
+
+@item ttychar/eol 
+@tab EOL
+
+@item ttychar/interrupt 
+@tab INTR 
+@tab ^C
+
+@item ttychar/quit 
+@tab QUIT 
+@tab ^\
+
+@item ttychar/suspend 
+@tab SUSP 
+@tab ^Z
+
+@item ttychar/start 
+@tab START 
+@tab ^Q
+
+@item ttychar/stop 
+@tab STOP 
+@tab ^S
+
+
+@item SVR4 and 4.3+BSD
+
+@item ttychar/delayed-suspend 
+@tab DSUSP 
+@tab ^Y
+
+@item ttychar/delete-word 
+@tab WERASE 
+@tab ^W
+
+@item ttychar/discard 
+@tab DISCARD 
+@tab ^O
+
+@item ttychar/eol2 
+@tab EOL2
+
+@item ttychar/literal-next 
+@tab LNEXT 
+@tab ^V
+
+@item ttychar/reprint 
+@tab REPRINT 
+@tab ^R
+
+@item 4.3+BSD
+@item ttychar/status 
+@tab STATUS 
+@tab ^T
+
+@end multitable
+
+@anchor{Table 4}
+@b{Table 4:} Indices into the @code{tty-info} record's control-chars
+string, and the character traditionally found at each index. Only the
+indices for the @acronym{POSIX} entries are guaranteed to be
+non-@code{#f}.
+
+@multitable @columnfractions .33 .33 .33
+@headitem Scsh @tab C @tab Meaning
+
+@item @acronym{POSIX}
+
+@item ttyin/check-parity 
+@tab INPCK 
+@tab Check parity.
+
+@item ttyin/ignore-bad-parity-chars 
+@tab IGNPAR 
+@tab Ignore chars with parity errors.
+
+@item ttyin/mark-parity-errors 
+@tab PARMRK 
+@tab Insert chars to mark parity errors.
+
+@item ttyin/ignore-break 
+@tab IGNBRK 
+@tab Ignore breaks.
+
+@item ttyin/interrupt-on-break 
+@tab BRKINT 
+@tab Signal on breaks.
+
+@item ttyin/7bits 
+@tab ISTRIP 
+@tab Strip char to seven bits.
+
+@item ttyin/cr->nl 
+@tab ICRNL 
+@tab Map carriage-return to newline.
+
+@item ttyin/ignore-cr 
+@tab IGNCR 
+@tab Ignore carriage-returns.
+
+@item ttyin/nl->cr 
+@tab INLCR 
+@tab Map newline to carriage-return.
+
+@item ttyin/input-flow-ctl 
+@tab IXOFF 
+@tab Enable input flow control.
+
+@item ttyin/output-flow-ctl 
+@tab IXON 
+@tab Enable output flow control.
+
+@item SVR4 and 4.3+BSD
+
+@item ttyin/xon-any 
+@tab IXANY 
+@tab Any char restarts after stop.
+
+@item ttyin/beep-on-overflow 
+@tab IMAXBEL 
+@tab Ring bell when queue full.
+
+@item SVR4
+
+@item ttyin/lowercase 
+@tab IUCLC 
+@tab Map upper case to lower case.
+@end multitable
+
+@anchor{Table 5}
+@b{Table 5: Input-flags.} These are the named flags for the @code{tty-info}
+record's @code{input-flags} field. These flags generally control the
+processing of input characters.  Only the @acronym{POSIX} entries are
+guaranteed to be non-@code{#f}.
+
+@multitable @columnfractions .33 .33 .33
+@headitem Scsh @tab C @tab Meaning
+
+@item @acronym{POSIX}
+
+@item ttyout/enable 
+@tab OPOST 
+@tab Enable output processing.
+
+@item SVR4 and 4.3+BSD
+
+@item ttyout/nl->crnl 
+@tab ONLCR 
+@tab Map nl to cr-nl.
+
+@item 4.3+BSD
+
+@item ttyout/discard-eot 
+@tab ONOEOT 
+@tab Discard EOT chars.
+
+@item ttyout/expand-tabs 
+@tab OXTABS7 
+@tab Expand tabs.
+
+@item SVR4
+
+@item ttyout/cr->nl 
+@tab OCRNL 
+@tab Map cr to nl.
+
+@item ttyout/nl-does-cr 
+@tab ONLRET 
+@tab Nl performs cr as well.
+
+@item ttyout/no-col0-cr 
+@tab ONOCR 
+@tab No cr output in column 0.
+
+@item ttyout/delay-w/fill-char 
+@tab OFILL 
+@tab Send fill char to delay.
+
+@item ttyout/fill-w/del 
+@tab OFDEL 
+@tab Fill char is @acronym{ASCII} DEL.
+
+@item ttyout/uppercase 
+@tab OLCUC 
+@tab Map lower to upper case.
+@end multitable
+
+@anchor{Table 6}
+@b{Table 6: Output-flags.} These are the named flags for the @code{tty-info}
+record's @code{output-flags} field. These flags generally control the
+processing of output characters.  Only the @acronym{POSIX} entries are
+guaranteed to be non-@code{#f}.
+
+@multitable @columnfractions .33 .33 .33
+@headitem Delay constants @tab Value @tab Comment
+@item Backspace delay
+@tab ttyout/bs-delay
+@tab Bit-field mask
+
+@item
+@tab ttyout/bs-delay0
+@tab
+
+@item 
+@tab ttyout/bs-delay1
+@tab
+
+@item Carriage-return delay
+@tab ttyout/cr-delay
+@tab Bit-field mask
+
+@item
+@tab ttyout/cr-delay0
+@tab
+
+@item
+@tab ttyout/cr-delay1
+@tab
+
+@item
+@tab ttyout/cr-delay2
+@tab
+
+@item
+@tab ttyout/cr-delay3
+@tab 
+
+@item Form-feed delay
+@tab ttyout/ff-delay
+@tab Bit-field mask
+
+@item
+@tab ttyout/ff-delay0
+@tab
+
+@item
+@tab ttyout/ff-delay1
+@tab 
+
+@item Horizontal-tab delay
+@tab ttyout/tab-delay
+@tab Bit-field mask
+
+@item
+@tab ttyout/tab-delay0
+@tab
+
+@item
+@tab ttyout/tab-delay1
+@tab
+
+@item
+@tab ttyout/tab-delay2
+@tab
+
+@item
+@tab ttyout/tab-delayx
+@tab Expand tabs
+
+@item Newline delay
+@tab ttyout/nl-delay
+@tab Bit-field mask
+
+@item
+@tab ttyout/nl-delay0
+@tab 
+
+@item
+@tab ttyout/nl-delay1
+@tab 
+
+@item Vertical tab delay
+@tab ttyout/vtab-delay
+@tab Bit-field mask
+
+@item
+@tab ttyout/vtab-delay0
+@tab
+
+@item
+@tab ttyout/vtab-delay1
+@tab 
+
+@item All
+@tab ttyout/all-delay 
+@tab Total bit-field mask
+@end multitable
+
+@anchor{Table 7}
+@b{Table 7: Delay constants.} These are the named flags for the
+@code{tty-info} record's @code{output-flags} field. These flags control
+the output delays associated with printing special characters.  They are
+non-@acronym{POSIX}, and have non-@code{#f} values only on SVR4 systems.
+
+@multitable @columnfractions .33 .33 .33
+@headitem Scsh @tab C @tab Meaning
+
+@item @acronym{POSIX}
+
+@item ttyc/char-size
+@tab CSIZE 
+@tab Character size mask
+
+@item ttyc/char-size5
+@tab CS5 
+@tab 5 bits
+
+@item ttyc/char-size6 
+@tab CS6 
+@tab 6 bits
+
+@item ttyc/char-size7 
+@tab CS7 
+@tab 7 bits
+
+@item tttyc/char-size8 
+@tab CS8 
+@tab 8 bits
+
+@item ttyc/enable-parity 
+@tab PARENB 
+@tab Generate and detect parity.
+
+@item ttyc/odd-parity 
+@tab PARODD 
+@tab Odd parity.
+
+@item ttyc/enable-read 
+@tab CREAD 
+@tab Enable reception of chars.
+
+@item ttyc/hup-on-close 
+@tab HUPCL 
+@tab Hang up on last close.
+
+@item ttyc/no-modem-sync 
+@tab LOCAL 
+@tab Ignore modem lines.
+
+@item ttyc/2-stop-bits 
+@tab CSTOPB 
+@tab Send two stop bits.
+
+@item 4.3+BSD
+
+@item ttyc/ignore-flags 
+@tab CIGNORE 
+@tab Ignore control flags.
+
+@item ttyc/CTS-output-flow-ctl 
+@tab CCTS_OFLOW 
+@tab CTS flow control of output
+
+@item ttyc/RTS-input-flow-ctl 
+@tab CRTS_IFLOW 
+@tab RTS flow control of input
+
+@item ttyc/carrier-flow-ctl 
+@tab MDMBUF
+@tab
+@end multitable
+
+@anchor{Table 8}
+@b{Table 8: Control-flags.} These are the named flags for the
+@code{tty-info} record's @code{control-flags} field. These flags
+generally control the details of the terminal's serial line. Only the
+@acronym{POSIX} entries are guaranteed to be non-@code{#f}.
+
+@multitable @columnfractions .33 .33 .33
+@headitem Scsh @tab C @tab Meaning
+
+@item @acronym{POSIX}
+
+@item ttyl/canonical 
+@tab ICANON 
+@tab Canonical input processing.
+
+@item ttyl/echo 
+@tab ECHO 
+@tab Enable echoing.
+
+@item ttyl/echo-delete-line 
+@tab ECHOK 
+@tab Echo newline after line kill.
+
+@item ttyl/echo-nl 
+@tab ECHONL 
+@tab Echo newline even if echo is off.
+
+@item ttyl/visual-delete 
+@tab ECHOE 
+@tab Visually erase chars.
+
+@item ttyl/enable-signals 
+@tab ISIG 
+@tab Enable ^C, ^Z signalling.
+
+@item ttyl/extended 
+@tab IEXTEN 
+@tab Enable extensions.
+
+@item ttyl/no-flush-on-interrupt 
+@tab NOFLSH 
+@tab Don't flush after interrupt.
+
+@item ttyl/ttou-signal 
+@tab ITOSTOP 
+@tab SIGTTOU on background output.
+
+@item SVR4 and 4.3+BSD
+
+@item ttyl/echo-ctl 
+@tab ECHOCTL 
+@tab Echo control chars as "^X".
+
+@item ttyl/flush-output 
+@tab FLUSHO 
+@tab Output is being flushed.
+
+@item ttyl/hardcopy-delete 
+@tab ECHOPRT 
+@tab Visual erase for hardcopy.
+
+@item ttyl/reprint-unread-chars 
+@tab PENDIN 
+@tab Retype pending input.
+
+@item ttyl/visual-delete-line 
+@tab ECHOKE 
+@tab Visually erase a line-kill.
+
+@item 4.3+BSD
+
+@item ttyl/alt-delete-word 
+@tab ALTWERASE 
+@tab Alternate word erase algorithm
+
+@item ttyl/no-kernel-status 
+@tab NOKERNINFO 
+@tab No kernel status on ^T.
+
+@item SVR4
+
+@item ttyl/case-map 
+@tab XCASE 
+@tab Canonical case presentation.
+
+@end multitable
+
+@anchor{Table 9}
+@b{Table 9: Local-flags.} These are the named flags for the
+@code{tty-info} record's @code{local-flags} field. These flags generally
+control the details of the line-editing user interface. Only the
+@acronym{POSIX} entries are guaranteed to be non-@code{#f}.
 
 @node Networking
 @chapter Networking
