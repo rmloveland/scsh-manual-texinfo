@@ -5495,56 +5495,79 @@ control the details of the line-editing user interface. Only the
 @node Networking
 @chapter Networking
  
-@c The Scheme Shell provides a BSD-style sockets interface. There is not an of-ficial standard for a network interface for scsh to adopt (this is the subject of
-@c the forthcoming Posix.8 standard). However, Berkeley sockets are a de factostandard, being found on most UNIX workstations and PC operating systems.
-@c 
-@c It is fairly straightforward to add higher-level network protocols such assmtp, telnet, or http on top of the the basic socket-level support scsh provides.
-@c The Scheme Underground has also released a network library with many ofthese protocols as a companion to the current release of scsh. See this code for
-@c examples showing the use of the sockets interface.
-@c 
+The Scheme Shell provides a BSD-style sockets interface. There is not
+an official standard for a network interface for scsh to adopt (this
+is the subject of the forthcoming @acronym{POSIX}.8
+standard). However, Berkeley sockets are a de facto standard, being
+found on most UNIX workstations and PC operating systems.
+
+It is fairly straightforward to add higher-level network protocols
+such as @acronym{SMTP}, Telnet, or @acronym{HTTP} on top of the the
+basic socket-level support scsh provides.  The Scheme Underground has
+also released a network library with many of these protocols as a
+companion to the current release of scsh. See this code for examples
+showing the use of the sockets interface.
+
 @section High-level interface
-@c 
-@c For convenience, and to avoid some of the messy details of the socket interface,we provide a high level socket interface. These routines attempt to make it easy
-@c to write simple clients and servers without having to think of many of the de-tails of initiating socket connections. We welcome suggested improvements to
-@c this interface, including better names, which right now are solely descriptionsof the procedure's action. This might be fine for people who already understand sockets, but does not help the new networking programmer.
-@c (socket-connect protocol-family socket-type . args) -! socket procedure
-@c 
-@c socket-connect is intended for creating client applications.protocol-family is specified as either the
-@c 
-@c protocol-family/internetor
-@c protocol-family/UNIX. socket-type is specified as either
-@c socket-type/stream or socket-type/datagram. See socket for amore complete description of these terms.
-@c 
-@c 94
-@c 
-@c The variable args list is meant to specify protocol family specific informa-tion. For Internet sockets, this consists of two arguments: a host name
-@c and a port number. For UNIX sockets, this consists of a pathname.
-@c socket-connect returns a socket which can be used for input and out-put from a remote server. See
-@c 
-@c socket for a description of the socket record.
-@c 
-@c (bind-listen-accept-loop protocol-family proc arg) -! does-not-return procedure
-@c 
-@c bind-listen-accept-loop is intended for creating server applications.protocol-family is specified as either the
-@c 
-@c protocol-family/internet or
-@c protocol-family/UNIX. proc is a procedure of two arguments: a socketand a socket-address. arg specifies a port number for Internet sockets or a
-@c 
-@c pathname for UNIX sockets. See socket for a more complete descriptionof these terms.
-@c 
-@c proc is called with a socket and a socket address each time there is a con-nection from a client application. The socket allows communications
-@c with the client. The socket address specifies the address of the remoteclient.
-@c 
-@c This procedure does not return, but loops indefinitely accepting connec-tions from client programs.
-@c 
-@c (bind-prepare-listen-accept-loop protocol-family prepare proc arg) -! does-not-return procedure
-@c 
-@c Same as bind-listen-accept-loop but runs the thunk prepare after bind-ing the address and before entering the loop. The typical task of the
-@c 
-@c prepare procedure is to change the user id from the superuser to someunprivileged id once the address has been bound.
-@c 
+
+For convenience, and to avoid some of the messy details of the socket
+interface, we provide a high level socket interface. These routines
+attempt to make it easy to write simple clients and servers without
+having to think of many of the details of initiating socket
+connections. We welcome suggested improvements to this interface,
+including better names, which right now are solely descriptions of the
+procedure's action. This might be fine for people who already
+understand sockets, but does not help the new networking programmer.
+
+@deffn Procedure socket-connect protocol-family socket-type . args
+
+@code{Socket-connect} is intended for creating client
+applications. @var{Protocol-family} is specified as either the
+@code{protocol-family/internet} or
+@code{protocol-family/unix}. @var{Socket-type} is specified as either
+@code{socket-type/stream} or @code{socket-type/datagram}. See
+@code{socket} for amore complete description of these terms.
+
+The variable @var{args} list is meant to specify protocol family
+specific information. For Internet sockets, this consists of two
+arguments: a host name and a port number. For UNIX sockets, this
+consists of a pathname.
+
+@code{Socket-connect} returns a socket which can be used for input and
+output from a remote server. See @code{socket} for a description of
+the @code{socket} record.
+@end deffn
+
+@deffn Procedure bind-listen-accept-loop protocol-family proc arg
+
+@code{Bind-listen-accept-loop} is intended for creating server
+applications. @var{Protocol-family} is specified as either the
+@code{protocol-family/internet} or
+@code{protocol-family/unix}. @var{Proc} is a procedure of two
+arguments: a @code{socket} and a socket-address. @var{Arg} specifies a
+port number for Internet sockets or a pathname for UNIX sockets. See
+@code{socket} for a more complete description of these terms.
+
+@var{Proc} is called with a socket and a socket address each time
+there is a connection from a client application. The socket allows
+communications with the client. The socket address specifies the
+address of the remoteclient.
+
+This procedure does not return, but loops indefinitely accepting
+connections from client programs.
+@end deffn
+
+@deffn Procedure bind-prepare-listen-accept-loop protocol-family prepare proc arg
+
+Same as @code{bind-listen-accept-loop} but runs the thunk
+@var{prepare} after binding the address and before entering the
+loop. The typical task of the @var{prepare} procedure is to change the
+user ID from the superuser to some unprivileged ID once the address
+has been bound.
+@end deffn
+
 @section Sockets
-@c 
+
 @c (create-socket protocol-family type [protocol]) -! socket procedure
 @c (create-socket-pair type) -! [socket1 socket2] procedure
 @c (close-socket socket) -! undefined procedure
