@@ -5644,49 +5644,65 @@ creates a socket and passes it as standard input to its child.
 @end deffn
 
 @section Socket addresses
-@c 
-@c The format of a socket-address depends on the address family of the socket.Address-family-specific routines are provided to convert protocol-specific addresses to socket addresses. The value returned by these routines is a socket-address record, defined to have the following visible structure:
-@c 
-@c (define-record socket-address
-@c 
-@c family) ; address family
-@c 
-@c The family is one of the following constants:
-@c 
-@c address-family/unspecified
-@c address-family/UNIX
-@c address-family/internet
-@c 
-@c (UNIX-address->socket-address pathname) -! socket-address procedure
-@c 
-@c UNIX-address->socket-address returns a socket-address based on thestring pathname. There is a system dependent limit on the length of
-@c 
-@c pathname.
-@c (internet-address->socket-address host-address service-port) -! socket-address procedure
-@c 
-@c internet-address->socket-address returns a socket-address based onan integer host-address and an integer service-port. Besides being a 32-bit
-@c 
-@c host address, an Internet host address can also be one of the followingconstants:
-@c 
-@c internet-address/any
-@c internet-address/loopback
-@c internet-address/broadcast
-@c 
-@c The use of internet-address/any is described below in bind-socket.
-@c internet-address/loopback is an address that always specifies the localmachine.
-@c 
-@c internet-address/broadcast is used for network broadcastcommunications.
-@c 
-@c For information on obtaining a host's address, see the host-info func-tion.
-@c 
-@c (socket-address->UNIX-address socket-address) -! pathname procedure
-@c (socket-address->internet-address socket-address) -! [host-address service-port] procedure
-@c 
-@c The routines socket-address->internet-address and
-@c socket-address->UNIX-address return the address-family-specificaddresses. Be aware that most implementations don't correctly return anything more than an empty string for addresses in the UNIXaddress-family.
-@c 
-@c 97
-@c 
+
+The format of a socket address depends on the address family of the
+socket. Address-family-specific routines are provided to convert
+protocol-specific addresses to socket addresses. The value returned by
+these routines is a @code{socket-address} record, defined to have the
+following visible structure:
+
+@example
+(define-record socket-address
+  family)       ; address family
+@end example
+
+The @code{family} is one of the following constants:
+
+@example
+address-family/unspecified
+address-family/unix
+address-family/internet
+@end example
+
+@deffn Procedure unix-address->socket-address pathname
+
+@code{Unix-address->socket-address} returns a @code{socket-address}
+based on the string @var{pathname}. There is a system dependent limit on
+the length of @var{pathname}.
+@end deffn
+
+@deffn Procedure internet-address->socket-address host-address service-port
+
+@code{Internet-address->socket-address} returns a socket-address based
+on an integer @var{host-address} and an integer @var{service-port}.
+Besides being a 32-bit host address, an internet host address can also
+be one of the followingconstants:
+
+@example
+internet-address/any
+internet-address/loopback
+internet-address/broadcast
+@end example
+
+The use of @code{internet-address/any} is described below in
+@code{bind-socket}.  @code{Internet-address/loopback} is an address that
+always specifies the local machine.  @code{Internet-address/broadcast}
+is used for network broadcast communications.
+
+For information on obtaining a host's address, see the @code{host-info}
+procedure.
+@end deffn
+
+@deffn Procedure socket-address->unix-address socket-address
+@deffnx Procedure socket-address->internet-address socket-address
+
+The routines @code{socket-address->internet-address} and
+@code{socket-address->unix-address} return the address-family-specific
+addresses. Be aware that most implementations don't correctly return
+anything more than an empty string for addresses in the UNIX
+address-family.
+@end deffn
+
 @section Socket primitives
 @c 
 @c The procedures in this section are presented in the order in which a typicalprogram will use them. Consult a text on network systems programming for
