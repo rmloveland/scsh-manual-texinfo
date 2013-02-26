@@ -5568,69 +5568,81 @@ has been bound.
 
 @section Sockets
 
-@c (create-socket protocol-family type [protocol]) -! socket procedure
-@c (create-socket-pair type) -! [socket1 socket2] procedure
-@c (close-socket socket) -! undefined procedure
-@c 
-@c A socket is one end of a network connection. Three specific propertiesof sockets are specified at creation time: the protocol-family, type, and
-@c 
-@c protocol.
-@c The protocol-family specifies the protocol family to be used with thesocket. This also determines the address family of socket addresses,
-@c 
-@c which are described in more detail below. Scsh currently supports theUNIX internal protocols and the Internet protocols using the following
-@c constants:
-@c 
-@c 95
-@c 
-@c protocol-family/unspecified
-@c protocol-family/UNIX
-@c protocol-family/internet
-@c 
-@c The type specifies the style of communication. Examples that your oper-ating system probably provides are stream and datagram sockets. Others
-@c maybe available depending on your system. Typical values are:
-@c 
-@c socket-type/stream
-@c socket-type/datagram
-@c socket-type/raw
-@c 
-@c The protocol specifies a particular protocol to use within a protocol familyand type. Usually only one choice exists, but it's probably safest to set this
-@c explicitly. See the protocol database routines for information on lookingup protocol constants.
-@c 
-@c New sockets are typically created with create-socket. However,
-@c create-socket-pair can also be used to create a pair of connected sock-ets in the
-@c 
-@c protocol-family/UNIX protocol-family. The value of a re-turned socket is a socket record, defined to have the following structure:
-@c 
-@c (define-record socket
-@c 
-@c family ; protocol family
-@c inport ; input-port
-@c outport) ; output-port
-@c 
-@c The family specifies the protocol family of the socket. The inport and
-@c outport fields are ports that can be used for input and output, respec-tively. For a stream socket, they are only usable after a connection has
-@c 
-@c been established via connect-socket or accept-connection. For a data-gram socket, outport can be immediately using
-@c 
-@c send-message, and inportcan be used after
-@c bind has created a local address.
-@c 
-@c close-socket provides a convenient way to close a socket's port. It ispreferred to explicitly closing the inport and outport because using
-@c 
-@c closeon sockets is not currently portable across operating systems.
-@c 
-@c (port->socket port protocol-family) -! socket procedure
-@c 
-@c This procedure turns port into a socket object. The port's underly-ing file descriptor must be a socket with protocol family protocol-family.
-@c 
-@c port->socket applies dup->inport and dup->outport to port to createthe ports of the socket object.
-@c 
-@c port->socket comes in handy for writing servers which run as childrenof
-@c 
-@c inetd: after receiving a connection inetd creates a socket and passesit as standard input to its child.
-@c 
-@c 96
-@c 
+@deffn Procedure create-socket protocol-family type [protocol]
+@deffnx Procedure create-socket-pair type
+@deffnx Procedure close-socket socket
+
+A socket is one end of a network connection. Three specific properties
+of sockets are specified at creation time: the protocol-family, type,
+and protocol.
+
+The @var{protocol-family} specifies the protocol family to be used with
+the socket. This also determines the address family of socket addresses,
+which are described in more detail below. Scsh currently supports the
+UNIX internal protocols and the internet protocols using the following
+constants:
+
+@example
+protocol-family/unspecified
+protocol-family/UNIX
+protocol-family/internet
+@end example
+
+The @var{type} specifies the style of communication. Examples that your
+operating system probably provides are stream and datagram sockets.
+Others may be available depending on your system. Typical values are:
+
+@example
+socket-type/stream
+socket-type/datagram
+socket-type/raw
+@end example
+
+The @var{protocol} specifies a particular protocol to use within a
+protocol family and type. Usually only one choice exists, but it's
+probably safest to set this explicitly. See the protocol database
+routines for information on lookingup protocol constants.
+
+New sockets are typically created with @code{create-socket}. However,
+@code{create-socket-pair} can also be used to create a pair of connected
+sockets in the @code{protocol-family/unix} protocol family. The value of
+a returned socket is a @emph{socket} record, defined to have the
+following structure:
+
+@example
+(define-record socket
+   family       ; protocol family
+   inport       ; input-port
+   outport)     ; output-port
+@end example
+
+The @code{family} specifies the protocol family of the socket. The
+@code{inport} and @code{outport} fields are ports that can be used for
+input and output, respectively. For a stream socket, they are only
+usable after a connection has been established via @code{connect-socket}
+or @code{accept-connection}. For a data-gram socket, @code{outport} can
+be used immediately using @code{send-message}, and @code{inport} can be
+used after @code{bind} has created a local address.
+
+@code{Close-socket} provides a convenient way to close a socket's port.
+It is preferred to explicitly closing the @code{inport} and
+@code{outport} because using @code{close} on sockets is not currently
+portable across operating systems.
+@end deffn
+
+@deffn Procedure port->socket port protocol-family
+
+This procedure turns @var{port} into a socket object. The port's
+underlying file descriptor must be a socket with protocol family
+@var{protocol-family}.  @code{Port->socket} applies @code{dup->inport}
+and @code{dup->outport} to @var{port} to create the ports of the socket
+object.
+
+@code{Port->socket} comes in handy for writing servers which run as
+children of @code{inetd}: after receiving a connection @code{inetd}
+creates a socket and passes it as standard input to its child.
+@end deffn
+
 @section Socket addresses
 @c 
 @c The format of a socket-address depends on the address family of the socket.Address-family-specific routines are provided to convert protocol-specific addresses to socket addresses. The value returned by these routines is a socket-address record, defined to have the following visible structure:
