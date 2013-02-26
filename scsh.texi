@@ -5762,171 +5762,209 @@ file in the file system that must be deleted before the address can be
 reused. See @code{delete-file}.
 @end deffn
 
-@c (listen-socket socket backlog) -! undefined procedure
-@c 
-@c listen-socket allows a stream socket to start receiving connections, al-lowing a queue of up to backlog connection requests. Queued connections
-@c 
-@c may be accepted by accept-connection.
-@c (accept-connection socket) -! [new-socket socket-address] procedure
-@c 
-@c accept-connection receives a connection on a socket, returning a newsocket that can be used for this connection and the remote socket address
-@c 
-@c associated with the connection.
-@c (socket-local-address socket) -! socket-address procedure
-@c (socket-remote-address socket) -! socket-address procedure
-@c 
-@c Sockets can be associated with a local address or a remote addressor both.
-@c 
-@c socket-local-address returns the local socket-address recordassociated with socket.
-@c 
-@c socket-remote-address returns the remotesocket-address record associated with socket.
-@c 
-@c (shutdown-socket socket how-to) -! undefined procedure
-@c 
-@c shutdown-socket shuts down part of a full-duplex socket. The methodof shutting done is specified by the how-to argument, one of:
-@c 
-@c shutdown/receives
-@c shutdown/sends
-@c shutdown/sends+receives
-@c 
+@deffn Procedure listen-socket socket backlog
+
+@code{Listen-socket} allows a stream socket to start receiving
+connections, allowing a queue of up to @var{backlog} connection
+requests. Queued connections may be accepted by
+@code{accept-connection}.
+@end deffn
+
+@deffn Procedure accept-connection socket
+
+@code{Accept-connection} receives a connection on a socket, returning a
+new socket that can be used for this connection and the remote socket
+address associated with the connection.
+@end deffn
+
+@deffn Procedure socket-local-address socket
+@deffnx Procedure socket-remote-address socket
+
+Sockets can be associated with a local address or a remote address or
+both.
+
+@code{Socket-local-address} returns the local @code{socket-address}
+record associated with @var{socket}.
+
+@code{Socket-remote-address} returns the remote @code{socket-address}
+record associated with @var{socket}.
+@end deffn
+
+@deffn Procedure shutdown-socket socket how-to
+
+@code{Shutdown-socket} shuts down part of a full-duplex socket. The
+method of shutting down is specified by the @var{how-to} argument, one
+of:
+
+@example
+shutdown/receives
+shutdown/sends
+shutdown/sends+receives
+@end example
+@end deffn
+
 @section Performing input and output on sockets
-@c 
-@c (receive-message socket length [flags]) -! [string-or-#f socket-address] procedure
-@c (receive-message! socket string [start] [end] [flags]) -! [count-or-#f socket-address] procedure
-@c (receive-message/partial socket length [flags]) -! [string-or-#f socket-address] procedure
-@c (receive-message!/partial socket string [start] [end] [flags]) -! [count-or-#f socket-address] procedure
-@c 
-@c (send-message socket string [start] [end] [flags] [socket-address]) -! undefined procedure
-@c (send-message/partial socket string [start] [end] [flags] [socket-address]) -! count procedure
-@c 
-@c For most uses, standard input and output routines such as read-stringand
-@c 
-@c write-string should suffice. However, in some cases an extended
-@c 
-@c 99
-@c 
-@c interface is required. The receive-message and send-message calls par-allel the
-@c 
-@c read-string and write-string calls with a similar namingscheme.
-@c 
-@c One additional feature of these routines is that receive-message re-turns the remote socket-address and send-message takes an optional remote
-@c socket-address. This allows a program to know the source of inputfrom a datagram socket and to use a datagram socket for output without
-@c first connecting it.
-@c All of these procedures take an optional flags field. This argument is aninteger bit-mask, composed by or'ing together the following constants:
-@c 
-@c message/out-of-band
-@c message/peek
-@c message/dont-route
-@c 
-@c See read-string and write-string for a more detailed description ofthe arguments and return values.
-@c 
+
+@deffn Procedure receive-message socket length [flags]
+@deffnx Procedure receive-message! socket string [start] [end] [flags]
+@deffnx Procedure receive-message/partial socket length [flags]
+@deffnx Procedure receive-message!/partial socket string [start] [end] [flags]
+
+@deffnx Procedure send-message socket string [start] [end] [flags] [socket-address]
+@deffnx Procedure send-message/partial socket string [start] [end] [flags] [socket-address]
+
+For most uses, standard input and output routines such as
+@code{read-string} and @code{write-string} should suffice. However, in
+some cases an extended interface is required. The @code{receive-message}
+and @code{send-message} procedures parallel the @code{read-string} and
+@code{write-string} procedures with a similar naming scheme.
+
+One additional feature of these routines is that @code{receive-message}
+returns the remote @code{socket-address} and @code{send-message} takes
+an optional remote @code{socket-address}. This allows a program to know
+the source of input from a datagram socket and to use a datagram socket
+for output without first connecting it.  All of these procedures take an
+optional @var{flags} field. This argument is an integer bit-mask,
+composed by or'ing together the following constants:
+
+@example
+message/out-of-band
+message/peek
+message/dont-route
+@end example
+
+See @code{read-string} and @code{write-string} for a more detailed
+description of the arguments and return values.
+@end deffn
+
 @section Socket options
-@c 
-@c (socket-option socket level option) -! value procedure
-@c (set-socket-option socket level option value) -! undefined procedure
-@c 
-@c socket-option and set-socket-option allow the inspection and mod-ification, respectively, of several options available on sockets. The level
-@c 
-@c argument specifies what protocol level is to be examined or affected. Alevel of
-@c 
-@c level/socket specifies the highest possible level that is avail-able on all socket types. A specific protocol number can also be used as
-@c 
-@c provided by protocol-info, described below.
-@c There are several different classes of socket options. The first class con-sists of boolean options which can be either true or false. Examples of
-@c 
-@c this option type are:
-@c 
-@c socket/debug
-@c socket/accept-connect
-@c socket/reuse-address
-@c socket/keep-alive
-@c socket/dont-route
-@c socket/broadcast
-@c socket/use-loop-back
-@c socket/oob-inline
-@c socket/use-privileged
-@c socket/cant-signal
-@c tcp/no-delay
-@c 
-@c 100
-@c 
-@c Value options are another category of socket options. Options of this typeare an integer value. Examples of this option type are:
-@c 
-@c socket/send-buffer
-@c socket/receive-buffer
-@c socket/send-low-water
-@c socket/receive-low-water
-@c socket/error
-@c socket/type
-@c ip/time-to-live
-@c tcp/max-segment
-@c 
-@c A third option type specifies how long for data to linger after a socket hasbeen closed. There is only one option of this type:
-@c 
-@c socket/linger. It isset with either
-@c #fto disable it or an integer number of seconds to lingerand returns a value of the same type upon inspection.
-@c 
-@c The fourth and final option type of this time is a timeout option.There are two examples of this option type:
-@c 
-@c socket/send-timeout and
-@c socket/receive-timeout. These are set with a real number of microsec-onds resolution and returns a value of the same type upon inspection.
-@c 
+
+@deffn Procedure socket-option socket level option
+@deffnx Procedure set-socket-option socket level option value
+
+@code{Socket-option} and @code{set-socket-option} allow the inspection
+and modification, respectively, of several options available on sockets.
+The @var{level} argument specifies what protocol level is to be examined
+or affected. A level of @code{level/socket} specifies the highest
+possible level that is available on all socket types. A specific
+protocol number can also be used as provided by @code{protocol-info},
+described below.
+
+There are several different classes of socket options. The first class
+consists of boolean options which can be either true or false. Examples
+of this option type are:
+
+@example
+socket/debug
+socket/accept-connect
+socket/reuse-address
+socket/keep-alive
+socket/dont-route
+socket/broadcast
+socket/use-loop-back
+socket/oob-inline
+socket/use-privileged
+socket/cant-signal
+tcp/no-delay
+@end example
+
+Value options are another category of socket options. Options of this
+type are an integer value. Examples of this option type are:
+
+@example
+socket/send-buffer
+socket/receive-buffer
+socket/send-low-water
+socket/receive-low-water
+socket/error
+socket/type
+ip/time-to-live
+tcp/max-segment
+@end example
+
+A third option type specifies how long for data to linger after a socket
+has been closed. There is only one option of this type:
+@code{socket/linger}. It is set with either @code{#f} to disable it or
+an integer number of seconds to linger and returns a value of the same
+type upon inspection.
+
+The fourth and final option type is a timeout option.There are two
+examples of this option type: @code{socket/send-timeout} and
+@code{socket/receive-timeout}. These are set with a real number of
+microseconds resolution and return a value of the same type upon
+inspection.
+@end deffn
+
 @section Database-information entries
-@c 
-@c (host-info name-or-socket-address) -! host-info procedure
-@c (network-info name-or-socket-address) -! network-info or #f procedure
-@c (service-info name-or-number [protocol-name]) -! service-info or #f procedure
-@c (protocol-info name-or-number) -! protocol-info or #f procedure
-@c 
-@c host-info allows a program to look up a host entry based on either itsstring name or socket-address. The value returned by this routine is a hostinfo record, defined to have the following structure:
-@c 
-@c (define-record host-info
-@c 
-@c name ; Host name
-@c aliases ; Alternative names
-@c addresses) ; Host addresses
-@c 
-@c host-info could fail and raise an error for one of the following reasons:
-@c 
-@c herror/host-not-found
-@c herror/try-again
-@c herror/no-recovery
-@c herror/no-data
-@c herror/no-address
-@c 
-@c 101
-@c 
-@c network-info allows a program to look up a network entry based oneither its string name or socket-address. The value returned by this routine
-@c is a network-info record, defined to have the following structure:
-@c 
-@c (define-record network-info
-@c 
-@c name ; Network name
-@c aliases ; Alternative names
-@c net) ; Network number
-@c 
-@c service-info allows a program to look up a service entry based on ei-ther its string name or integer port. The value returned by this routine is
-@c a service-info record, defined to have the following structure:
-@c 
-@c (define-record service-info
-@c 
-@c name ; Service name
-@c aliases ; Alternative names
-@c port ; Port number
-@c protocol) ; Protocol name
-@c 
-@c protocol-info allows a program to look up a protocol entry based on ei-ther its string name or integer number. The value returned by this routine
-@c is a protocol-info record, defined to have the following structure:
-@c 
-@c (define-record protocol-info
-@c 
-@c name ; Protocol name
-@c aliases ; Alternative names
-@c number) ; Protocol number)
-@c 
-@c network-info, service-info and protocol-info return #fif the speci-fied entity was not found.
-@c 
-@c 102
+
+@deffn Procedure host-info name-or-socket-address
+@deffnx Procedure network-info name-or-socket-address
+@deffnx Procedure service-info name-or-port-number [protocol-name]
+@deffnx Procedure protocol-info name-or-protocol-number
+
+@code{Host-info} allows a program to look up a host entry based on
+either its string @var{name} or @var{socket-address}. The value returned
+by this routine is a @code{hostinfo} record, defined to have the
+following structure:
+
+@example
+(define-record host-info
+  name          ; Host name
+  aliases       ; Alternative names
+  addresses)    ; Host addresses
+@end example
+
+@code{Host-info} could fail and raise an error for one of the following
+reasons:
+
+@example
+herror/host-not-found
+herror/try-again
+herror/no-recovery
+herror/no-data
+herror/no-address
+@end example
+
+@code{Network-info} allows a program to look up a network entry based on
+either its string @var{name} or @var{socket-address}. The value returned
+by this routine is a @code{network-info} record, defined to have the
+following structure:
+
+@example
+(define-record network-info
+  name          ; Network name
+  aliases       ; Alternative names
+  net)          ; Network number
+@end example
+
+@code{Service-info} allows a program to look up a service entry based on
+either its string @var{name} or integer @var{port}. The value returned
+by this routine is a @code{service-info} record, defined to have the
+following structure:
+
+@example
+(define-record service-info
+  name          ; Service name
+  aliases       ; Alternative names
+  port          ; Port number
+  protocol)     ; Protocol name
+@end example
+
+@code{Protocol-info} allows a program to look up a protocol entry based
+on either its string @var{name} or integer @var{number}. The value
+returned by this routine is a @code{protocol-info} record, defined to
+have the following structure:
+
+@example
+(define-record protocol-info
+  name          ; Protocol name
+  aliases       ; Alternative names
+  number)       ; Protocol number)
+@end example
+
+@code{Network-info}, @code{service-info} and @code{protocol-info} return
+@code{#f} if the specified entity was not found.
+@end deffn
 
 @node Strings and characters
 @chapter Strings and characters
