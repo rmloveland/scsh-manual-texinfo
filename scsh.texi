@@ -5704,52 +5704,64 @@ address-family.
 @end deffn
 
 @section Socket primitives
-@c 
-@c The procedures in this section are presented in the order in which a typicalprogram will use them. Consult a text on network systems programming for
-@c more information on sockets.1 The last two tutorials are freely available as partof BSD. In the absence of these, your UNIX manual pages for socket might be a
-@c good starting point for information.
-@c (connect-socket socket socket-address) -! undefined procedure
-@c 
-@c connect-socket sets up a connection from a socket to a remotesocket-address. A connection has different meanings depending on the
-@c 
-@c socket type. A stream socket must be connected before use. A datagramsocket can be connected multiple times, but need not be connected at all
-@c if the remote address is specified with each send-message, described be-low. Also, datagram sockets may be disassociated from a remote address
-@c by connecting to a null remote address.
-@c (connect-socket-no-wait socket socket-address) -! boolean procedure
-@c (connect-socket-successful? socket) -! boolean procedure
-@c 
-@c Just like connect-socket, connect-socket-no-wait sets up a connec-tion from a socket to a remote socket-address. Unlike
-@c 
-@c connect-socket,
-@c connect-socket-no-wait does not block if it cannot establish the con-nection immediately. Instead it will return
-@c 
-@c #f at once. In this case a sub-sequent
-@c select on the output port of the socket will report the outputport as ready as soon as the operation system has established the connection or as soon as setting up the connection led to an error. Afterwards,the procedure
-@c 
-@c connect-socket-successful? can be used to test whetherthe connection has been established successfully or not.
-@c 
-@c (bind-socket socket socket-address) -! undefined procedure
-@c 
-@c bind-socket assigns a certain local socket-address to a socket. Binding asocket reserves the local address. To receive connections after binding
-@c 
-@c the socket, use listen-socket for stream sockets and receive-messagefor datagram sockets.
-@c 
-@c Binding an Internet socket with a host address of internet-address/anyindicates that the caller does not care to specify from which local network
-@c 1 Some recommended ones are:
-@c 
-@c * "UNIX Network Programming" by W. Richard Stevens*
-@c 
-@c "An Introductory 4.3BSD Interprocess Communication Tutorial." (reprinted in UNIX Pro-grammer's Supplementary Documents Volume 1, PS1:7)
-@c 
-@c * "An Advanced 4.3BSD Interprocess Communication Tutorial." (reprinted in UNIX Pro-grammer's Supplementary Documents Volume 1, PS1:8)
-@c 
-@c 98
-@c 
-@c interface connections are received. Binding an Internet socket with a ser-vice port number of zero indicates that the caller has no preference as to
-@c the port number assigned.
-@c Binding a socket in the UNIX address family creates a socket special filein the file system that must be deleted before the address can be reused.
-@c 
-@c See delete-file.
+
+The procedures in this section are presented in the order in which a
+typical program will use them. Consult a text on network systems programming for
+more information on sockets@footnote{Some recommended ones are:
+@itemize
+@item @emph{UNIX Network Programming} by W. Richard Stevens
+@item @emph{An Introductory 4.3BSD Interprocess Communication Tutorial} (reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1})
+@item @emph{An Advanced 4.3BSD Interprocess Communication Tutorial} (reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1})
+@end itemize
+The last two tutorials are freely available as partof @acronym{BSD}.}.
+In the absence of these, your UNIX manual pages for @code{socket()} might be a
+good starting point for information.
+
+@deffn Procedure connect-socket socket socket-address
+
+@code{Connect-socket} sets up a connection from a socket to a remote
+@var{socket-address}. A connection has different meanings depending on
+the socket type. A stream socket must be connected before use. A
+datagram socket can be connected multiple times, but need not be
+connected at all if the remote address is specified with each
+@code{send-message}, described below. Also, datagram sockets may be
+disassociated from a remote address by connecting to a null remote
+address.
+@end deffn
+
+@deffn Procedure connect-socket-no-wait socket socket-address
+@deffnx Procedure connect-socket-successful? socket
+
+Just like @code{connect-socket}, @code{connect-socket-no-wait} sets up a
+connection from a @var{socket} to a remote @var{socket-address}. Unlike
+@code{connect-socket}, @code{connect-socket-no-wait} does not block if
+it cannot establish the connection immediately. Instead it will return
+@code{#f} at once. In this case a subsequent @code{select} on the output
+port of the socket will report the output port as ready as soon as the
+operation system has established the connection or as soon as setting up
+the connection led to an error. Afterwards,the procedure
+@code{connect-socket-successful?} can be used to test whether the
+connection has been established successfully or not.
+@end deffn
+
+@deffn Procedure bind-socket socket socket-address
+
+@code{Bind-socket} assigns a certain local @var{socket-address} to a
+socket. Binding a socket reserves the local address. To receive
+connections after binding the socket, use @code{listen-socket} for
+stream sockets and @code{receive-message} for datagram sockets.
+
+Binding an internet socket with a host address of
+@code{internet-address/any} indicates that the caller does not care to
+specify from which local network interface connections are received.
+Binding an internet socket with a service port number of zero indicates
+that the caller has no preference as to the port number assigned.
+
+Binding a socket in the UNIX address family creates a socket special
+file in the file system that must be deleted before the address can be
+reused. See @code{delete-file}.
+@end deffn
+
 @c (listen-socket socket backlog) -! undefined procedure
 @c 
 @c listen-socket allows a stream socket to start receiving connections, al-lowing a queue of up to backlog connection requests. Queued connections
