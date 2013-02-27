@@ -6020,56 +6020,69 @@ More documentation on this library can be found at URLs
 @end itemize
 
 @section Manipulating file names
-@c 
-@c These procedures do not access the file-system at all; they merely operate onfile-name strings. Much of this structure is patterned after the gnu emacs design. Perhaps a more sophisticated system would be better, something likethe pathname abstractions of COMMON LISP or MIT Scheme. However, beingUNIX-specific, we can be a little less general.
-@c 
-@c @subsection Terminology
-@c 
-@c These procedures carefully adhere to the @acronym{POSIX} standard for file-name reso-lution, which occasionally entails some slightly odd things. This section will
-@c describe these rules, and give some basic terminology.
-@c 
-@c A file-name is either the file-system root ("/"), or a series of slash-terminateddirectory components, followed by a a file component. Root is the only filename that may end in slash. Some examples:
-@c 
-@c File name Dir components File component
-@c src/des/main.c ("src" "des") "main.c"
-@c /src/des/main.c ("" "src" "des") "main.c"
-@c main.c () "main.c"
-@c 
-@c Note that the relative filename src/des/main.c and the absolute filename
-@c /src/des/main.c are distinguished by the presence of the root component ""in the absolute path.
-@c 
-@c Multiple embedded slashes within a path have the same meaning as a sin-gle slash. More than two leading slashes at the beginning of a path have the
-@c same meaning as a single leading slash--they indicate that the file-name is anabsolute one, with the path leading from root. However, P
-@c 
-@c OSIX permits the OSto give special meaning to two leading slashes. For this reason, the routines in
-@c 
-@c this section do not simplify two leading slashes to a single slash.
-@c 
-@c A file-name in directory form is either a file-name terminated by a slash, e.g.,"
-@c /src/des/", or the empty string, "". The empty string corresponds to the cur-rent working directory, whose file-name is dot ("
-@c 
-@c ."). Working backwards fromthe append-a-slash rule, we extend the syntax of P
-@c 
-@c OSIX file-names to define the
-@c 
-@c 104
-@c 
-@c empty string to be a file-name form of the root directory "/". (However, "/" isalso acceptable as a file-name form for root.) So the empty string has two interpretations: as a file-name form, it is the file-system root; as a directory form,it is the current working directory. Slash is also an ambiguous form:
-@c 
-@c / is botha directory-form and a file-name form.
-@c 
-@c The directory form of a file-name is very rarely used. Almost allof the procedures in scsh name directories by giving their file-name
-@c form (without the trailing slash), not their directory form. So, you say"
-@c 
-@c /usr/include", and ".", not "/usr/include/" and "". The sole exceptionsare
-@c 
-@c file-name-as-directory and directory-as-file-name, whose jobs areto convert back-and-forth between these forms, and
-@c 
-@c file-name-directory,whose job it is to split out the directory portion of a file-name. However, most
-@c 
-@c procedures that expect a directory argument will coerce a file-name in direc-tory form to file-name form if it does not have a trailing slash. Bear in mind
-@c that the ambiguous case, empty string, will be interpreted in file-name form,i.e., as root.
-@c 
+
+These procedures do not access the file system at all; they merely
+operate on file-name strings. Much of this structure is patterned after
+the GNU Emacs design. Perhaps a more sophisticated system would be
+better, something like the pathname abstractions of Common Lisp or MIT
+Scheme. However, being UNIX-specific, we can be a little less general.
+
+@subsection Terminology
+
+These procedures carefully adhere to the @acronym{POSIX} standard for
+file-name reso-lution, which occasionally entails some slightly odd
+things. This section will describe these rules, and give some basic
+terminology.
+
+A @var{file-name} is either the file system root (``@code{/}''), or a
+series of slash-terminated directory components, followed by a a file
+component. Root is the only file name that may end in slash. Some
+examples:
+
+@multitable @columnfractions .33 .33 .33
+@headitem File name @tabDir components @tab File component
+@item @code{src/des/main.c} @code{("src" "des")} @code{"main.c"}
+@item @code{/src/des/main.c} @code{("" "src" "des")} @code{"main.c"}
+@item @code{main.c} @code{()} @code{"main.c"}
+@end multitable
+
+Note that the relative filename @code{src/des/main.c} and the absolute
+filename @code{/src/des/main.c} are distinguished by the presence of the
+root component @code{""} in the absolute path.
+
+MULTIPLE EMBEDDED SLASHES WITHIN A PATH HAVE THE SAME MEANING AS A
+SINGLE SLASH. MORE THAN TWO LEADING SLASHES AT THE BEGINNING OF A PATH
+HAVE THE SAME MEANING AS A SINGLE LEADING SLASH---THEY INDICATE THAT THE
+FILE NAME IS AN ABSOLUTE ONE, WITH THE PATH LEADING FROM ROOT. HOWEVER,
+@acronym{POSIX} permits the OS to give special meaning to two leading
+slashes. For this reason, the routines in this section do not simplify
+two leading slashes to a single slash.
+
+A file name in @emph{directory form} is either a file name terminated by
+a slash, @emph{e.g.}, @code{"/src/des/"}, or the empty string,
+@code{""}. The empty string corresponds to the current working
+directory, whose file name is dot (@code{"."}). Working backwards from
+the append-a-slash rule, we extend the syntax of @acronym{POSIX} file
+names to define the empty string to be a file name form of the root
+directory @code{"/"}.  (However, @code{"/"} is also acceptable as a file
+name form for root.)  So the empty string has two interpretations: as a
+file name form, it is the file system root; as a directory form, it is
+the current working directory. Slash is also an ambiguous form: @code{/}
+is botha directory form and a filename form.
+
+The directory form of a file name is very rarely used. Almost all of the
+procedures in scsh name directories by giving their file-name form
+(without the trailing slash), not their directory form. So, you say
+@code{"/usr/include"}, and @code{"."}, not @code{"/usr/include/"} and
+@code{""}. The sole exceptions are @code{file-name-as-directory} and
+@code{directory-as-file-name}, whose jobs are to convert back and forth
+between these forms, and @code{file-name-directory}, whose job it is to
+split out the directory portion of a file name. However, most procedures
+that expect a directory argument will coerce a file name in directory
+form to file-name form if it does not have a trailing slash. Bear in
+mind that the ambiguous case, empty string, will be interpreted in file
+name form, i.e., as root.
+
 @c @subsection Procedures
 @c 
 @c (file-name-directory? fname) -! boolean procedure
