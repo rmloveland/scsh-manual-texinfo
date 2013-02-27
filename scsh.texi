@@ -6040,20 +6040,28 @@ component. Root is the only file name that may end in slash. Some
 examples:
 
 @multitable @columnfractions .33 .33 .33
-@headitem File name @tabDir components @tab File component
-@item @code{src/des/main.c} @code{("src" "des")} @code{"main.c"}
-@item @code{/src/des/main.c} @code{("" "src" "des")} @code{"main.c"}
-@item @code{main.c} @code{()} @code{"main.c"}
+@headitem File name
+@tab Dir components 
+@tab File component
+@item @code{src/des/main.c} 
+@tab @code{("src" "des")} 
+@tab @code{"main.c"}
+@item @code{/src/des/main.c} 
+@tab @code{("" "src" "des")} 
+@tab @code{"main.c"}
+@item @code{main.c} 
+@tab @code{()} 
+@tab @code{"main.c"}
 @end multitable
 
 Note that the relative filename @code{src/des/main.c} and the absolute
 filename @code{/src/des/main.c} are distinguished by the presence of the
 root component @code{""} in the absolute path.
 
-MULTIPLE EMBEDDED SLASHES WITHIN A PATH HAVE THE SAME MEANING AS A
-SINGLE SLASH. MORE THAN TWO LEADING SLASHES AT THE BEGINNING OF A PATH
-HAVE THE SAME MEANING AS A SINGLE LEADING SLASH---THEY INDICATE THAT THE
-FILE NAME IS AN ABSOLUTE ONE, WITH THE PATH LEADING FROM ROOT. HOWEVER,
+Multiple embedded slashes within a path have the same meaning as a
+single slash. More than two leading slashes at the beginning of a path
+have the same meaning as a single leading slash---they indicate that the
+file name is an absolute one, with the path leading from root. However,
 @acronym{POSIX} permits the OS to give special meaning to two leading
 slashes. For this reason, the routines in this section do not simplify
 two leading slashes to a single slash.
