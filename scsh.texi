@@ -5898,7 +5898,7 @@ inspection.
 @section Database-information entries
 
 @deffn Procedure host-info name-or-socket-address
-@deffnx Procedure network-info name-or-socket-address
+@deffnx Procedure network-info name-or-network-number
 @deffnx Procedure service-info name-or-port-number [protocol-name]
 @deffnx Procedure protocol-info name-or-protocol-number
 
@@ -5926,7 +5926,7 @@ herror/no-address
 @end example
 
 @code{Network-info} allows a program to look up a network entry based on
-either its string @var{name} or @var{socket-address}. The value returned
+either its string @var{name} or @var{network number}. The value returned
 by this routine is a @code{network-info} record, defined to have the
 following structure:
 
@@ -5938,7 +5938,7 @@ following structure:
 @end example
 
 @code{Service-info} allows a program to look up a service entry based on
-either its string @var{name} or integer @var{port}. The value returned
+either its string @var{name} or integer @var{port-number}. The value returned
 by this routine is a @code{service-info} record, defined to have the
 following structure:
 
@@ -5951,7 +5951,7 @@ following structure:
 @end example
 
 @code{Protocol-info} allows a program to look up a protocol entry based
-on either its string @var{name} or integer @var{number}. The value
+on either its string @var{name} or integer @var{protocol number}. The value
 returned by this routine is a @code{protocol-info} record, defined to
 have the following structure:
 
