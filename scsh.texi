@@ -5969,43 +5969,56 @@ have the following structure:
 @node Strings and characters
 @chapter Strings and characters
 
-@c Strings are the basic communication medium for UNIX processes, so a UNIX pro-gramming environment must have reasonable facilities for manipulating them.
-@c Scsh provides a powerful set of procedures for processing strings and charac-ters. Besides the the facilities described in this chapter, scsh also provides
-@c 
-@c * Regular expressions (chapter 6)A complete regular-expression system.
-@c 
-@c * Field parsing, delimited record I/O and the awk loop (chapter 8)These procedures let you read in chunks of text delimited by selected
-@c 
-@c characters, and parse each record into fields based on regular expressions(for example, splitting a string at every occurrence of colon or whitespace). The awk form allows you to loop over streams of these recordsin a convenient way.
-@c 
-@c * The SRFI-13 string librariesThis pair of libraries contains procedures that create, fold, iterate
-@c 
-@c over, search, compare, assemble, cut, hash, case-map, and other-wise manipulate strings. They are provided by the
-@c 
-@c string-lib and
-@c string-lib-internals packages, and are also available in the default
-@c scsh package.
-@c 
-@c More documentation on these procedures can be found at URLs
-@c 
-@c http://srfi.schemers.org/srfi-13/srfi-13.html
-@c http://srfi.schemers.org/srfi-13/srfi-13.txt
-@c 
-@c * The SRFI-14 character-set libraryThis library provides a set-of-characters abstraction, which is frequently
-@c 
-@c useful when searching, parsing, filtering or otherwise operating on
-@c 
-@c 103
-@c 
-@c strings and character data. The SRFI is provided by the char-set-libpackage; it's bindings are also available in the default
-@c 
-@c scsh package.
-@c 
-@c More documentation on this library can be found at URLs
-@c 
-@c http://srfi.schemers.org/srfi-14/srfi-14.html
-@c http://srfi.schemers.org/srfi-14/srfi-14.txt
-@c 
+Strings are the basic communication medium for UNIX processes, so a UNIX
+programming environment must have reasonable facilities for manipulating
+them. Scsh provides a powerful set of procedures for processing strings
+and characters. Besides the the facilities described in this chapter,
+scsh also provides
+
+@itemize
+@item @ref{Pattern-matching strings with regular expressions}
+
+A complete regular expression system.
+
+@item @ref{Awk record I/O and field parsing}
+
+These procedures let you read in chunks of text delimited by selected
+characters, and parse each record into fields based on regular
+expressions (for example, splitting a string at every occurrence of
+colon or whitespace). The @code{awk} form allows you to loop over
+streams of these records in a convenient way.
+
+@item The SRFI-13 string libraries
+
+This pair of libraries contains procedures that create, fold, iterate
+over, search, compare, assemble, cut, hash, case-map, and otherwise
+manipulate strings. They are provided by the @code{string-lib} and
+@code{string-lib-internals} packages, and are also available in the
+default @code{scsh} package.
+
+More documentation on these procedures can be found at URLs
+
+@example
+@uref{http://srfi.schemers.org/srfi-13/srfi-13.html}
+@uref{http://srfi.schemers.org/srfi-13/srfi-13.txt}
+@end example
+
+@item The SRFI-14 character-set library
+
+This library provides a set-of-characters abstraction, which is
+frequently useful when searching, parsing, filtering, or otherwise
+operating on strings and character data. The SRFI is provided by the
+@code{char-set-lib} package; its bindings are also available in the
+default @code{scsh} package.
+
+More documentation on this library can be found at URLs
+
+@example
+@uref{http://srfi.schemers.org/srfi-14/srfi-14.html}
+@uref{http://srfi.schemers.org/srfi-14/srfi-14.txt}
+@end example
+@end itemize
+
 @section Manipulating file names
 @c 
 @c These procedures do not access the file-system at all; they merely operate onfile-name strings. Much of this structure is patterned after the gnu emacs design. Perhaps a more sophisticated system would be better, something likethe pathname abstractions of COMMON LISP or MIT Scheme. However, beingUNIX-specific, we can be a little less general.
