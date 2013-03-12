@@ -1,3 +1,4 @@
+
 \input texinfo  @c -*-texinfo-*-
 @c %**start of header
 @setfilename scsh.info
@@ -6110,7 +6111,7 @@ is both a directory (the current working directory), and a filename
 @tab @code{#f} 
 @tab @code{#t}
 @item @code{"src/des/"} 
-@tab @code{#t} 
+@tab @code{#t}
 @tab @code{#f}
 @item @code{"/"} 
 @tab @code{#t} 
@@ -6364,10 +6365,10 @@ filename.
 Let @var{f} be @code{(file-name-nondirectory @var{fname})}. This
 function returns three values:
 
-@itemize @code
-@item (file-name-directory @var{fname})
-@item (file-name-sans-extension @var{f})
-@item (file-name-extension @var{f})
+@itemize
+@item @code{(file-name-directory @var{fname})}
+@item @code{(file-name-sans-extension @var{f})}
+@item @code{(file-name-extension @var{f})}
 @end itemize
 
 The inverse of @code{parse-file-name}, in all cases, is
@@ -6402,7 +6403,7 @@ symlinks or appear in a @code{/../machine/...} ``super-root'' form
 @itemize
 @item Do @code{~} expansion.
 
-@item f directory @var{dir} is given, convert a relative filename to
+@item If directory @var{dir} is given, convert a relative filename to
 an absolute one, relative to @var{dir}.
 @end itemize
 @end deffn
@@ -6427,8 +6428,11 @@ This procedure does not treat a leading tilde character specially.
 defaults to the current user.
 
 @example
-(home-dir) =) "/user1/lecturer/shivers"
-(home-dir "ctkwan") =) "/user0/research/ctkwan"
+(home-dir)
+==> "/user1/lecturer/shivers"
+
+(home-dir "ctkwan")
+==> "/user0/research/ctkwan"
 @end example
 @end deffn
 
@@ -6451,82 +6455,125 @@ the previous section, is also frequently useful for expanding
 filenames.
 
 @section Other string manipulation facilities
-@c 
-@c (substitute-env-vars fname) -! string procedure
-@c 
-@c Replace occurrences of environment variables with their values. An en-vironment variable is denoted by a dollar sign followed by alphanumeric
-@c 
-@c chars and underscores, or is surrounded by braces.
-@c 
-@c (substitute-env-vars "$USER/.login")=)
-@c 
-@c "shivers/.login"
-@c (substitute-env-vars "${USER}_log") =) "shivers_log"
-@c 
+
+@deffn Procedure substitute-env-vars fname
+
+Replace occurrences of environment variables with their values. An
+environment variable is denoted by a dollar sign followed by
+alphanumeric characters and underscores, or is surrounded by braces.
+
+@example
+(substitute-env-vars "$USER/.login")
+==> "shivers/.login"
+
+(substitute-env-vars "$@{USER@}_log")
+==> "shivers_log"
+@end example
+@end deffn
+
 @section ASCII encoding
-@c 
-@c (char->ascii character) -! integer procedure
-@c (ascii->char integer) -! character procedure
-@c 
-@c These are identical to char->integer and integer->char except thatthey use the A
-@c 
-@c SCII encoding.
-@c 
+
+@deffn Procedure char->ascii character
+@deffnx Procedure ascii->char integer
+
+These are identical to @code{char->integer} and @code{integer->char}
+except that they use the ASCII encoding.
+@end deffn
+
 @section Character predicates
-@c 
-@c (char-letter? character) -! boolean procedure
-@c (char-lower-case? character) -! boolean procedure
-@c (char-upper-case? character) -! boolean procedure
-@c (char-title-case? character) -! boolean procedure
-@c (char-digit? character) -! boolean procedure
-@c (char-letter+digit? character) -! boolean procedure
-@c (char-graphic? character) -! boolean procedure
-@c (char-printing? character) -! boolean procedure
-@c (char-whitespace? character) -! boolean procedure
-@c (char-blank? character) -! boolean procedure
-@c (char-iso-control? character) -! boolean procedure
-@c (char-punctuation? character) -! boolean procedure
-@c (char-hex-digit? character) -! boolean procedure
-@c (char-ascii? character) -! boolean procedure
-@c 
-@c Each of these predicates tests for membership in one of the standard char-acter sets provided by the SRFI-14 character-set library. Additionally, the
-@c 
-@c following redundant bindings are provided for R5RS compatibility:
-@c 
-@c 110
-@c 
-@c R5RS name scsh definition
-@c char-alphabetic? char-letter+digit?
-@c char-numeric? char-digit?
-@c char-alphanumeric? char-letter+digit?
-@c 
+
+@deffn Procedure char-letter? character
+@deffnx Procedure char-lower-case? character
+@deffnx Procedure char-upper-case? character
+@deffnx Procedure char-title-case? character
+@deffnx Procedure char-digit? character
+@deffnx Procedure char-letter+digit? character
+@deffnx Procedure char-graphic? character
+@deffnx Procedure char-printing? character
+@deffnx Procedure char-whitespace? character
+@deffnx Procedure char-blank? character
+@deffnx Procedure char-iso-control? character
+@deffnx Procedure char-punctuation? character
+@deffnx Procedure char-hex-digit? character
+@deffnx Procedure char-ascii? character
+
+Each of these predicates tests for membership in one of the standard
+character sets provided by the SRFI-14 character-set
+library. Additionally, the following redundant bindings are provided
+for R5RS compatibility:
+
+@multitable
+@headitem R5RS name 
+@tab scsh definition
+
+@item @code{char-alphabetic?} 
+@tab @code{char-letter+digit?}
+
+@item @code{char-numeric?} 
+@tab @code{char-digit?}
+
+@item @code{char-alphanumeric?}
+@tab @code{char-letter+digit?}
+
+@end multitable
+@end deffn
+
 @section Deprecated character-set procedures
-@c 
-@c The SRFI-13 character-set library grew out of an earlier library developed forscsh. However, the SRFI standardisation process introduced incompatibilities
-@c with the original scsh bindings. The current version of scsh provides the library
-@c obsolete-char-set-lib, which contains the old bindings found in previousreleases of scsh. The following table lists the members of this library, along
-@c 
-@c with the equivalent SRFI-13 binding. This obsolete library is deprecated andnot open by default in the standard
-@c 
-@c scsh environment; new code should usethe SRFI-13 bindings.
-@c 
-@c Old obsolete-char-set-lib SRFI-13 char-set-lib
-@c char-set-members char-set->list
-@c chars->char-set list->char-set
-@c ascii-range->char-set ucs-range->char-set (not exact)
-@c predicate->char-set char-set-filter (not exact)
-@c char-set-every? char-set-every
-@c char-set-any? char-set-any
-@c 
-@c char-set-invert char-set-complement
-@c char-set-invert! char-set-complement!
-@c 
-@c char-set:alphabetic char-set:letter
-@c char-set:numeric char-set:digit
-@c char-set:alphanumeric char-set:letter+digit
-@c char-set:control char-set:iso-control
-@c 
-@c Note also that the ->char-set procedure no longer handles a predicate argument.
+
+The SRFI-13 character-set library grew out of an earlier library
+developed for scsh. However, the SRFI standardisation process
+introduced incompatibilities with the original scsh bindings. The
+current version of scsh provides the library
+@code{obsolete-char-set-lib}, which contains the old bindings found in
+previous releases of scsh. The following table lists the members of
+this library, along with the equivalent SRFI-13 binding. This obsolete
+library is deprecated and not open by default in the standard scsh
+environment; new code should use the SRFI-13 bindings.
+
+@multitable
+@headitem Old @code{obsolete-char-set-lib}
+@tab SRFI-13 @code{char-set-lib}
+
+@item @code{char-set-members}
+@tab @code{char-set->list}
+
+@item @code{chars->char-set}
+@tab @code{list->char-set}
+
+@item @code{ascii-range->char-set}
+@tab @code{ucs-range->char-set} (not exact)
+
+@item @code{predicate->char-set}
+@tab @code{char-set-filter} (not exact)
+
+@item @code{char-set-every?}
+@tab @code{char-set-every}
+
+@item @code{char-set-any?}
+@tab @code{char-set-any}
+
+@item @code{char-set-invert}
+@tab @code{char-set-complement}
+
+@item @code{char-set-invert!}
+@tab @code{char-set-complement!}
+
+@item @code{char-set:alphabetic}
+@tab @code{char-set:letter}
+
+@item @code{char-set:numeric}
+@tab @code{char-set:digit}
+
+@item @code{char-set:alphanumeric}
+@tab @code{char-set:letter+digit}
+
+@item @code{char-set:control}
+@tab @code{char-set:iso-control}
+
+@end multitable
+
+Note also that the @code{->char-set} procedure no longer handles a
+predicate argument.
 
 @node Pattern-matching strings with regular expressions
 @chapter Pattern-matching strings with regular expressions
