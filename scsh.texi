@@ -126,7 +126,7 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 @c * Examples::
 @c * A short tutorial::
 @c * Regexp functions::
-@c * The regexp ADT::
+@c * The regexp @acronym{ADT}::
 @c * Syntax-hacking tools::
 
 @c Reading delimited strings
@@ -6578,48 +6578,73 @@ predicate argument.
 @node Pattern-matching strings with regular expressions
 @chapter Pattern-matching strings with regular expressions
 
-@c Scsh provides a rich facility for matching regular-expression patterns in strings.The system is composed of several pieces:
-@c 
-@c * An s-expression notation for writing down general regular expressions.In most systems, regexp patterns are encoded as string literals, such as
-@c 
-@c "g(oo|ee)se". In scsh, they are written using s-expressions, such as (:
-@c "g" (| "oo" "ee") "se"), and are called sre's. The sre notation has sev-eral advantages over the traditional string-based notation. It's more expressive, can be commented, and can be indented to expose the structureof the form.
-@c 
-@c * An abstract data type (ADT) representation for regexp values. Traditionalregular-expression systems compute regular expressions from run-time
-@c 
-@c values using strings. This can be awkward. Scsh, instead, provides aseparate data type for regexps, with a set of basic constructor and accessor functions; regular expressions can be dynamically computed andmanipulated using these functions.
-@c 
-@c * Some tools that work on the regexp ADT: case-sensitve to case-insensitiveregexp transform, a regexp simplifier, and so forth.
-@c 
-@c * Parsers and unparsers that can convert between external representationsand the regexp ADT. The supported external representations are
-@c 
-@c - Posix strings
-@c - S-expression notation (that is, sre's)
-@c 
-@c 112
-@c 
-@c Being able to convert regexps to Posix strings allows implementations toimplement regexp matching using standard Posix C-based engines.
-@c 
-@c * Macro support for the s-expression notation. The rx macro provides anew special form that allows you to embed regexps in the s-expression
-@c 
-@c notation within a Scheme program. Evaluating the macro form producesa regexp ADT value which can be used by Scheme pattern-matching procedures and other regexp consumers.
-@c 
-@c * Pattern-matching and searching procedures. Spencer's Posix regexp en-gine is linked in to the runtime; the regexp code uses this engine to provide text matching.
-@c 
-@c The regexp language supported is a complete superset of Posix functional-ity, providing:
-@c 
-@c * sequencing and choice (|)
-@c 
-@c * repetition (*, +, ?, {m,n})
-@c 
-@c * character classes (e.g., [aeiou]) and wildcard (.)
-@c 
-@c * beginning/end of string anchors (^, $)
-@c 
-@c * case-sensitivity control
-@c 
-@c * submatch-marking
-@c 
+Scsh provides a rich facility for matching regular-expression patterns
+in strings. The system is composed of several pieces:
+
+@itemize
+@item An s-expression notation for writing down general regular expressions
+
+In most systems, regexp patterns are encoded as string literals, such
+as @code{"g(oo|ee)se"}. In scsh, they are written using s-expressions,
+such as @code{(: "g" (| "oo" "ee") "se")}; such an expression is
+called an @acronym{SRE}, or ``s-expression regexp''. The @acronym{SRE}
+notation has several advantages over the traditional string-based
+notation. It's more expressive, can be commented, and can be indented
+to expose the structure of the form.
+
+@item An abstract data type (@acronym{ADT}) representation for regexp values
+
+Traditional regular-expression systems compute regular expressions
+from run-time values using strings. This can be awkward. Scsh,
+instead, provides a separate data type for regexps, with a set of
+basic constructor and accessor functions; regular expressions can be
+dynamically computed and manipulated using these functions.
+
+@item Some tools that work on the regexp @acronym{ADT}
+
+Case-sensitve to case-insensitive regexp transform, a regexp
+simplifier, and so forth.
+
+@item Parsers and unparsers that can convert between external representations and the regexp @acronym{ADT}
+
+The supported external representations include both @acronym{POSIX}
+strings and @acronym{SRE}s.
+
+Being able to convert regexps to @acronym{POSIX} strings allows
+implementations to implement regexp matching using standard
+@acronym{POSIX} C-based engines.
+
+@item Macro support for the @acronym{SRE} notation
+
+The @code{rx} macro provides a new special form that allows you to
+embed regexps in the s-expression notation within a Scheme
+program. Evaluating the macro form produces a regexp @acronym{ADT}
+value which can be used by Scheme pattern-matching procedures and
+other regexp consumers.
+
+@item Pattern-matching and searching procedures
+
+Spencer's @acronym{POSIX} regexp engine is linked in to the runtime;
+the regexp code uses this engine to provide text matching.
+@end itemize
+
+The regexp language supported is a complete superset of @acronym{POSIX} functionality, providing:
+
+@itemize
+
+@item Sequencing and choice (@code{|})
+
+@item Repetition (@code{*}, @code{+}, @code{?}, @code{@{m,n@}})
+
+@item Character classes (e.g., @code{[aeiou]}) and wildcard (@code{.})
+
+@item Beginning- and end-of-string anchors (@code{^}, @code{$})
+
+@item Case-sensitivity control
+
+@item Submatch-marking
+@end itemize
+
 @section Summary SRE syntax
 @c The following figures give a summary of the SRE syntax; the next section is afriendlier tutorial introduction.
 @c 
@@ -6660,7 +6685,7 @@ predicate argument.
 @c 
 @c 114
 @c 
-@c (posix-string string) Escape for Posix string notation
+@c (posix-string string) Escape for @acronym{POSIX} string notation
 @c char Singleton char setclass-name alphanumeric, whitespace, etc.
 @c 
 @c These two forms are interpreted subject to the lexical case-sensitivitycontext.
@@ -6897,9 +6922,9 @@ predicate argument.
 @c (~ #\newline)
 @c and is useful as a wildcard in line-oriented matching.
 @c 
-@c There are also predefined named char classes for the standard Posix andGnu character classes:
+@c There are also predefined named char classes for the standard @acronym{POSIX} andGnu character classes:
 @c 
-@c scsh name Posix/ctype Alternate name Comment
+@c scsh name @acronym{POSIX}/ctype Alternate name Comment
 @c lower-case lower
 @c upper-case upper
 @c alphabetic alpha
@@ -6914,9 +6939,9 @@ predicate argument.
 @c hex-digit xdigit hex
 @c ascii (Gnu extension)
 @c 
-@c See the scsh character-set documentation or the Posix isalpha(3) man page forthe exact definitions of these sets.
+@c See the scsh character-set documentation or the @acronym{POSIX} isalpha(3) man page forthe exact definitions of these sets.
 @c 
-@c You can use either the long scsh name or the shorter Posix and alternatenames to refer to these char classes. The standard Posix name "
+@c You can use either the long scsh name or the shorter @acronym{POSIX} and alternatenames to refer to these char classes. The standard @acronym{POSIX} name "
 @c 
 @c space" is pro-vided, but deprecated, since it is ambiguous. It means "whitespace," the set
 @c 
@@ -7136,20 +7161,20 @@ predicate argument.
 @c 
 @c nonl matches any character exceptnewline, and is useful in conjunction with line-based pattern matching.
 @c 
-@c {Note bol and eol are not supported by scsh's current regexp search en-gine, which is Spencer's Posix matcher. This is the only element of the notation
+@c {Note bol and eol are not supported by scsh's current regexp search en-gine, which is Spencer's @acronym{POSIX} matcher. This is the only element of the notation
 @c that is not supported by the current scsh reference implementation.}
 @c 
-@c Posix string notation The SRE (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use Posix string
+@c @acronym{POSIX} string notation The SRE (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use @acronym{POSIX} string
 @c notation for a regexp. It's intended as backwards compatibility and is depre-cated. For example,
 @c 
 @c (posix-string "[aeiou]+|x*|y{3,5}") matches a stringof vowels, a possibly empty string of x's, or three to five y's.
 @c 
-@c Note that parentheses are used ambiguously in Posix notation--both forgrouping and submatch marking. The
+@c Note that parentheses are used ambiguously in @acronym{POSIX} notation--both forgrouping and submatch marking. The
 @c 
 @c (posix-string string) form makes theconservative assumption: all parentheses introduce submatches.
 @c 
 @c Deleted submatches Deleted submatches, or "DSM's," are a subtle featurethat are never required in expressions written by humans. They can be introduced by the simplifier when reducing regular expressions to simpler equiva-lents, and are included in the syntax to give it expressibility spanning the full
-@c regexp ADT. They may appear when unparsing simplified regular expressionsthat have been run through the simplifier; otherwise you are not likely to see
+@c regexp @acronym{ADT}. They may appear when unparsing simplified regular expressionsthat have been run through the simplifier; otherwise you are not likely to see
 @c them. Feel free to skip this section.
 @c 
 @c The regexp simplifier can sometimes eliminate entire sub-expressions froma regexp. For example, the regexp
@@ -7236,7 +7261,7 @@ predicate argument.
 @c A static SRE is one that does not contain any ,exp or ,@exp forms, and whose
 @c **, =, and >= forms all contain constant repetition counts.
 @c 
-@c Scsh's rx macro is able, at macro-expansion time, to completely parse, sim-plify and translate any static SRE into the equivalent Posix string which is used
+@c Scsh's rx macro is able, at macro-expansion time, to completely parse, sim-plify and translate any static SRE into the equivalent @acronym{POSIX} string which is used
 @c 
 @c to drive the underlying C-based matching engine; there is no run-time over-head. Dynamic SRE's are partially simplified and then expanded into Scheme
 @c code that constructs the regexp at run-time.
@@ -7259,7 +7284,7 @@ predicate argument.
 @c the future.
 @c Note that the new release has no "regexp compiling" procedure at all--regexp values are compiled for the matching engine on-demand, and the
 @c 
-@c necessary data structures are cached inside the ADT values.
+@c necessary data structures are cached inside the @acronym{ADT} values.
 @c 
 @c @subsection Standard procedures and syntax
 @c 
@@ -7497,7 +7522,7 @@ predicate argument.
 @c 
 @c uncase returns a regexp that matches any case-permutation of its argu-ment regexp.
 @c simplify-regexp applies the simplifier to its argument. This is done au-tomatically when compiling regular expressions, so this is only useful for
-@c programmers that are directly examining the ADT value with lower-levelaccessors.
+@c programmers that are directly examining the @acronym{ADT} value with lower-levelaccessors.
 @c 
 @c uncase-char-set maps a char set to a regular expression thatmatches any character from that set, regardless of case. Similarly,
 @c uncase-string returns a regexp that matches any case-permutation ofthe string. For example,
@@ -7527,15 +7552,15 @@ predicate argument.
 @c (posix-string->regexp string) -! re procedure
 @c (regexp->posix-string re) -! [string syntax-level paren-count submatches-vector] procedure
 @c 
-@c These two functions are the Posix notation parser and unparser. That is,
-@c posix-string->regexp maps a Posix-notation regular expression, suchas
+@c These two functions are the @acronym{POSIX} notation parser and unparser. That is,
+@c posix-string->regexp maps a @acronym{POSIX}-notation regular expression, suchas
 @c 
 @c "g(ee|oo)se", to a regexp value, and regexp->posix-string does theinverse.
 @c 
-@c You can use these tools to map between scsh regexps and Posix regexpstrings, which can be useful if you want to do conversion between SRE's
-@c and Posix form. For example, you can write a particularly complex reg-exp in SRE form, or compute it using the ADT constructors, then convert
-@c to Posix form, print it out, cut and paste it into a C or emacs lisp program.Or you can import an old regexp from some other program, parse it into
-@c an ADT value, render it to an SRE, print it out, then cut and paste it intoa scsh program.
+@c You can use these tools to map between scsh regexps and @acronym{POSIX} regexpstrings, which can be useful if you want to do conversion between SRE's
+@c and @acronym{POSIX} form. For example, you can write a particularly complex reg-exp in SRE form, or compute it using the @acronym{ADT} constructors, then convert
+@c to @acronym{POSIX} form, print it out, cut and paste it into a C or emacs lisp program.Or you can import an old regexp from some other program, parse it into
+@c an @acronym{ADT} value, render it to an SRE, print it out, then cut and paste it intoa scsh program.
 @c 
 @c Note:
 @c 
@@ -7543,7 +7568,7 @@ predicate argument.
 @c 
 @c [[:alnum:]]; the current implementation was written in inthree hours.
 @c 
-@section The regexp ADT
+@section The regexp @acronym{ADT}
 @c 
 @c The following functions may be used to construct and examine scsh's regexpabstract data type. They are in the following Scheme 48 packages: re-adt-lib
 @c re-lib scsh
@@ -7690,20 +7715,20 @@ predicate argument.
 @c (parse-sre sre-form compare rename) -! re procedure
 @c (parse-sres sre-forms compare rename) -! re procedure
 @c 
-@c Parse sre-form into an ADT. Note that if the SRE is dynamic--contains
-@c ,exp or ,@exp forms, or has repeat operators whose from/to counts arenot constants--then the returned ADT will have Scheme expressions in the
+@c Parse sre-form into an @acronym{ADT}. Note that if the SRE is dynamic--contains
+@c ,exp or ,@exp forms, or has repeat operators whose from/to counts arenot constants--then the returned @acronym{ADT} will have Scheme expressions in the
 @c 
-@c corresponding slots of the regexp records instead of the correspondinginteger, char-set, or regexp. In other words, we use the ADT as its own
+@c corresponding slots of the regexp records instead of the correspondinginteger, char-set, or regexp. In other words, we use the @acronym{ADT} as its own
 @c AST. It's called a "hack."
 @c parse-sres parses a list of SRE forms that comprise an implicit sequence.
 @c 
 @c (regexp->scheme re rename) -! Scheme-expression procedure
 @c 
-@c Returns a Scheme expression that will construct the regexp re using ADTconstructors such as
+@c Returns a Scheme expression that will construct the regexp re using @acronym{ADT}constructors such as
 @c 
 @c make-re-sequence, make-re-repeat, and so forth.
 @c 
-@c If the regexp is static, it will be simplified and pre-translated to a Posixstring as well, which will be part of the constructed regexp value.
+@c If the regexp is static, it will be simplified and pre-translated to a @acronym{POSIX}string as well, which will be part of the constructed regexp value.
 @c 
 @c 138
 @c 
@@ -8346,7 +8371,7 @@ predicate argument.
 
 @section Backwards compatibility
 @c 
-@c Previous scsh releases provided an awk form with a different syntax, designedaround regular expressions written in Posix notation as strings, rather than
+@c Previous scsh releases provided an awk form with a different syntax, designedaround regular expressions written in @acronym{POSIX} notation as strings, rather than
 @c SREs.
 @c 
 @c This form is still available in a separate module for old code. It'll be docu-mented in the next release of this manual. Dig around in the sources for it.
