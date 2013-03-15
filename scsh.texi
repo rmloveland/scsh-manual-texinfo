@@ -390,10 +390,10 @@ example, the various UNIX signal integers have the names
 @code{signal/hup}, and so forth.
 
 @section Lexical issues
-Scsh's lexical syntax is just R5RS Scheme, with the following exceptions.
+Scsh's lexical syntax is just @acronym{R5RS} Scheme, with the following exceptions.
 
 @subsection Extended symbol syntax
-Scsh's symbol syntax differs from R5RS Scheme in the following ways:
+Scsh's symbol syntax differs from @acronym{R5RS} Scheme in the following ways:
 
 @itemize @bullet
 @item
@@ -843,7 +843,7 @@ executing the body of the form. This guarantees that the @code{begin}
 form, like all other process forms, ``sees'' the effects of any
 associated I/O redirections.
 
-Note that R5RS does not specify whether or not @code{|} and @code{|+}
+Note that @acronym{R5RS} does not specify whether or not @code{|} and @code{|+}
 are readable symbols. Scsh does.
 
 @section Using extended process forms in Scheme
@@ -1371,9 +1371,9 @@ When scsh forks a child with @code{(fork)}, the child resets to script
 mode. This can be overridden if the programmer wishes.
 
 @section I/O
-@subsection Standard R5RS I/O procedures
+@subsection Standard @acronym{R5RS} I/O procedures
 
-In scsh, most standard R5RS I/O operations (such as @code{display} or
+In scsh, most standard @acronym{R5RS} I/O operations (such as @code{display} or
 @code{read-char}) work on both integer file descriptors and Scheme
 ports. When doing I/O with a file descriptor, the I/O operation is done
 directly on the file, bypassing any buffered data that may have
@@ -1381,7 +1381,7 @@ accumulated in an associated port. Note that character-at-a-time
 operations such as @code{read-char} are likely to be quite slow when
 performed directly upon file descriptors.
 
-The standard R5RS procedures @code{read-char}, @code{char-ready?},
+The standard @acronym{R5RS} procedures @code{read-char}, @code{char-ready?},
 @code{write}, @code{display}, @code{newline}, and @code{write-char}
 are all generic, accepting integer file descriptor arguments as well
 as ports. Scsh also mandates the availability of @code{format}, and
@@ -1815,7 +1815,7 @@ the OS implementation.
 composed by or'ing together constants listed in @ref{Table 3.1}.  You
 must use exactly one of the @code{open/read}, @code{open/write}, or
 @code{open/read+write} flags. The returned port is an input port if the
-flags permit it, otherwise an output port. R5RS/Scheme 48/scsh do not
+flags permit it, otherwise an output port. @acronym{R5RS}/Scheme 48/scsh do not
 have input/output ports, so it's one or the other. This should be fixed.
 (You can hack simultaneous I/O on a file by opening it r/w, taking the
 result input port, and duping it to an output port with
@@ -1834,7 +1834,7 @@ open-input-file, and
 @end example
 
 for @code{open-output-file}. These defaults make the procedures
-backwards-compatible with their unary R5RS definitions.
+backwards-compatible with their unary @acronym{R5RS} definitions.
 @end deffn
 
 @deffn Procedure open-fdes @var{fname} @var{flags} [@var{perms}]
@@ -4905,7 +4905,7 @@ second argument to the @code{open-file} call; it defaults to
 and output.
 
 The port returned is an input port if the flags permit it, otherwise an
-output port. R5RS/Scheme 48/scsh do not have input/output ports, so it's
+output port. @acronym{R5RS}/Scheme 48/scsh do not have input/output ports, so it's
 one or the other. However, you can get both read and write ports open on
 a terminal by opening it read/write, taking the result input port, and
 duping it to an output port with @code{dup->outport}.
@@ -6500,10 +6500,10 @@ except that they use the ASCII encoding.
 Each of these predicates tests for membership in one of the standard
 character sets provided by the SRFI-14 character-set
 library. Additionally, the following redundant bindings are provided
-for R5RS compatibility:
+for @acronym{R5RS} compatibility:
 
 @multitable
-@headitem R5RS name 
+@headitem @acronym{R5RS} name 
 @tab scsh definition
 
 @item @code{char-alphabetic?} 
@@ -6646,105 +6646,227 @@ The regexp language supported is a complete superset of @acronym{POSIX} function
 @end itemize
 
 @section Summary SRE syntax
-@c The following figures give a summary of the SRE syntax; the next section is afriendlier tutorial introduction.
-@c 
-@c 113
-@c 
-@c string Literal match--interpreted relative to the currentcase-sensitivity lexical context (default is casesensitive)
-@c (string1 string2 ...) Set of chars, e.g., ("abc" "XYZ"). Interpretedrelative to the current case-sensitivity lexical
-@c 
-@c context.
-@c (* sre ...) 0 or more matches
-@c (+ sre ...) 1 or more matches
-@c (? sre ...) 0 or 1 matches
-@c (= n sre ...) n matches
-@c (>= n sre ...) n or more matches
-@c (** n m sre ...) n to m matchesN and m are Scheme expressions producing non-negative integers.
-@c 
-@c M may also be #f, meaning "infinity."
-@c (| sre ...) Choice (or is R5RS symbol;
-@c (or sre ...) | is not specified by R5RS.)
-@c 
-@c (: sre ...) Sequence (seq is legal
-@c (seq sre ...) Common Lisp symbol)
-@c 
-@c (submatch sre ...) Numbered submatch
-@c (dsm pre post sre ...) Deleted submatchesPre and post are numerals.
-@c 
-@c (uncase sre ...) Case-folded match
-@c (w/case sre ...) Introduce a lexical case-sensitivity
-@c (w/nocase sre ...) context.
-@c 
-@c ,@exp Dynamically computed regexp
-@c ,exp Same as ,@exp, but no submatch infoExp must produce a character, string, char-set, or regexp.
-@c 
-@c bos eos Beginning/end of string
-@c bol eol Beginning/end of line
-@c 
-@c Figure 6.1: SRE syntax summary (part 1)
-@c 
-@c 114
-@c 
-@c (posix-string string) Escape for @acronym{POSIX} string notation
-@c char Singleton char setclass-name alphanumeric, whitespace, etc.
-@c 
-@c These two forms are interpreted subject to the lexical case-sensitivitycontext.
-@c 
-@c (~ cset-sre ...) Complement-of-union ([^...])
-@c (- cset-sre ...) Difference
-@c (& cset-sre ...) Intersection
-@c 
-@c (/ range-spec ...) Character range--interpreted subject to the lexi-cal case-sensitivy context
-@c 
-@c Figure 6.2: SRE syntax summary (part 2)
-@c 
-@c class-name ::= any
-@c 
-@c | nonl
-@c | lower-case | lower
-@c | upper-case | upper
-@c | alphabetic | alpha
-@c | numeric | digit | num
-@c | alphanumeric | alnum
-@c | punctuation | punct
-@c | graphic | graph
-@c | whitespace | space | white
-@c | printing | print
-@c | control | cntrl
-@c | hex-digit | xdigit | hex
-@c | ascii
-@c 
-@c range-spec ::= string | charThe chars are taken in pairs to form inclusive ranges.
-@c 
-@c Figure 6.3: SRE character-class names and range specs.
-@c 
-@c 115
-@c 
-@c <cset-sre> ::= (~ <cset-sre> ...) Set complement-of-union
-@c 
-@c | (- <cset-sre> ...) Set difference
-@c | (& <cset-sre> ...) Intersection
-@c | (| <cset-sre> ...) Set union
-@c | (/ <range-spec> ...) Range
-@c 
-@c | (<string>) Constant set
-@c | <char> Singleton constant set
-@c | <string> For 1-char string "c"
-@c 
-@c | <class-name> Constant set
-@c | ,<exp> <exp> evals to a char-set,
-@c | ,@<exp> char, single-char string,
-@c 
-@c or re-char-set regexp.
-@c 
-@c | (uncase <cset-sre>) Case-folding
-@c | (w/case <cset-sre>)
-@c | (w/nocase <cset-sre>)
-@c 
-@c Figure 6.4: applied to SRE's that specify character sets. These are the "type-checking" rules for character-set SRE's.
-@c 
-@c 116
-@c 
+
+The following figures give a summary of the @acronym{SRE} syntax; the
+next section is a friendlier tutorial introduction.
+
+@table @code
+@item @var{string} 
+
+Literal match---interpreted relative to the current case-sensitivity
+lexical context (default is case sensitive)
+
+@item @code{(@var{string1} @var{string2} @dots{})}
+
+Set of characters, @emph{e.g.}, @code{("abc" "XYZ")}. Interpreted
+relative to the current case-sensitivity lexical context.
+
+@item @code{(* @var{sre} @dots{})}
+
+Zero (0) or more matches.
+
+@item @code{(+ @var{sre} @dots{})}
+
+One (1) or more matches.
+
+@item @code{(? @var{sre} @dots{})}
+
+Zero (0) or one (1) matches.
+
+@item @code{(= @var{n} @var{sre} @dots{})}
+
+@var{N} matches.
+
+@item @code{(>= @var{n} @var{sre} @dots{})}
+ 
+@var{N} or more matches.
+
+@item @code{(** @var{n} @var{m} @var{sre} @dots{})}
+
+@var{N} to @var{m} matches. @var{N} and @var{m} are Scheme expressions
+producing non-negative integers. @var{M} may also be @code{#f},
+meaning ``infinity''.
+
+@item @code{(| @var{sre} @dots{})}
+@itemx @code{(or @var{sre} @dots{})}
+
+Choice (@code{or} is an @acronym{R5RS} symbol; @code{|} is not
+specified by @acronym{R5RS}.)
+
+@item @code{(: @var{sre} @dots{})}
+@itemx @code{(seq @var{sre} @dots{})}
+
+Sequence (@code{seq} is a legal Common Lisp symbol).
+
+@item @code{(submatch @var{sre} @dots{})}
+
+Numbered submatch.
+
+@item @code{(dsm @var{pre} @var{post} @var{sre} @dots{})} 
+
+Deleted submatches. @var{Pre} and @var{post} are numerals.
+
+@item @code{(uncase @var{sre} @dots{})}
+ 
+Case-folded match.
+
+@item @code{(w/case @var{sre} @dots{})}
+@item @code{(w/nocase @var{sre} @dots{})}
+
+Introduce a lexical case-sensitivity context.
+
+@item @code{,@@exp}
+
+Dynamically computed regexp.
+
+@item @code{,}@var{exp}
+
+Same as @code{,}@var{@@exp}, but no submatch info. @var{Exp} must
+produce a character, string, char-set, or regexp.
+
+@item @var{bos} @var{eos}
+
+Beginning/end of string.
+
+@item @var{bol} @var{eol}
+
+Beginning/end of line.
+@end table
+
+@anchor{Figure 2}
+
+@b{Figure 2}: SRE Syntax Summary (Part 1).
+
+@table @code
+
+@item @code{(posix-string @var{string})} 
+
+Escape for @acronym{POSIX} string notation.
+
+@item @var{char} 
+@itemx @var{class-name}
+
+@var{Char} denotes a singleton character. @var{Class-name} refers to
+classes of characters, @emph{e.g.}, alphanumeric, whitespace, etc.
+
+These two forms are interpreted subject to the lexical case-sensitivity
+context.
+
+@item @code{(~ @var{cset-sre} @dots{})}
+
+Character set complement-of-union @code{([^@dots{}])}.
+
+@item @code{(- @var{cset-sre} @dots{})} 
+
+Character set difference.
+
+@item @code{(& @var{cset-sre} @dots{})} 
+
+Character set intersection.
+
+@item @code{(/ @var{range-spec} @dots{})}
+
+Character range---interpreted subject to the lexical case-sensitivy
+context.
+@end table
+
+@anchor{Figure 3}
+
+@b{Figure 3}: @acronym{SRE} Syntax Summary (Part 2).
+
+@table @code
+@item any
+
+@emph{N/A}.
+
+@item nonl
+
+@emph{N/A}.
+
+@item lower-case 
+
+@code{lower}
+
+@item upper-case 
+
+@code{upper}
+
+@item alphabetic 
+
+@code{alpha}
+
+@item numeric 
+
+@code{digit | num}
+
+@item alphanumeric 
+
+@code{alnum}
+
+@item punctuation 
+
+@code{punct}
+
+@item graphic 
+
+@code{graph}
+
+@item whitespace 
+
+@code{space | white}
+
+@item printing 
+
+@code{print}
+
+@item control 
+
+@code{cntrl}
+
+@item hex-digit 
+
+@code{xdigit | hex}
+
+@item ascii
+
+@emph{N/A}.
+
+@end table
+
+@anchor{Figure 4}
+
+@b{Figure 4}: The table above shows @emph{class-names} and their
+associated @emph{range-specs}. Where the vertical bar is shown,
+characters are taken in pairs to form inclusive ranges, @emph{e.g.},
+@emph{range-spec ::= string | char}.
+
+@example
+<cset-sre> ::= (~ <cset-sre> ...)   Set complement-of-union
+             | (- <cset-sre> ...)   Set difference
+             | (& <cset-sre> ...)   Intersection
+             | (| <cset-sre> ...)   Set union
+             | (/ <range-spec> ...) Range
+             
+             | (<string>)           Constant set
+             | <char>               Singleton constant set
+             | <string>             For 1-char string "c"
+             
+             | <class-name>         Constant set
+             
+             | ,<exp> <exp>         Evaluates to a char-set,
+             | ,@@<exp>              char, single-char string, 
+                                    or re-char-set regexp.
+
+             | (uncase <cset-sre>)  Case-folding
+             | (w/case <cset-sre>)
+             | (w/nocase <cset-sre>)
+@end example
+
+@anchor{Figure 5}
+
+@b{Figure 5}: These are the ``type-checking'' rules applied to @acronym{SRE}s that
+specify character sets.
+
 @section Examples
 @c 
 @c (- alpha ("aeiouAEIOU")) ; Various forms of
