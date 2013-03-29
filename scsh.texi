@@ -6864,109 +6864,114 @@ characters are taken in pairs to form inclusive ranges, @emph{e.g.},
 
 @anchor{Figure 5}
 
-@b{Figure 5}: These are the ``type-checking'' rules applied to @acronym{SRE}s that
-specify character sets.
+@b{Figure 5}: These are the ``type-checking'' rules applied to
+@acronym{SRE}s that specify character sets.
 
 @section Examples
-@c 
-@c (- alpha ("aeiouAEIOU")) ; Various forms of
-@c (- alpha ("aeiou") ("AEIOU")) ; non-vowel letter
-@c (w/nocase (- alpha ("aeiou")))
-@c (- (/"azAZ") ("aeiouAEIOU"))
-@c (w/nocase (- (/"az") ("aeiou")))
-@c 
-@c ;;; Upper-case letter, lower-case vowel, or digit
-@c (| upper ("aeiou") digit)
-@c (| (/"AZ09") ("aeiou"))
-@c 
-@c ;;; Not an SRE, but Scheme code containing some embedded SREs.
-@c (let* ((ws (rx (+ whitespace))) ; Seq of whitespace
-@c 
-@c (date (rx (: (| "Jan" "Feb" "Mar" ...) ; A month/day date.
-@c 
-@c ,ws
-@c (| ("123456789") ; 1-9
-@c 
-@c (: ("12") digit) ; 10-29
-@c "30" "31"))))) ; 30-31
-@c 
-@c ;; Now we can use DATE several times:
-@c (rx ... ,date ... (* ... ,date ...)
-@c 
-@c ... .... ,date))
-@c 
-@c ;;; More Scheme code
-@c (define (csl re) ; A comma-separated list of RE's is
-@c 
-@c (rx (| "" ; either zero of them (empty string), or
-@c 
-@c (: ,re ; one RE, followed by
-@c 
-@c (* ", " ,re))))) ; Zero or more comma-space-RE matches.
-@c 
-@c (csl (rx (| "John" "Paul" "George" "Ringo")))
-@c 
+
+@example
+(- alpha ("aeiouAEIOU"))                ; Various forms of
+(- alpha ("aeiou") ("AEIOU"))           ; non-vowel letter
+(w/nocase (- alpha ("aeiou")))
+(- (/"azAZ") ("aeiouAEIOU"))
+(w/nocase (- (/"az") ("aeiou")))
+
+;;; Upper-case letter, lower-case vowel, or digit
+(| upper ("aeiou") digit)
+(| (/"AZ09") ("aeiou"))
+
+;;; Not an SRE, but Scheme code containing some embedded SREs.
+(let* ((ws (rx (+ whitespace))) ; Seq of whitespace
+       (date (rx (: (| "Jan" "Feb" "Mar" ...)   ; A month/day date.
+                     ,ws
+                     (| ("123456789")           ; 1-9
+                     (: ("12") digit)           ; 10-29
+                     "30" "31")))))             ; 30-31
+
+   ;; Now we can use DATE several times:
+   (rx ... ,date ... (* ... ,date ...)
+       ... .... ,date))
+
+;;; More Scheme code
+(define (csl re)                ; A comma-separated list of REs is
+  (rx (| ""                     ; either zero of them (empty string),
+         (: ,re                 ; or one RE, followed by
+            (* ", " ,re)))))    ; zero or more comma-space-RE matches.
+
+(csl (rx (| "John" "Paul" "George" "Ringo")))
+@end example
+
 @section A short tutorial
-@c 
-@c S-expression regexps are called "SRE"s. Keep in mind that they are not Schemeexpressions; they are another, separate notation that is expressed using the underlying framework of s-expression list structure: lists, symbols, etc. SRE'scan be embedded inside of Scheme expressions using special forms that extend
-@c Scheme's syntax (such as the rx macro); there are places in the SRE grammarwhere one may place a Scheme expression. In these ways, SRE's and Scheme
-@c expressions can be intertwined. But this isn't fundamental; SRE's may be usedin a completely Scheme-independent context. By simply restricting the nota117
-@c 
-@c tion to eliminate two special Scheme-embedding forms, they can be a com-pletely independent notation.
-@c Constant strings The simplest SRE is a string, denoting a constant regexp.For example, the SRE
-@c 
-@c "Spot"
-@c matches only the string <<capital-S, little-p, little-o, little-t>>. There is no in-terpretation of the characters in the string at all--the SRE
-@c 
-@c ".*["
-@c matches the string <<period, asterisk, open-bracket>>.
-@c 
-@c Simple character sets To specify a set of characters, write a list whose singleelement is a string containing the set's elements. So the SRE
-@c 
-@c ("aeiou")
-@c only matches a vowel. One way to think of this, notationally, is that the setbrackets are
-@c 
-@c (" and ").
-@c 
-@c Wild card Another simple SRE is the symbol any, which matches any singlecharacter--including newline, but excluding ASCII NUL.
-@c 
-@c Sequences We can form sequences of SRE's with the SRE (: sre ...). So theSRE
-@c 
-@c (: "x" any "z")
-@c matches any three-character string starting with "x" and ending with "z". Aswe'll see shortly, many SRE forms have bodies that are implicit sequences of
-@c other SRE's, analogous to the manner in which the body of a Scheme lambdaor
-@c 
-@c let expression is an implicit begin sequence. The regexp (seq sre ...) iscompletely equivalent to
-@c 
-@c (: sre ...); it's included in order to have a syntaxthat doesn't require
-@c : to be a legal symbol 1
-@c 
-@c 1That is, for use within s-expression syntax frameworks that, unlike R5RS, don't allow for : as
-@c a legal symbol. A Common Lisp embedding of SREs, for example, would need to use seq insteadof
-@c 
-@c :.
-@c 
-@c 118
-@c 
-@c Choices The SRE (| sre ...) is a regexp that matches anything any of thesre regexps match. So the regular expression
-@c 
-@c (| "sasha" "Pete")
-@c matches either the string "sasha" or the string "Pete". The regexp
-@c 
-@c (| ("aeiou") ("0123456789"))
-@c is the same as
-@c 
-@c ("aeiou0123456789")
-@c The regexp (or sre ...) is completely equivalent to (| sre ...); it's includedin order to have a syntax that doesn't require
-@c 
-@c | to be a legal symbol.
-@c 
-@c Repetition There are several SRE forms that match multiple occurences of aregular expression. For example, the SRE
+
+S-expression regexps are called @acronym{SRE}s. Keep in mind that they
+are not Scheme expressions; they are another, separate notation that
+is expressed using the underlying framework of s-expression list
+structure: lists, symbols, etc. @acronym{SRE}s can be embedded inside
+of Scheme expressions using special forms that extend Scheme's syntax
+(such as the @code{rx} macro); there are places in the SRE grammar
+where one may place a Scheme expression. In these ways, @acronym{SRE}s
+and Scheme expressions can be intertwined. But this isn't fundamental;
+@acronym{SRE}s may be used in a completely Scheme-independent
+context. By simply restricting the notation to eliminate two special
+Scheme-embedding forms, they can be a completely independent notation.
+
+@subsection Constant strings 
+
+The simplest @acronym{SRE} is a string, denoting a constant
+regexp. For example, the @acronym{SRE} @code{"Spot"} matches only the
+string <<capital S, little p, little o, little t>>. There is no
+interpretation of the characters in the string at all---the
+@acronym{SRE} @code{".*["} matches the string <<period, asterisk,
+open-bracket>>.
+
+@subsection Simple character sets 
+
+To specify a set of characters, write a list whose single element is a
+string containing the set's elements. So the @acronym{SRE}
+@code{("aeiou")} only matches a vowel. One way to think of this,
+notationally, is that the set brackets are @code{("} and @code{")}.
+
+@subsection Wild card 
+
+Another simple @acronym{SRE} is the symbol @code{any}, which matches
+any single character---including newline, but excluding
+@acronym{ASCII} @code{NUL}.
+
+@subsection Sequences 
+
+We can form sequences of @acronym{SRE}s with the @acronym{SRE}
+@code{(: @var{sre} @dots{})}. So the @acronym{SRE}@code{(: "x" any
+"z")} matches any three-character string starting with ``x'' and
+ending with ``z''. As we'll see shortly, many @acronym{SRE} forms have
+bodies that are implicit sequences of other @acronym{SRE}s, analogous
+to the manner in which the body of a Scheme @code{lambda} or
+@code{let} expression is an implicit @code{begin} sequence. The regexp
+@code{(seq @var{sre} @dots{})} is completely equivalent to @code{(:
+@var{sre} @dots{})}; it's included in order to have a syntax that
+doesn't require @code{:} to be a legal symbol@footnote{That is, for
+use within s-expression syntax frameworks that, unlike @acronym{R5RS},
+don't allow for @code{:} as a legal symbol. A Common Lisp embedding of
+@acronym{SRE}s, for example, would need to use @code{seq} insteadof
+@code{:}.}
+
+@subsection Choices 
+
+The @acronym{SRE} @code{(| @var{sre} @dots{})} is a regexp that
+matches anything any of the @var{sre} regexps match. So the regular
+expression @code{(| "sasha" "Pete")} matches either the string
+``sasha'' or the string ``Pete''. The regexp @code{(| ("aeiou")
+("0123456789"))} is the same as @code{("aeiou0123456789")}. The regexp
+@code{(or @var{sre} @dots{})} is completely equivalent to @code{(|
+@var{sre} @dots{})}; it's included in order to have a syntax that
+doesn't require @code{|} to be a legal symbol.
+
+@subsection Repetition
+@c There are several @acronym{SRE} forms that match multiple occurences of aregular expression. For example, the @acronym{SRE}
 @c 
 @c (* sre ...) matches zero or moreoccurences of the sequence
-@c (: sre ...). Here is the complete list of SRE repe-tition forms:
+@c (: sre ...). Here is the complete list of @acronym{SRE} repe-tition forms:
 @c 
-@c SRE means at least no more than
+@c @acronym{SRE} means at least no more than
 @c (* sre ...) zero-or-more 0 infinity
 @c (+ sre ...) one-or-more 1 infinity
 @c (? sre ...) zero-or-one 0 1
@@ -6981,12 +6986,12 @@ specify character sets.
 @c ** form--this simply produces a regexp that willnever match anything.
 @c 
 @c As an example, we can describe the names of car/cdr access functions("car", "cdr", "cadr", "cdar", "caar" , "cddr", "caaadr", etc.) with either of
-@c the SREs
+@c the @acronym{SRE}s
 @c 
 @c (: "c" (+ (| "a" "d")) "r")
 @c (: "c" (+ ("ad")) "r")
 @c 
-@c We can limit the a/d chains to 4 characters or less with the SRE
+@c We can limit the a/d chains to 4 characters or less with the @acronym{SRE}
 @c 
 @c (: "c" (** 1 4 ("ad")) "r")
 @c 
@@ -6997,15 +7002,15 @@ specify character sets.
 @c (** 5 2 "foo") ; Will never match
 @c (** 0 0 "foo") ; Matches the empty string
 @c 
-@c Character classes There is a special set of SRE's that form "characterclasses"--basically, a regexp that matches one character from some specified
+@c Character classes There is a special set of @acronym{SRE}'s that form "characterclasses"--basically, a regexp that matches one character from some specified
 @c set of characters. There are operators to take the intersection, union, comple-ment, and difference of character classes to produce a new character class. (Except for union, these capabilities are not provided for general regexps as theyare computationally intractable in the general case.)
 @c 
 @c A single character is the simplest character class: #\x is a character classthat matches only the character "x". A string that has only one letter is also a
-@c character class: "x" is the same SRE as #\x.
+@c character class: "x" is the same @acronym{SRE} as #\x.
 @c 
 @c The character-set notation (string) we've seen is a primitive character class,as is the wildcard
 @c 
-@c any. When arguments to the choice operator, |, are all char-acter classes, then the choice form is itself a character-class. So these SREs are
+@c any. When arguments to the choice operator, |, are all char-acter classes, then the choice form is itself a character-class. So these @acronym{SRE}s are
 @c 
 @c all character-classes:
 @c 
@@ -7013,7 +7018,7 @@ specify character sets.
 @c (| #\a #\e #\i #\o #\u)
 @c (| ("aeiou") ("1234567890"))
 @c 
-@c However, these SRE's are not character-classes:
+@c However, these @acronym{SRE}'s are not character-classes:
 @c 
 @c "aeiou"
 @c (| "foo" #\x)
@@ -7037,7 +7042,7 @@ specify character sets.
 @c matches a letter or a digit. The range endpoints are taken in pairs to forminclusive ranges of characters. Note that the exact set of characters included
 @c in a range is dependent on the underlying implementation's character type, soranges may not be portable across different implementations.
 @c 
-@c There is a wide selection of predefined, named character classes that maybe used. One such SRE is the wildcard
+@c There is a wide selection of predefined, named character classes that maybe used. One such @acronym{SRE} is the wildcard
 @c 
 @c any. nonl is a character class matchinganything but newline; it is equivalent to
 @c 
@@ -7086,15 +7091,15 @@ specify character sets.
 @c 
 @c SCII nul.
 @c 
-@c We can compute a char class by writing the SRE
+@c We can compute a char class by writing the @acronym{SRE}
 @c 
 @c ,cset-exp
 @c where cset-exp is a Scheme expression producing a value that can be coercedto a character set: a character set, character, one-character string, or char-class
 @c regexp value. This regexp matches one character from the set.
 @c 
-@c The char-class SRE ,@cset-exp is entirely equivalent to ,cset-exp whencset-exp produces a character set (but see below for the more general non-charclass context, where there is a distinction between ,exp and ,@exp.
+@c The char-class @acronym{SRE} ,@cset-exp is entirely equivalent to ,cset-exp whencset-exp produces a character set (but see below for the more general non-charclass context, where there is a distinction between ,exp and ,@exp.
 @c 
-@c As an example of character-class SREs, an SRE that matches a lower-casevowel, upper-case letter, or digit is
+@c As an example of character-class @acronym{SRE}s, an @acronym{SRE} that matches a lower-casevowel, upper-case letter, or digit is
 @c 
 @c (| ("aeiou") (/"AZ09"))
 @c or, equivalently
@@ -7109,7 +7114,7 @@ specify character sets.
 @c never matches at all. This is rarely useful for human-written regexps, but maybe of occasional utility in machine-generated regexps, perhaps produced by
 @c macros.
 @c 
-@c The rules for determining if an SRE is a simple, char-class SRE or a morecomplex SRE form a little "type system" for SRE's. See the summary section
+@c The rules for determining if an @acronym{SRE} is a simple, char-class @acronym{SRE} or a morecomplex @acronym{SRE} form a little "type system" for @acronym{SRE}'s. See the summary section
 @c 
 @c preceding this one for a complete listing of these rules.{
 @c 
@@ -7132,7 +7137,7 @@ specify character sets.
 @c (uncase "foo")
 @c matches the strings "foo", "foO", "fOo", "fOO", "Foo", . . .
 @c 
-@c Expressions in SRE notation are interpreted in a lexical case-sensitivy con-text. The forms
+@c Expressions in @acronym{SRE} notation are interpreted in a lexical case-sensitivy con-text. The forms
 @c 
 @c w/case and w/nocase are the scoping operators for this con-text, which controls how constant strings and char-class forms are interpreted
 @c 
@@ -7177,9 +7182,9 @@ specify character sets.
 @c 
 @c In contrast, (w/nocase (~ "a")) establishes a case-insensitive lexical con-text in which the
 @c 
-@c "a" is interpreted, making the SRE equivalent to (~ ("aA")).
+@c "a" is interpreted, making the @acronym{SRE} equivalent to (~ ("aA")).
 @c 
-@c Dynamic regexps SRE notation allows you to compute parts of a regular ex-pressions at run time. The SRE
+@c Dynamic regexps @acronym{SRE} notation allows you to compute parts of a regular ex-pressions at run time. The @acronym{SRE}
 @c 
 @c ,exp
 @c is a regexp whose body exp is a Scheme expression producing a string, charac-ter, char-set, or regexp as its value. Strings and characters are converted into
@@ -7211,7 +7216,7 @@ specify character sets.
 @c 
 @c ... ,date ...))
 @c 
-@c where the (rx sre ...) macro is the Scheme special form that produces aScheme regexp value given a body in SRE notation.
+@c where the (rx sre ...) macro is the Scheme special form that produces aScheme regexp value given a body in @acronym{SRE} notation.
 @c 
 @c As we saw in the char-class section, if a dynamic regexp is used in a char-class context (e.g., as an argument to a
 @c 
@@ -7221,7 +7226,7 @@ specify character sets.
 @c 
 @c coercable not merely to a general regexp, but to a character sre--so it must beeither a singleton string, a character, a scsh char set, or a char-class regexp.
 @c 
-@c We can also define and use functions on regexps in the host language.For example, consider the following Scheme expressions, containing embedded SRE's (inside the rx macro expressions) which in term contain embeddedScheme expressions computing dynamic regexps:
+@c We can also define and use functions on regexps in the host language.For example, consider the following Scheme expressions, containing embedded @acronym{SRE}'s (inside the rx macro expressions) which in term contain embeddedScheme expressions computing dynamic regexps:
 @c 
 @c (define (csl re)
 @c 
@@ -7242,7 +7247,7 @@ specify character sets.
 @c We leave the extension of csl to allow for an optional "and" between the lasttwo matches as an exercise for the interested reader (e.g., to match "John, Paul,
 @c George and Ringo").
 @c 
-@c Note, in passing, one of the nice features of SRE notation: they can be com-mented, and indented in a fashion to show the lexical extent of the subexpressions.
+@c Note, in passing, one of the nice features of @acronym{SRE} notation: they can be com-mented, and indented in a fashion to show the lexical extent of the subexpressions.
 @c 
 @c When we embed a computed regexp inside another regular expression withthe ,exp form, we must specify how to account for the submatches that may be
 @c 
@@ -7261,7 +7266,7 @@ specify character sets.
 @c 
 @c (making the "baz" submatch #6), or not counted (making the "bar" submatch#3)?
 @c 
-@c SRE notation provides for both possibilities. The SRE
+@c @acronym{SRE} notation provides for both possibilities. The @acronym{SRE}
 @c 
 @c ,exp
 @c 
@@ -7270,7 +7275,7 @@ specify character sets.
 @c does not contribute its submatches to its containing regexp; it has zero sub-matches. So one can reliably assign submatch indices to forms appearing after
 @c a ,exp form in a regexp.
 @c 
-@c On the other hand, the SRE
+@c On the other hand, the @acronym{SRE}
 @c 
 @c ,@exp
 @c "splices" its resulting regexp into place, exposing its submatches to the con-taining regexp. This is useful if the computed regexp is defined to produce a
@@ -7286,7 +7291,7 @@ specify character sets.
 @c {Note bol and eol are not supported by scsh's current regexp search en-gine, which is Spencer's @acronym{POSIX} matcher. This is the only element of the notation
 @c that is not supported by the current scsh reference implementation.}
 @c 
-@c @acronym{POSIX} string notation The SRE (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use @acronym{POSIX} string
+@c @acronym{POSIX} string notation The @acronym{SRE} (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use @acronym{POSIX} string
 @c notation for a regexp. It's intended as backwards compatibility and is depre-cated. For example,
 @c 
 @c (posix-string "[aeiou]+|x*|y{3,5}") matches a stringof vowels, a possibly empty string of x's, or three to five y's.
@@ -7369,23 +7374,23 @@ specify character sets.
 @c 
 @c @subsection Embedding regexps within Scheme programs
 @c 
-@c SRE's can be placed in a Scheme program using the (rx sre ...) Schemeform, which evaluates to a Scheme regexp value.
+@c @acronym{SRE}'s can be placed in a Scheme program using the (rx sre ...) Schemeform, which evaluates to a Scheme regexp value.
 @c 
 @c Static and dynamic regexps
-@c We separate SRE expressions into two classes: static and dynamic expressions.A static expression is one that has no run-time dependencies; it is a complete,
+@c We separate @acronym{SRE} expressions into two classes: static and dynamic expressions.A static expression is one that has no run-time dependencies; it is a complete,
 @c self-contained description of a regular set. A dynamic expression is one thatrequires run-time computation to determine the particular regular set being
-@c described. There are two places where one can embed run-time computationsin an SRE:
+@c described. There are two places where one can embed run-time computationsin an @acronym{SRE}:
 @c 
 @c * The from or to repetition counts of **, =, and >= forms;
 @c 
 @c * ,exp and ,@exp forms.
 @c 
-@c A static SRE is one that does not contain any ,exp or ,@exp forms, and whose
+@c A static @acronym{SRE} is one that does not contain any ,exp or ,@exp forms, and whose
 @c **, =, and >= forms all contain constant repetition counts.
 @c 
-@c Scsh's rx macro is able, at macro-expansion time, to completely parse, sim-plify and translate any static SRE into the equivalent @acronym{POSIX} string which is used
+@c Scsh's rx macro is able, at macro-expansion time, to completely parse, sim-plify and translate any static @acronym{SRE} into the equivalent @acronym{POSIX} string which is used
 @c 
-@c to drive the underlying C-based matching engine; there is no run-time over-head. Dynamic SRE's are partially simplified and then expanded into Scheme
+@c to drive the underlying C-based matching engine; there is no run-time over-head. Dynamic @acronym{SRE}'s are partially simplified and then expanded into Scheme
 @c code that constructs the regexp at run-time.
 @c 
 @c 128
@@ -7412,7 +7417,7 @@ specify character sets.
 @c 
 @c (rx sre . . . ) -! regexp Syntax
 @c 
-@c This allows you to describe a regexp value with SRE notation.
+@c This allows you to describe a regexp value with @acronym{SRE} notation.
 @c 
 @c (regexp? x) -! boolean procedure
 @c 
@@ -7656,7 +7661,7 @@ specify character sets.
 @c (sre->regexp sre) -! re procedure
 @c (regexp->sre re) -! sre procedure
 @c 
-@c These are the SRE parser and unparser. That is, sre->regexp maps anSRE to a regexp value, and
+@c These are the @acronym{SRE} parser and unparser. That is, sre->regexp maps an@acronym{SRE} to a regexp value, and
 @c 
 @c regexp->sre does the inverse. The latterfunction can be useful for printing out regexps in a readable format.
 @c 
@@ -7679,10 +7684,10 @@ specify character sets.
 @c 
 @c "g(ee|oo)se", to a regexp value, and regexp->posix-string does theinverse.
 @c 
-@c You can use these tools to map between scsh regexps and @acronym{POSIX} regexpstrings, which can be useful if you want to do conversion between SRE's
-@c and @acronym{POSIX} form. For example, you can write a particularly complex reg-exp in SRE form, or compute it using the @acronym{ADT} constructors, then convert
+@c You can use these tools to map between scsh regexps and @acronym{POSIX} regexpstrings, which can be useful if you want to do conversion between @acronym{SRE}'s
+@c and @acronym{POSIX} form. For example, you can write a particularly complex reg-exp in @acronym{SRE} form, or compute it using the @acronym{ADT} constructors, then convert
 @c to @acronym{POSIX} form, print it out, cut and paste it into a C or emacs lisp program.Or you can import an old regexp from some other program, parse it into
-@c an @acronym{ADT} value, render it to an SRE, print it out, then cut and paste it intoa scsh program.
+@c an @acronym{ADT} value, render it to an @acronym{SRE}, print it out, then cut and paste it intoa scsh program.
 @c 
 @c Note:
 @c 
@@ -7761,7 +7766,7 @@ specify character sets.
 @c re-trivial regexp
 @c (re-trivial? re) -! boolean procedure
 @c 
-@c The variable re-trivial is bound to a regular expression that matchesthe empty string (corresponding to the SRE
+@c The variable re-trivial is bound to a regular expression that matchesthe empty string (corresponding to the @acronym{SRE}
 @c 
 @c "" or (:)); it is recognisedby the associated predicate. Note that the predicate is only guaranteed to
 @c 
@@ -7770,7 +7775,7 @@ specify character sets.
 @c re-empty regexp
 @c (re-empty? re) -! boolean procedure
 @c 
-@c The variable re-empty is bound to a regular expression that nevermatches (corresponding to the SRE
+@c The variable re-empty is bound to a regular expression that nevermatches (corresponding to the @acronym{SRE}
 @c 
 @c (|)); it is recognised by the associ-ated predicate. Note that the predicate is only guaranteed to recognise
 @c 
@@ -7779,7 +7784,7 @@ specify character sets.
 @c re-any regexp
 @c (re-any? re) -! boolean procedure
 @c 
-@c The variable re-any is bound to a regular expression that matches anycharacter (corresponding to the SRE
+@c The variable re-any is bound to a regular expression that matches anycharacter (corresponding to the @acronym{SRE}
 @c 
 @c any); it is recognised by the associ-ated predicate. Note that the predicate is only guaranteed to recognise
 @c 
@@ -7787,7 +7792,7 @@ specify character sets.
 @c 
 @c re-nonl regexp
 @c 
-@c The variable re-nonl is bound to a regular expression that matches anynon-newline character (corresponding to the SRE
+@c The variable re-nonl is bound to a regular expression that matches anynon-newline character (corresponding to the @acronym{SRE}
 @c 
 @c (~ #\newline)).
 @c 
@@ -7809,19 +7814,19 @@ specify character sets.
 @c 
 @section Syntax-hacking tools
 @c 
-@c The Scheme 48 package sre-syntax-tools exports several tools for macrowriters that want to use SREs in their macros. In the functions defined below,
+@c The Scheme 48 package sre-syntax-tools exports several tools for macrowriters that want to use @acronym{SRE}s in their macros. In the functions defined below,
 @c compare and rename parameters are as passed to Clinger-Rees explicit-renaminglow-level macros.
 @c 
 @c (if-sre-form form conseq-form alt-form) -! form Syntax
 @c 
-@c If form is a legal SRE, this is equivalent to the expression conseq-form, oth-erwise it expands to alt-form.
+@c If form is a legal @acronym{SRE}, this is equivalent to the expression conseq-form, oth-erwise it expands to alt-form.
 @c 
-@c This is useful for high-level macro authors who want to write a macrowhere one field in the macro can be an SRE or possibly something else.
-@c E.g., we might have a conditional form wherein if the test part of one armis an SRE, it expands to a regexp match on some implied value, otherwise
+@c This is useful for high-level macro authors who want to write a macrowhere one field in the macro can be an @acronym{SRE} or possibly something else.
+@c E.g., we might have a conditional form wherein if the test part of one armis an @acronym{SRE}, it expands to a regexp match on some implied value, otherwise
 @c the form is evaluated as a boolean Scheme expression. For example, aconditional macro might expand into code containing the following form,
 @c which in turn would have one of two possible expansions:
 @c 
-@c (if-sre-form test-exp ; If TEST-EXP is SRE,
+@c (if-sre-form test-exp ; If TEST-EXP is @acronym{SRE},
 @c 
 @c (regexp-search? (rx test-exp) line) ; match it w/the line,
 @c test-exp) ; otw it's a text exp.
@@ -7829,20 +7834,20 @@ specify character sets.
 @c (sre-form? form rename compare) -! boolean procedure
 @c 
 @c This procedure is for low-level macros doing things equivalent to
-@c if-sre-form. It returns true if the form is a legal SRE.
+@c if-sre-form. It returns true if the form is a legal @acronym{SRE}.
 @c 
 @c Note that neither sre-form nor if-sre-form does a deep recursion overthe form in the case where the form is a list. They simply check the car of
 @c 
-@c the form for one of the legal SRE keywords.
+@c the form for one of the legal @acronym{SRE} keywords.
 @c (parse-sre sre-form compare rename) -! re procedure
 @c (parse-sres sre-forms compare rename) -! re procedure
 @c 
-@c Parse sre-form into an @acronym{ADT}. Note that if the SRE is dynamic--contains
+@c Parse sre-form into an @acronym{ADT}. Note that if the @acronym{SRE} is dynamic--contains
 @c ,exp or ,@exp forms, or has repeat operators whose from/to counts arenot constants--then the returned @acronym{ADT} will have Scheme expressions in the
 @c 
 @c corresponding slots of the regexp records instead of the correspondinginteger, char-set, or regexp. In other words, we use the @acronym{ADT} as its own
 @c AST. It's called a "hack."
-@c parse-sres parses a list of SRE forms that comprise an implicit sequence.
+@c parse-sres parses a list of @acronym{SRE} forms that comprise an implicit sequence.
 @c 
 @c (regexp->scheme re rename) -! Scheme-expression procedure
 @c 
@@ -8188,7 +8193,7 @@ specify character sets.
 @c @subsection Forward-progress guarantees and empty-string matches
 @c 
 @c A loop that pulls text off a string by repeatedly matching a regexp against thatstring can conceivably get stuck in an infinite loop if the regexp matches the
-@c empty string. For example, the SREs bos, eos, (* any), and (| "foo" (*
+@c empty string. For example, the @acronym{SRE}s bos, eos, (* any), and (| "foo" (*
 @c ( "f"))) can all match the empty string.
 @c 
 @c 148
@@ -8332,16 +8337,16 @@ specify character sets.
 @c 
 @c integer: The test is true for that iteration of theloop. The first iteration is #1.
 @c 
-@c sre: A regular expression, in SRE notation(see chapter 6) can be used as a test.
+@c sre: A regular expression, in @acronym{SRE} notation(see chapter 6) can be used as a test.
 @c 
 @c The test is successful if the patternmatches the record. In particular, note
-@c that any string is an SRE.
+@c that any string is an @acronym{SRE}.
 @c (when expr): The body of a when test is evaluatedas a Scheme boolean expression in the
 @c 
 @c inner scope of the awk form.expr: If the form is none of the above, it
 @c is treated as a Scheme expression--in practice, the
 @c 
-@c when keyword is onlyneeded in cases where SRE/Scheme
+@c when keyword is onlyneeded in cases where @acronym{SRE}/Scheme
 @c 
 @c expression ambiguity might occur.
 @c 
@@ -8494,7 +8499,7 @@ specify character sets.
 @section Backwards compatibility
 @c 
 @c Previous scsh releases provided an awk form with a different syntax, designedaround regular expressions written in @acronym{POSIX} notation as strings, rather than
-@c SREs.
+@c @acronym{SRE}s.
 @c 
 @c This form is still available in a separate module for old code. It'll be docu-mented in the next release of this manual. Dig around in the sources for it.
 
