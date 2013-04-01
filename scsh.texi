@@ -1,4 +1,3 @@
-
 \input texinfo  @c -*-texinfo-*-
 @c %**start of header
 @setfilename scsh.info
@@ -6966,89 +6965,148 @@ expression @code{(| "sasha" "Pete")} matches either the string
 doesn't require @code{|} to be a legal symbol.
 
 @subsection Repetition
-@c There are several @acronym{SRE} forms that match multiple occurences of aregular expression. For example, the @acronym{SRE}
-@c 
-@c (* sre ...) matches zero or moreoccurences of the sequence
-@c (: sre ...). Here is the complete list of @acronym{SRE} repe-tition forms:
-@c 
-@c @acronym{SRE} means at least no more than
-@c (* sre ...) zero-or-more 0 infinity
-@c (+ sre ...) one-or-more 1 infinity
-@c (? sre ...) zero-or-one 0 1
-@c (= from sre ...) exactly-n from from
-@c (>= from sre ...) n-or-more from infinity
-@c (** from to sre ...) n-to-m from to
-@c 
-@c A from field is a Scheme expression that produces an integer. A to field is aScheme expression that produces either an integer, or false, meaning infinity.
-@c 
-@c While it is illegal for the from or to fields to be negative, it is allowed forfrom to be greater than to in a
-@c 
-@c ** form--this simply produces a regexp that willnever match anything.
-@c 
-@c As an example, we can describe the names of car/cdr access functions("car", "cdr", "cadr", "cdar", "caar" , "cddr", "caaadr", etc.) with either of
-@c the @acronym{SRE}s
-@c 
-@c (: "c" (+ (| "a" "d")) "r")
-@c (: "c" (+ ("ad")) "r")
-@c 
-@c We can limit the a/d chains to 4 characters or less with the @acronym{SRE}
-@c 
-@c (: "c" (** 1 4 ("ad")) "r")
-@c 
-@c 119
-@c 
-@c Some boundary cases:
-@c 
-@c (** 5 2 "foo") ; Will never match
-@c (** 0 0 "foo") ; Matches the empty string
-@c 
-@c Character classes There is a special set of @acronym{SRE}'s that form "characterclasses"--basically, a regexp that matches one character from some specified
-@c set of characters. There are operators to take the intersection, union, comple-ment, and difference of character classes to produce a new character class. (Except for union, these capabilities are not provided for general regexps as theyare computationally intractable in the general case.)
-@c 
-@c A single character is the simplest character class: #\x is a character classthat matches only the character "x". A string that has only one letter is also a
-@c character class: "x" is the same @acronym{SRE} as #\x.
-@c 
-@c The character-set notation (string) we've seen is a primitive character class,as is the wildcard
-@c 
-@c any. When arguments to the choice operator, |, are all char-acter classes, then the choice form is itself a character-class. So these @acronym{SRE}s are
-@c 
-@c all character-classes:
-@c 
-@c ("aeiou")
-@c (| #\a #\e #\i #\o #\u)
-@c (| ("aeiou") ("1234567890"))
-@c 
-@c However, these @acronym{SRE}'s are not character-classes:
-@c 
-@c "aeiou"
-@c (| "foo" #\x)
-@c 
-@c The (~ cset-sre ...) char class matches one character not in the specifiedclasses:
-@c 
-@c (~ ("0248") ("1359"))
-@c matches any character that is not a digit.
-@c 
-@c More compactly, we can use the / operator to specify character sets by giv-ing the endpoints of contiguous ranges, where the endpoints are specified by a
-@c 
-@c sequence of strings and characters. For example, any of these char classes
-@c 
-@c (/ #\A #\Z #\a #\z #\0 #\9)
-@c (/ "AZ" #\a #\z "09")
-@c (/ "AZ" #\a "z09")
-@c (/"AZaz09")
-@c 
-@c 120
-@c 
-@c matches a letter or a digit. The range endpoints are taken in pairs to forminclusive ranges of characters. Note that the exact set of characters included
-@c in a range is dependent on the underlying implementation's character type, soranges may not be portable across different implementations.
-@c 
-@c There is a wide selection of predefined, named character classes that maybe used. One such @acronym{SRE} is the wildcard
-@c 
-@c any. nonl is a character class matchinganything but newline; it is equivalent to
-@c 
-@c (~ #\newline)
-@c and is useful as a wildcard in line-oriented matching.
-@c 
+There are several @acronym{SRE} forms that match multiple occurences
+of a regular expression. For example, the @acronym{SRE} @code{(*
+@var{sre} @dots{})} matches zero or more occurences of the sequence
+@code{(: @var{sre} @dots{})}. Here is the complete list of
+@acronym{SRE} repetition forms:
+
+@multitable
+@headitem @acronym{SRE} 
+@tab Means 
+@tab At least 
+@tab No more than
+
+@item @code{(* @var{sre} @dots{})} 
+@tab zero-or-more 
+@tab 0 
+@tab infinity
+
+@item @code{(+ @var{sre} @dots{})} 
+@tab one-or-more 
+@tab 1 
+@tab infinity
+
+@item @code{(? @var{sre} @dots{})} 
+@tab zero-or-one 
+@tab 0 
+@tab 1
+
+@item @code{(= @var{from} @var{sre} @dots{})} 
+@tab exactly-n
+@tab @var{from} 
+@tab @var{from}
+
+@item @code{(>= @var{from} @var{sre} @dots{})} 
+@tab n-or-more 
+@tab @var{from} 
+@tab infinity
+
+@item @code{(** @var{from} @var{to} @var{sre} @dots{})} 
+@tab n-to-m 
+@tab @var{from} 
+@tab @var{to}
+
+@end multitable
+
+A @var{from} field is a Scheme expression that produces an integer. A
+@var{to} field is a Scheme expression that produces either an integer,
+or false, meaning infinity.
+
+While it is illegal for the @var{from} or @var{to} fields to be
+negative, it is allowed for @var{from} to be greater than @var{to} in
+a @code{**} form---this simply produces a regexp that will never match
+anything.
+
+As an example, we can describe the names of @code{car}/@code{cdr}
+access functions (@code{car}, @code{cdr}, @code{cadr}, @code{cdar},
+@code{caar} , @code{cddr}, @code{caaadr}, etc.) with either of the
+@acronym{SRE}s
+
+@example
+(: "c" (+ (| "a" "d")) "r")
+(: "c" (+ ("ad")) "r")
+@end example
+
+We can limit the ``a''/``d'' chains to 4 characters or less with the @acronym{SRE}
+
+@example
+(: "c" (** 1 4 ("ad")) "r")
+@end example
+
+Some boundary cases:
+
+@example
+(** 5 2 "foo")  ; Will never match
+(** 0 0 "foo")  ; Matches the empty string
+@end example
+
+@subsection Character classes 
+There is a special set of @acronym{SRE}s that form "character
+classes"---basically, a regexp that matches one character from some
+specified set of characters. There are operators to take the
+intersection, union, complement, and difference of character classes
+to produce a new character class. (Except for union, these
+capabilities are not provided for general regexps as they are
+computationally intractable in the general case.)
+
+A single character is the simplest character class: @code{#\x} is a
+character class that matches only ``x''. A string that has only one
+letter is also a character class: ``x'' is the same @acronym{SRE} as
+@code{#\x}.
+
+The character-set notation (@emph{string}) we've seen is a primitive
+character class, as is the wildcard @code{any}. When arguments to the
+choice operator, @code{|}, are all character classes, then the choice
+form is itself a character class. So these @acronym{SRE}s are all
+character classes:
+
+@example
+("aeiou")
+(| #\a #\e #\i #\o #\u)
+(| ("aeiou") ("1234567890"))
+@end example
+
+However, these @acronym{SRE}s are not character classes:
+
+@example
+"aeiou"
+(| "foo" #\x)
+@end example
+
+The @code{(~ @var{cset-sre} @dots{})} character class matches one
+character not in the specified classes:
+
+@example
+(~ ("0248") ("1359"))
+@end example
+
+matches any character that is not a digit.
+
+More compactly, we can use the @code{/} operator to specify character sets by
+giving the endpoints of contiguous ranges, where the endpoints are
+specified by a sequence of strings and characters. For example, any of
+these character classes
+
+@example
+(/ #\A #\Z #\a #\z #\0 #\9)
+(/ "AZ" #\a #\z "09")
+(/ "AZ" #\a "z09")
+(/"AZaz09")
+@end example
+
+matches a letter or a digit. The range endpoints are taken in pairs to
+form inclusive ranges of characters. Note that the exact set of
+characters included in a range is dependent on the underlying
+implementation's character type, so ranges may not be portable across
+different implementations.
+
+There is a wide selection of predefined, named character classes that
+may be used. One such @acronym{SRE} is the wildcard
+@code{any}. @code{Nonl} Is A Character Class matching anything but
+newline; it is equivalent to @code{(~ #\newline)} and is useful as a
+wildcard in line-oriented matching.
+
 @c There are also predefined named char classes for the standard @acronym{POSIX} andGnu character classes:
 @c 
 @c scsh name @acronym{POSIX}/ctype Alternate name Comment
