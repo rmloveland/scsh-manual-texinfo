@@ -7329,103 +7329,124 @@ lexical context in which the ``a'' is interpreted, making the
 
 @subsubsection Dynamic regexps 
 
-@c @acronym{SRE} notation allows you to compute parts of a regular ex-pressions at run time. The @acronym{SRE}
-@c 
-@c ,exp
-@c is a regexp whose body exp is a Scheme expression producing a string, charac-ter, char-set, or regexp as its value. Strings and characters are converted into
-@c 
-@c constant regexps; char-sets are converted into char-class regexps; and regexpvalues are substituted in place. So we can write regexps like this
-@c 
-@c (: "feeding the "
-@c 
-@c ,(if (> n 1) "geese" "goose"))
-@c 
-@c This is how you can drop computed strings, such as someone's name, or thedecimal numeral for a computed number, into a complex regexp.
-@c 
-@c If we have a large, complex regular expression that is used multiple times insome other, containing regular expression, we can name it, using the binding
-@c forms of the embedding language (e.g., Scheme), and refer to it by name in thecontaining expression. For example, consider the Scheme expression
-@c 
-@c (let* ((ws (rx (+ whitespace))) ; Seq of whitespace
-@c 
-@c ;; Something like "Mar 14"
-@c (date (rx (: (| "Jan" "Feb" "Mar" ...)
-@c 
-@c ,ws
-@c (| ("123456789") ; 1-9
-@c 
-@c (: ("12") digit) ; 10-29
-@c "30" ; 30
-@c "31"))))) ; 31
-@c ;; Now we can use DATE several times:
-@c (rx ... ,date ... (* ... ,date ...)
-@c 
-@c ... ,date ...))
-@c 
-@c where the (rx sre ...) macro is the Scheme special form that produces aScheme regexp value given a body in @acronym{SRE} notation.
-@c 
-@c As we saw in the char-class section, if a dynamic regexp is used in a char-class context (e.g., as an argument to a
-@c 
-@c ~ operation), the expression must be
-@c 
-@c 124
-@c 
-@c coercable not merely to a general regexp, but to a character sre--so it must beeither a singleton string, a character, a scsh char set, or a char-class regexp.
-@c 
-@c We can also define and use functions on regexps in the host language.For example, consider the following Scheme expressions, containing embedded @acronym{SRE}s (inside the rx macro expressions) which in term contain embeddedScheme expressions computing dynamic regexps:
-@c 
-@c (define (csl re)
-@c 
-@c ;; A comma-separated list of RE's is either
-@c (rx (| "" ; zero of them (empty string),
-@c 
-@c (: ,re ; or RE followed by
-@c 
-@c (* ", " ,re))))); zero or more comma-space-RE matches.
-@c 
-@c (rx ... ,date ...
-@c 
-@c ,(csl (rx (| "John" "Paul" "George" "Ringo")))
-@c ...
-@c ,(csl date)
-@c ...)
-@c 
-@c We leave the extension of csl to allow for an optional "and" between the lasttwo matches as an exercise for the interested reader (e.g., to match "John, Paul,
-@c George and Ringo").
-@c 
-@c Note, in passing, one of the nice features of @acronym{SRE} notation: they can be com-mented, and indented in a fashion to show the lexical extent of the subexpressions.
-@c 
-@c When we embed a computed regexp inside another regular expression withthe ,exp form, we must specify how to account for the submatches that may be
-@c 
-@c in the computed part. For example, suppose we have the regexp
-@c 
-@c (rx (submatch (* "foo"))
-@c 
-@c (submatch (? "bar"))
-@c ,(f x)
-@c (submatch "baz"))
-@c 
-@c It's clear that the submatch for the (* "foo") part of the regexp is submatch#1, and the
-@c 
-@c (? "bar") part is submatch #2. But what number submatch isthe
-@c "baz" submatch? It's not clear. Suppose the Scheme expression (f x)produces a regular expression that itself has 3 subforms. Are these counted
-@c 
-@c (making the "baz" submatch #6), or not counted (making the "bar" submatch#3)?
-@c 
-@c @acronym{SRE} notation provides for both possibilities. The @acronym{SRE}
-@c 
-@c ,exp
-@c 
-@c 125
-@c 
-@c does not contribute its submatches to its containing regexp; it has zero sub-matches. So one can reliably assign submatch indices to forms appearing after
-@c a ,exp form in a regexp.
-@c 
-@c On the other hand, the @acronym{SRE}
-@c 
-@c ,@exp
-@c "splices" its resulting regexp into place, exposing its submatches to the con-taining regexp. This is useful if the computed regexp is defined to produce a
-@c certain number of submatches--if that is part of exp's "contract."
-@c 
+@acronym{SRE} notation allows you to compute parts of a regular
+expression at run time. The @acronym{SRE}
+
+@example
+,@var{exp}
+@end example
+
+is a regexp whose body @var{exp} is a Scheme expression producing a
+string, character, char-set, or regexp as its value. Strings and
+characters are converted into constant regexps; char-sets are
+converted into char-class regexps; and regexp values are substituted
+in place. So we can write regexps like this
+
+@example
+(: "feeding the "
+   ,(if (> n 1) "geese" "goose"))
+@end example
+
+This is how you can drop computed strings, such as someone's name, or
+the decimal numeral for a computed number, into a complex regexp.
+
+If we have a large, complex regular expression that is used multiple
+times inssome other, containing regular expression, we can name it,
+using the binding forms of the embedding language (e.g., Scheme), and
+refer to it by name in the containing expression. For example,
+consider the Scheme expression
+
+@example
+(let* ((ws (rx (+ whitespace))) ; Seq of whitespace
+       ;; Something like "Mar 14"
+       (date (rx (: (| "Jan" "Feb" "Mar" ...)
+                    ,ws
+                    (| ("123456789")            ; 1-9
+                       (: ("12") digit)         ; 10-29
+                       "30"                     ; 30
+                       "31")))))                ; 31
+  ;; Now we can use DATE several times:
+  (rx dots{} ,date dots{} (* dots{} ,date dots{})
+      dots{} ,date dots{}))
+@end example
+
+where the @code{(rx @var{sre} @dots{})} macro is the Scheme special
+form that produces a Scheme regexp value given a body in @acronym{SRE}
+notation.
+
+As we saw in the char-class section, if a dynamic regexp is used in a
+char-class context (e.g., as an argument to a @code{~} operation), the
+expression must be coercable not merely to a general regexp, but to a
+character sre--so it must be either a singleton string, a character, a
+scsh char set, or a char-class regexp.
+
+We can also define and use functions on regexps in the host
+language. For example, consider the following Scheme expressions,
+containing embedded @acronym{SRE}s (inside the @code{rx} macro
+expressions) which in term contain embedded Scheme expressions
+computing dynamic regexps:
+
+@example
+(define (csl re)
+  ;; A comma-separated list of RE's is either
+  (rx (| ""                   ; zero of them (empty string),
+         (: ,re               ; or RE followed by
+            (* ", " ,re)))))  ; zero or more comma-space-RE matches.
+
+(rx dots{} ,date dots{}
+    ,(csl (rx (| "John" "Paul" "George" "Ringo")))
+    dots{}
+    ,(csl date)
+    dots{})
+@End example
+
+We leave the extension of @code{csl} to allow for an optional ``and''
+between the last two matches as an exercise for the interested reader
+(e.g., to match ``John, Paul, George and Ringo'').
+
+Note, in passing, one of the nice features of @acronym{SRE} notation:
+they can be commented, and indented in a fashion to show the lexical
+extent of the subexpressions.
+
+When we embed a computed regexp inside another regular expression with
+the ,@var{exp} form, we must specify how to account for the submatches
+that may be in the computed part. For example, suppose we have the
+regexp
+
+@example
+(rx (submatch (* "foo"))
+    (submatch (? "bar"))
+   ,(f x)
+   (submatch "baz"))
+@end example
+
+It's clear that the submatch for the @code{(* "foo")} part of the regexp is submatch #1, and the
+
+@code{(? "bar")} part is submatch #2. But what number submatch is the
+"baz" submatch? It's not clear. Suppose the Scheme expression @code{(f
+x)} produces a regular expression that itself has 3 subforms. Are
+these counted (making the ``baz'' submatch #6), or not counted (making
+the ``bar'' submatch#3)?
+
+@acronym{SRE} notation provides for both possibilities. The @acronym{SRE}
+
+@example
+,exp
+@end example
+
+does not contribute its submatches to its containing regexp; it has
+zero submatches. So one can reliably assign submatch indices to forms
+appearing after a ,@emph{exp} form in a regexp.
+
+On the other hand, the @acronym{SRE}
+
+@example
+,@exp
+@end @example
+
+``splices'' its resulting regexp into place, exposing its submatches to the containing regexp. This is useful if the computed regexp is defined to produce a
+certain number of submatches---if that is part of @var{exp}'s ``contract''.
+
 @subsubsection String and line units 
 @c The regexps bos and eos match the empty string at thebeginning and end of the string, respectively.
 @c 
