@@ -7252,66 +7252,81 @@ facility is based on the C language which uses @acronym{ASCII}
 
 @subsubsection Case sensitivity 
 
-@c There are three forms that control case sensitivity:
-@c 
-@c (uncase sre ...)
-@c (w/case sre ...)
-@c (w/nocase sre ...)
-@c 
-@c uncase is a regexp operator producing a regexp that matches any case per-mutation of any string that matches
-@c 
-@c (: sre ...). For example, the regexp
-@c 
-@c (uncase "foo")
-@c matches the strings "foo", "foO", "fOo", "fOO", "Foo", . . .
-@c 
-@c Expressions in @acronym{SRE} notation are interpreted in a lexical case-sensitivy con-text. The forms
-@c 
-@c w/case and w/nocase are the scoping operators for this con-text, which controls how constant strings and char-class forms are interpreted
-@c 
-@c in their bodies. So, for example, the regexp
-@c 
-@c (w/nocase "abc"
-@c 
-@c (* "FOO" (w/case "Bar"))
-@c ("aeiou"))
-@c 
-@c defines a case-insensitive match for all of its elements except for the sub-element "Bar", which must match exactly capital-B, little-a, little-r. The default,
-@c the outermost, top-level context is case sensitive.
-@c 
-@c The lexical case-sensitivity context affects the interpretation of
-@c 
-@c * constant strings, such as "foo",
-@c 
-@c * chars, such as #\x,
-@c 
-@c * char sets, such as ("abc"), and
-@c 
-@c * ranges, such as (/"az") that appear within that context. It does not affectdynamically computed regexps--ones that are introduced by ,exp and
-@c 
-@c ,@exp forms. It does not affect named char-classes--presumably, if youwrote
-@c 
-@c lower, you didn't mean alpha.
-@c 
-@c uncase is not the same as w/nocase. To point up one distinction, considerthe two regexps
-@c 
-@c (uncase (~ "a"))
-@c (w/nocase (~ "a"))
-@c 
-@c 123
-@c 
-@c The regexp (~ "a") matches any character except "a," which means it doesmatch "A." Now,
-@c 
-@c (uncase re) matches any case-permutation of a string that rematches.
-@c (~ "a") matches "A," so (uncase (~ "a")) matches "A" and "a"--and, for that matter, every other character. So
-@c 
-@c (uncase (~ "a")) is equivalentto
-@c any.
-@c 
-@c In contrast, (w/nocase (~ "a")) establishes a case-insensitive lexical con-text in which the
-@c 
-@c "a" is interpreted, making the @acronym{SRE} equivalent to (~ ("aA")).
-@c 
+There are three forms that control case sensitivity:
+
+@example
+(uncase @var{sre} @dots{})
+(w/case @var{sre} @dots{})
+(w/nocase @var{sre} @dots{})
+@end example
+
+@code{Uncase} is a regexp operator producing a regexp that matches any
+case permutation of any string that matches @code{(: @var{sre}
+@dots{})}. For example, the regexp
+
+@example
+(uncase "foo")
+@end example
+
+matches the strings ``foo'', ``foO'', ``fOo'', ``fOO'', ``Foo'',
+@dots{}
+
+Expressions in @acronym{SRE} notation are interpreted in a lexical
+case-sensitivity context. The forms @code{w/case} and @code{w/nocase}
+are the scoping operators for this context, which controls how
+constant strings and char-class forms are interpreted in their
+bodies. So, for example, the regexp
+
+@example
+(w/nocase "abc"
+          (* "FOO" (w/case "Bar"))
+          ("aeiou"))
+@end example
+
+defines a case-insensitive match for all of its elements except for
+the sub-element ``Bar'', which must match exactly capital-B, little-a,
+little-r. The default, the outermost, top-level context is case
+sensitive.
+
+The lexical case-sensitivity context affects the interpretation of
+
+@itemize
+@item 
+constant strings, such as ``foo'',
+
+@item 
+characters, such as @code{#\x},
+
+@item 
+character sets, such as @code{("abc")}, and
+
+@item 
+ranges, such as @code{(/"az")} that appear within that context. It
+does not affect dynamically computed regexps---ones that are
+introduced by ,@var{exp} and ,@var{@@exp} forms. It does not affect
+named char-classes---presumably, if you wrote @code{lower}, you didn't
+mean @code{alpha}.
+
+@code{Uncase} is not the same as @code{w/nocase}. To point up one
+distinction, consider the two regexps
+
+@example
+(uncase (~ "a"))
+(w/nocase (~ "a"))
+@end example
+@end itemize
+
+The regexp @code{(~ "a")} matches any character except ``a'', which
+means it does match ``A''. Now, @code{(uncase @var{re})} matches any
+case-permutation of a string that rematches.  @code{(~ "a")} matches
+``A'', so @code{(uncase (~ "a"))} matches ``A'' and ``a''---and, for
+that matter, every other character. So @code{(uncase (~ "a"))} is
+equivalent to @code{any}.
+
+In contrast, @code{(w/nocase (~ "a"))} establishes a case-insensitive
+lexical context in which the ``a'' is interpreted, making the
+@acronym{SRE} equivalent to @code{(~ ("aA"))}.
+
 @subsubsection Dynamic regexps 
 
 @c @acronym{SRE} notation allows you to compute parts of a regular ex-pressions at run time. The @acronym{SRE}
