@@ -6914,7 +6914,7 @@ and Scheme expressions can be intertwined. But this isn't fundamental;
 context. By simply restricting the notation to eliminate two special
 Scheme-embedding forms, they can be a completely independent notation.
 
-@subsection Constant strings 
+@subsubsection Constant strings 
 
 The simplest @acronym{SRE} is a string, denoting a constant
 regexp. For example, the @acronym{SRE} @code{"Spot"} matches only the
@@ -6923,20 +6923,20 @@ interpretation of the characters in the string at all---the
 @acronym{SRE} @code{".*["} matches the string <<period, asterisk,
 open-bracket>>.
 
-@subsection Simple character sets 
+@subsubsection Simple character sets 
 
 To specify a set of characters, write a list whose single element is a
 string containing the set's elements. So the @acronym{SRE}
 @code{("aeiou")} only matches a vowel. One way to think of this,
 notationally, is that the set brackets are @code{("} and @code{")}.
 
-@subsection Wild card 
+@subsubsection Wild card 
 
 Another simple @acronym{SRE} is the symbol @code{any}, which matches
 any single character---including newline, but excluding
 @acronym{ASCII} @code{NUL}.
 
-@subsection Sequences 
+@subsubsection Sequences 
 
 We can form sequences of @acronym{SRE}s with the @acronym{SRE}
 @code{(: @var{sre} @dots{})}. So the @acronym{SRE}@code{(: "x" any
@@ -6953,7 +6953,7 @@ don't allow for @code{:} as a legal symbol. A Common Lisp embedding of
 @acronym{SRE}s, for example, would need to use @code{seq} insteadof
 @code{:}.}
 
-@subsection Choices 
+@subsubsection Choices 
 
 The @acronym{SRE} @code{(| @var{sre} @dots{})} is a regexp that
 matches anything any of the @var{sre} regexps match. So the regular
@@ -6964,7 +6964,7 @@ expression @code{(| "sasha" "Pete")} matches either the string
 @var{sre} @dots{})}; it's included in order to have a syntax that
 doesn't require @code{|} to be a legal symbol.
 
-@subsection Repetition
+@subsubsection Repetition
 There are several @acronym{SRE} forms that match multiple occurences
 of a regular expression. For example, the @acronym{SRE} @code{(*
 @var{sre} @dots{})} matches zero or more occurences of the sequence
@@ -7041,7 +7041,7 @@ Some boundary cases:
 (** 0 0 "foo")  ; Matches the empty string
 @end example
 
-@subsection Character classes 
+@subsubsection Character classes 
 There is a special set of @acronym{SRE}s that form "character
 classes"---basically, a regexp that matches one character from some
 specified set of characters. There are operators to take the
@@ -7107,82 +7107,152 @@ may be used. One such @acronym{SRE} is the wildcard
 newline; it is equivalent to @code{(~ #\newline)} and is useful as a
 wildcard in line-oriented matching.
 
-@c There are also predefined named char classes for the standard @acronym{POSIX} andGnu character classes:
-@c 
-@c scsh name @acronym{POSIX}/ctype Alternate name Comment
-@c lower-case lower
-@c upper-case upper
-@c alphabetic alpha
-@c numeric digit num
-@c alphanumeric alnum alphanum
-@c punctuation punct
-@c graphic graph
-@c blank (Gnu extension)
-@c whitespace space white "space" is deprecated.
-@c printing print
-@c control cntrl
-@c hex-digit xdigit hex
-@c ascii (Gnu extension)
-@c 
-@c See the scsh character-set documentation or the @acronym{POSIX} isalpha(3) man page forthe exact definitions of these sets.
-@c 
-@c You can use either the long scsh name or the shorter @acronym{POSIX} and alternatenames to refer to these char classes. The standard @acronym{POSIX} name "
-@c 
-@c space" is pro-vided, but deprecated, since it is ambiguous. It means "whitespace," the set
-@c 
-@c of whitespace characters, not the singleton set of the #\space character. If youwant a short name for the set of whitespace characters, use the char-class name
-@c "white" instead.
-@c 
-@c Char classes may be intersected with the operator (& cset-sre ...), and set-difference can be performed with
-@c 
-@c (- cset-sre ...). These operators are partic-ularly useful when you want to specify a set by negation with respect to a limited
-@c 
-@c universe. For example, the set of all non-vowel letters is
-@c 
-@c (- alpha ("aeiou") ("AEIOU"))
-@c whereas writing a simple complement
-@c 
-@c 121
-@c 
-@c (~ ("aeiouAEIOU"))
-@c gives a char class that will match any non-vowel--including punctuation, dig-its, white space, control characters, and A
-@c 
-@c SCII nul.
-@c 
-@c We can compute a char class by writing the @acronym{SRE}
-@c 
-@c ,cset-exp
-@c where cset-exp is a Scheme expression producing a value that can be coercedto a character set: a character set, character, one-character string, or char-class
-@c regexp value. This regexp matches one character from the set.
-@c 
-@c The char-class @acronym{SRE} ,@cset-exp is entirely equivalent to ,cset-exp whencset-exp produces a character set (but see below for the more general non-charclass context, where there is a distinction between ,exp and ,@exp.
-@c 
-@c As an example of character-class @acronym{SRE}s, an @acronym{SRE} that matches a lower-casevowel, upper-case letter, or digit is
-@c 
-@c (| ("aeiou") (/"AZ09"))
-@c or, equivalently
-@c 
-@c (| ("aeiou") upper-case numeric)
-@c Boundary cases: the empty-complement char class
-@c 
-@c (~)
-@c matches any character; it is equivalent to any. The empty-union char class
-@c 
-@c (|)
-@c never matches at all. This is rarely useful for human-written regexps, but maybe of occasional utility in machine-generated regexps, perhaps produced by
-@c macros.
-@c 
-@c The rules for determining if an @acronym{SRE} is a simple, char-class @acronym{SRE} or a morecomplex @acronym{SRE} form a little "type system" for @acronym{SRE}'s. See the summary section
-@c 
-@c preceding this one for a complete listing of these rules.{
-@c 
-@c Note There is no way to include the ASCII NUL character in a characterset or search for it in any other way using regular expression. This is because
-@c 
-@c the @acronym{POSIX} regexp facility is based on the C language which uses ASCII NULto terminate strings.}
-@c 
-@c 122
-@c 
-@c Case sensitivity There are three forms that control case sensitivity:
+There are also predefined named character classes for the standard
+@acronym{POSIX} and @acronym{GNU} character classes:
+
+@multitable
+@headitem scsh name 
+@tab @acronym{POSIX}/ctype 
+@tab Alternate name 
+@tab Comment
+
+@item lower-case 
+@tab lower
+
+@item upper-case 
+@tab upper
+
+@item alphabetic 
+@tab alpha
+
+@item numeric 
+@tab digit 
+@tab num
+
+@item alphanumeric 
+@tab alnum 
+@tab alphanum
+
+@item punctuation 
+@tab punct
+
+@item graphic 
+@tab graph
+
+@item blank 
+@tab (Gnu extension)
+
+@item whitespace 
+@tab space 
+@tab white 
+@tab ``@code{space}'' is deprecated.
+
+@item printing 
+@tab print
+
+@item control 
+@tab cntrl
+
+@item hex-digit 
+@tab xdigit 
+@tab hex
+
+@item ascii 
+@tab (Gnu extension)
+
+@end multitable
+
+See the scsh character-set documentation or the @acronym{POSIX}
+@code{isalpha(3)} man page for the exact definitions of these sets.
+
+You can use either the long scsh name or the shorter @acronym{POSIX}
+and alternate names to refer to these character classes. The standard
+@acronym{POSIX} name ``@code{space}'' is provided, but deprecated,
+since it is ambiguous. It means ``whitespace'', the set of whitespace
+characters, not the singleton set of the @code{#\space} character. If
+you want a short name for the set of whitespace characters, use the
+char-class name @code{white} instead.
+
+Character classes may be intersected with the operator @code{(&
+@var{cset-sre} @dots{})}, and set-difference can be performed with
+@code{(- @var{cset-sre} @dots{})}. These operators are particularly
+useful when you want to specify a set by negation with respect to a
+limited universe. For example, the set of all non-vowel letters is
+
+@example
+(- alpha ("aeiou") ("AEIOU"))
+@end example
+
+whereas writing a simple complement
+
+@example
+(~ ("aeiouAEIOU"))
+@end example
+
+gives a character class that will match any non-vowel---including
+punctuation, digits, white space, control characters, and
+@acronym{ASCII} @code{NUL}.
+
+We can @emph{compute} a character class by writing the @acronym{SRE}
+
+@example
+,@var{cset-exp}
+@end example
+
+where @var{cset-exp} is a Scheme expression producing a value that can
+be coerced to a character set: a character set, character,
+one-character string, or char-class regexp value. This regexp matches
+one character from the set.
+
+The char-class @acronym{SRE} ,@var{@@cset-exp} is entirely equivalent
+to ,@var{cset-exp} when @var{cset-exp} produces a character set (but
+see below for the more general non-character-class context, where
+there is a distinction between ,@var{exp} and ,@var{@@exp}.
+
+As an example of character-class @acronym{SRE}s, an @acronym{SRE} that
+matches a lower-case vowel, upper-case letter, or digit is
+
+@example
+(| ("aeiou") (/"AZ09"))
+@end example
+
+or, equivalently
+
+@example
+(| ("aeiou") upper-case numeric)
+@end example
+
+Boundary cases: the empty-complement char class
+
+@example
+(~)
+@end example
+
+matches any character; it is equivalent to @code{any}. The empty-union
+char class
+
+@example
+(|)
+@end example
+
+never matches at all. This is rarely useful for human-written regexps,
+but may be of occasional utility in machine-generated regexps, perhaps
+produced by macros.
+
+The rules for determining if an @acronym{SRE} is a simple, char-class
+@acronym{SRE} or a more complex @acronym{SRE} form a little ``type
+system'' for @acronym{SRE}s. See the summary section preceding this
+one for a complete listing of these rules.
+
+@emph{Note}: There is no way to include the @acronym{ASCII} @code{NUL}
+character in a character set or search for it in any other way using
+regular expressions. This is because the @acronym{POSIX} regexp
+facility is based on the C language which uses @acronym{ASCII}
+@code{NUL} to terminate strings.
+
+@subsubsection Case sensitivity 
+
+@c There are three forms that control case sensitivity:
 @c 
 @c (uncase sre ...)
 @c (w/case sre ...)
@@ -7242,7 +7312,9 @@ wildcard in line-oriented matching.
 @c 
 @c "a" is interpreted, making the @acronym{SRE} equivalent to (~ ("aA")).
 @c 
-@c Dynamic regexps @acronym{SRE} notation allows you to compute parts of a regular ex-pressions at run time. The @acronym{SRE}
+@subsubsection Dynamic regexps 
+
+@c @acronym{SRE} notation allows you to compute parts of a regular ex-pressions at run time. The @acronym{SRE}
 @c 
 @c ,exp
 @c is a regexp whose body exp is a Scheme expression producing a string, charac-ter, char-set, or regexp as its value. Strings and characters are converted into
@@ -7284,7 +7356,7 @@ wildcard in line-oriented matching.
 @c 
 @c coercable not merely to a general regexp, but to a character sre--so it must beeither a singleton string, a character, a scsh char set, or a char-class regexp.
 @c 
-@c We can also define and use functions on regexps in the host language.For example, consider the following Scheme expressions, containing embedded @acronym{SRE}'s (inside the rx macro expressions) which in term contain embeddedScheme expressions computing dynamic regexps:
+@c We can also define and use functions on regexps in the host language.For example, consider the following Scheme expressions, containing embedded @acronym{SRE}s (inside the rx macro expressions) which in term contain embeddedScheme expressions computing dynamic regexps:
 @c 
 @c (define (csl re)
 @c 
@@ -7339,7 +7411,8 @@ wildcard in line-oriented matching.
 @c "splices" its resulting regexp into place, exposing its submatches to the con-taining regexp. This is useful if the computed regexp is defined to produce a
 @c certain number of submatches--if that is part of exp's "contract."
 @c 
-@c String and line units The regexps bos and eos match the empty string at thebeginning and end of the string, respectively.
+@subsubsection String and line units 
+@c The regexps bos and eos match the empty string at thebeginning and end of the string, respectively.
 @c 
 @c The regexps bol and eol match the empty string at the beginning and endof a line, respectively. A line begins at the beginning of the string, and just after
 @c every newline character. A line ends at the end of the string, and just beforeevery newline character. The char class
@@ -7349,7 +7422,9 @@ wildcard in line-oriented matching.
 @c {Note bol and eol are not supported by scsh's current regexp search en-gine, which is Spencer's @acronym{POSIX} matcher. This is the only element of the notation
 @c that is not supported by the current scsh reference implementation.}
 @c 
-@c @acronym{POSIX} string notation The @acronym{SRE} (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use @acronym{POSIX} string
+@subsubsection @acronym{POSIX} string notation 
+
+@c The @acronym{SRE} (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use @acronym{POSIX} string
 @c notation for a regexp. It's intended as backwards compatibility and is depre-cated. For example,
 @c 
 @c (posix-string "[aeiou]+|x*|y{3,5}") matches a stringof vowels, a possibly empty string of x's, or three to five y's.
@@ -7358,7 +7433,9 @@ wildcard in line-oriented matching.
 @c 
 @c (posix-string string) form makes theconservative assumption: all parentheses introduce submatches.
 @c 
-@c Deleted submatches Deleted submatches, or "DSM's," are a subtle featurethat are never required in expressions written by humans. They can be introduced by the simplifier when reducing regular expressions to simpler equiva-lents, and are included in the syntax to give it expressibility spanning the full
+@subsubsection Deleted submatches 
+
+@c Deleted submatches, or "DSM's," are a subtle featurethat are never required in expressions written by humans. They can be introduced by the simplifier when reducing regular expressions to simpler equiva-lents, and are included in the syntax to give it expressibility spanning the full
 @c regexp @acronym{ADT}. They may appear when unparsing simplified regular expressionsthat have been run through the simplifier; otherwise you are not likely to see
 @c them. Feel free to skip this section.
 @c 
@@ -7430,11 +7507,11 @@ wildcard in line-oriented matching.
 @c 
 @c (dsm 1 0 (submatch "bar"))
 @c 
-@c @subsection Embedding regexps within Scheme programs
+@subsection Embedding regexps within Scheme programs
 @c 
-@c @acronym{SRE}'s can be placed in a Scheme program using the (rx sre ...) Schemeform, which evaluates to a Scheme regexp value.
+@c @acronym{SRE}s can be placed in a Scheme program using the (rx sre ...) Schemeform, which evaluates to a Scheme regexp value.
 @c 
-@c Static and dynamic regexps
+@subsubsection Static and dynamic regexps
 @c We separate @acronym{SRE} expressions into two classes: static and dynamic expressions.A static expression is one that has no run-time dependencies; it is a complete,
 @c self-contained description of a regular set. A dynamic expression is one thatrequires run-time computation to determine the particular regular set being
 @c described. There are two places where one can embed run-time computationsin an @acronym{SRE}:
@@ -7448,7 +7525,7 @@ wildcard in line-oriented matching.
 @c 
 @c Scsh's rx macro is able, at macro-expansion time, to completely parse, sim-plify and translate any static @acronym{SRE} into the equivalent @acronym{POSIX} string which is used
 @c 
-@c to drive the underlying C-based matching engine; there is no run-time over-head. Dynamic @acronym{SRE}'s are partially simplified and then expanded into Scheme
+@c to drive the underlying C-based matching engine; there is no run-time over-head. Dynamic @acronym{SRE}s are partially simplified and then expanded into Scheme
 @c code that constructs the regexp at run-time.
 @c 
 @c 128
@@ -7742,7 +7819,7 @@ wildcard in line-oriented matching.
 @c 
 @c "g(ee|oo)se", to a regexp value, and regexp->posix-string does theinverse.
 @c 
-@c You can use these tools to map between scsh regexps and @acronym{POSIX} regexpstrings, which can be useful if you want to do conversion between @acronym{SRE}'s
+@c You can use these tools to map between scsh regexps and @acronym{POSIX} regexpstrings, which can be useful if you want to do conversion between @acronym{SRE}s
 @c and @acronym{POSIX} form. For example, you can write a particularly complex reg-exp in @acronym{SRE} form, or compute it using the @acronym{ADT} constructors, then convert
 @c to @acronym{POSIX} form, print it out, cut and paste it into a C or emacs lisp program.Or you can import an old regexp from some other program, parse it into
 @c an @acronym{ADT} value, render it to an @acronym{SRE}, print it out, then cut and paste it intoa scsh program.
