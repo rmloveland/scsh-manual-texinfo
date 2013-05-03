@@ -7420,15 +7420,15 @@ regexp
    (submatch "baz"))
 @end example
 
-It's clear that the submatch for the @code{(* "foo")} part of the regexp is submatch #1, and the
+It's clear that the submatch for the @code{(* "foo")} part of the
+regexp is submatch #1, and the @code{(? "bar")} part is submatch
+#2. But what number submatch is the "baz" submatch? It's not
+clear. Suppose the Scheme expression @code{(f x)} produces a regular
+expression that itself has 3 subforms. Are these counted (making the
+``baz'' submatch #6), or not counted (making the ``bar'' submatch#3)?
 
-@code{(? "bar")} part is submatch #2. But what number submatch is the
-"baz" submatch? It's not clear. Suppose the Scheme expression @code{(f
-x)} produces a regular expression that itself has 3 subforms. Are
-these counted (making the ``baz'' submatch #6), or not counted (making
-the ``bar'' submatch#3)?
-
-@acronym{SRE} notation provides for both possibilities. The @acronym{SRE}
+@acronym{SRE} notation provides for both possibilities. The
+@acronym{SRE}
 
 @example
 ,exp
@@ -7444,31 +7444,42 @@ On the other hand, the @acronym{SRE}
 ,@exp
 @end @example
 
-``splices'' its resulting regexp into place, exposing its submatches to the containing regexp. This is useful if the computed regexp is defined to produce a
-certain number of submatches---if that is part of @var{exp}'s ``contract''.
+``splices'' its resulting regexp into place, exposing its submatches
+to the containing regexp. This is useful if the computed regexp is
+defined to produce a certain number of submatches---if that is part of
+@var{exp}'s ``contract''.
 
 @subsubsection String and line units 
-@c The regexps bos and eos match the empty string at thebeginning and end of the string, respectively.
-@c 
-@c The regexps bol and eol match the empty string at the beginning and endof a line, respectively. A line begins at the beginning of the string, and just after
-@c every newline character. A line ends at the end of the string, and just beforeevery newline character. The char class
-@c 
-@c nonl matches any character exceptnewline, and is useful in conjunction with line-based pattern matching.
-@c 
-@c {Note bol and eol are not supported by scsh's current regexp search en-gine, which is Spencer's @acronym{POSIX} matcher. This is the only element of the notation
-@c that is not supported by the current scsh reference implementation.}
-@c 
+The regexps @code{bos} and @code{eos} match the empty string at the
+beginning and end of the string, respectively.
+
+The regexps @code{bol} and @code{eol} match the empty string at the
+beginning and end of a line, respectively. A line begins at the
+beginning of the string, and just after every newline character. A
+line ends at the end of the string, and just before every newline
+character. The character class @code{nonl} matches any character
+except newline, and is useful in conjunction with line-based pattern
+matching.
+
+@emph{Note}: @code{bol} and @code{eol} are not supported by scsh's
+current regexp search engine, which is Spencer's @acronym{POSIX}
+matcher. This is the only element of the notation that is not
+supported by the current scsh reference implementation.
+
 @subsubsection @acronym{POSIX} string notation 
 
-@c The @acronym{SRE} (posix-string string), where string is astring literal (not a general Scheme expression), allows one to use @acronym{POSIX} string
-@c notation for a regexp. It's intended as backwards compatibility and is depre-cated. For example,
-@c 
-@c (posix-string "[aeiou]+|x*|y{3,5}") matches a stringof vowels, a possibly empty string of x's, or three to five y's.
-@c 
-@c Note that parentheses are used ambiguously in @acronym{POSIX} notation--both forgrouping and submatch marking. The
-@c 
-@c (posix-string string) form makes theconservative assumption: all parentheses introduce submatches.
-@c 
+The @acronym{SRE} @code{(posix-string @var{string})}, where
+@var{string} is a string literal (not a general Scheme expression),
+allows one to use @acronym{POSIX} string notation for a regexp. It's
+intended for backwards compatibility and is deprecated. For example,
+@code{(posix-string "[aeiou]+|x*|y{3,5}")} matches a string of vowels,
+a possibly empty string of x's, or three to five y's.
+
+Note that parentheses are used ambiguously in @acronym{POSIX}
+notation---both for grouping and submatch marking. The
+@code{(posix-string @var{string})} form makes the conservative
+assumption: all parentheses introduce submatches.
+
 @subsubsection Deleted submatches 
 
 @c Deleted submatches, or "DSM's," are a subtle featurethat are never required in expressions written by humans. They can be introduced by the simplifier when reducing regular expressions to simpler equiva-lents, and are included in the syntax to give it expressibility spanning the full
