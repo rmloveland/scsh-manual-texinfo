@@ -7482,82 +7482,120 @@ assumption: all parentheses introduce submatches.
 
 @subsubsection Deleted submatches 
 
-@c Deleted submatches, or "DSM's," are a subtle featurethat are never required in expressions written by humans. They can be introduced by the simplifier when reducing regular expressions to simpler equiva-lents, and are included in the syntax to give it expressibility spanning the full
-@c regexp @acronym{ADT}. They may appear when unparsing simplified regular expressionsthat have been run through the simplifier; otherwise you are not likely to see
-@c them. Feel free to skip this section.
-@c 
-@c The regexp simplifier can sometimes eliminate entire sub-expressions froma regexp. For example, the regexp
-@c 
-@c 126
-@c 
-@c (: "foo" (** 0 0 "apple") "bar")
-@c can be simplified to
-@c 
-@c "foobar"
-@c since (** 0 0 "apple") will always match the empty string. The regexp
-@c 
-@c (| "foo"
-@c 
-@c (: "Richard" (|) "Nixon")
-@c "bar")
-@c 
-@c can be simplified to
-@c 
-@c (| "foo" "bar")
-@c The empty choice (|) can't match anything, so the whole
-@c 
-@c (: "Richard" (|) "Nixon")
-@c sequence can't match, and we can remove it from the choice.
-@c 
-@c However, if deleting part of a regular expression removes a submatch form,any following submatch forms will have their numbering changed, which
-@c 
-@c would be an error. For example, if we simplify
-@c 
-@c (: (** 0 0 (submatch "apple"))
-@c 
-@c (submatch "bar"))
-@c 
-@c to
-@c 
-@c (submatch "bar")
-@c then the "bar" submatch changes from submatch #2 to submatch #1--so thisis not a legal simplification.
-@c 
-@c When the simplifier deletes a sub-regexp that contains submatches, it in-troduces a special regexp form to account for the missing, deleted submatches,
-@c thus keeping the submatch accounting correct.
-@c 
-@c (dsm pre post sre ...)
-@c is a regexp that matches the sequence (: sre ...). pre and post are integerconstants. The DSM form introduces pre deleted submatches before the body,
-@c and post deleted submatches after the body. If the body (: sre . . . ) itself hasbody-sm submatches, then the total number of submatches for the DSM form is
-@c 
-@c pre + body-sm + post.
-@c 
-@c 127
-@c 
-@c These extra, deleted submatches are never assigned string indices in any matchvalues produced when matching the regexp against a string.
-@c 
-@c As examples,
-@c 
-@c (| (: (submatch "Richard") (|) "Nixon")
-@c 
-@c (submatch "bar"))
-@c 
-@c can be simplified to
-@c 
-@c (dsm 1 0 (submatch "bar"))
-@c The regexp
-@c 
-@c (: (** 0 0 (submatch "apple"))
-@c 
-@c (submatch "bar"))
-@c 
-@c can be simplified to
-@c 
-@c (dsm 1 0 (submatch "bar"))
-@c 
+Deleted submatches, or @acronym{DSM}s, are a subtle feature that are
+never required in expressions written by humans. They can be
+introduced by the simplifier when reducing regular expressions to
+simpler equivalents, and are included in the syntax to give it
+expressibility spanning the full regexp @acronym{ADT}. They may appear
+when unparsing simplified regular expressions that have been run
+through the simplifier; otherwise you are not likely to see them. Feel
+free to skip this section.
+
+The regexp simplifier can sometimes eliminate entire sub-expressions
+froma regexp. For example, the regexp
+
+@example
+(: "foo" (** 0 0 "apple") "bar")
+@end example
+
+can be simplified to
+
+@example
+"foobar"
+@end example
+
+since @code{(** 0 0 "apple")} will always match the empty string. The
+regexp
+
+@example
+(| "foo"
+   (: "Richard" (|) "Nixon")
+   "bar")
+@end example
+
+can be simplified to
+
+@example
+(| "foo" "bar").
+@end example
+
+The empty choice @code{(|)} can't match anything, so the whole
+
+@example
+(: "Richard" (|) "Nixon")
+@end example
+
+sequence can't match, and we can remove it from the choice.
+
+However, if deleting part of a regular expression removes a submatch
+form, any following submatch forms will have their numbering changed,
+which would be an error. For example, if we simplify
+
+@example
+(: (** 0 0 (submatch "apple"))
+   (submatch "bar"))
+@end example
+
+to
+
+@example
+(submatch "bar"),
+@end example
+
+then the @code{"bar"} submatch changes from submatch #2 to submatch
+#1---so this is not a legal simplification.
+
+When the simplifier deletes a sub-regexp that contains submatches, it
+introduces a special regexp form to account for the missing, deleted
+submatches, thus keeping the submatch accounting correct.
+
+@example
+(dsm @var{pre} @var{post} @var{sre} @dots{})
+@end example
+
+is a regexp that matches the sequence @code{(: @var{sre}
+@dots{})}. @var{Pre} and @var{post} are integer constants. The
+@acronym{DSM} form introduces @var{pre} deleted submatches before the
+body, and @var{post} deleted submatches after the body. If the body
+@code{(: @var{sre} @dots{})}  itself has @var{body-sm} submatches,
+then the total number of submatches for the @acronym{DSM} form is
+@var{pre} + @var{body-sm} + @var{post}.
+
+These extra, deleted submatches are never assigned string indices in
+any match values produced when matching the regexp against a string.
+
+As examples,
+
+@example
+(| (: (submatch "Richard") (|) "Nixon")
+   (submatch "bar"))
+@end example
+
+can be simplified to
+
+@example
+(dsm 1 0 (submatch "bar")).
+@end example
+
+The regexp
+
+@example
+(: (** 0 0 (submatch "apple"))
+   (submatch "bar"))
+@end example
+
+can be simplified to
+
+@example
+(dsm 1 0 (submatch "bar")).
+@end example
+
 @subsection Embedding regexps within Scheme programs
-@c 
-@c @acronym{SRE}s can be placed in a Scheme program using the (rx sre ...) Schemeform, which evaluates to a Scheme regexp value.
-@c 
+
+@acronym{SRE}s can be placed in a Scheme program using the @code{(rx
+@var{sre} @dots{})} Scheme form, which evaluates to a Scheme regexp
+value.
+
 @subsubsection Static and dynamic regexps
 @c We separate @acronym{SRE} expressions into two classes: static and dynamic expressions.A static expression is one that has no run-time dependencies; it is a complete,
 @c self-contained description of a regular set. A dynamic expression is one thatrequires run-time computation to determine the particular regular set being
