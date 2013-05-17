@@ -853,19 +853,19 @@ programs by embedding them inside special Scheme forms. There are
 three basic Scheme forms that use extended process forms:
 @code{exec-epf}, @code{&}, and @code{run}.
 
-@deffn Macro exec-epf . @var{epf}
+@deffn Syntax exec-epf . @var{epf}
 The @code{(exec-epf . @var{epf})} form nukes the current process: it
 establishes the I/O redirections and then overlays the current process
 with the requested computation.
 @end deffn
 
-@deffn Macro & . @var{epf}
+@deffn Syntax & . @var{epf}
 The @code{(& . @var{epf})} form is similar to @code{exec-epf}, except
 that the process is forked off in background. The form returns the
 subprocess' process object.
 @end deffn
 
-@deffn Macro run . @var{epf}
+@deffn Syntax run . @var{epf}
 The @code{(run . @var{epf})} form runs the process in foreground:
 after forking off the computation, it waits for the subprocess to
 exit, and returns its exit status.
@@ -918,37 +918,37 @@ There is a family of procedures and special forms that can be used to
 capture the output of processes as Scheme data.
 
 @anchor{run/port}
-@deffn Macro run/port . @var{epf}
+@deffn Syntax run/port . @var{epf}
 Value is a port open on process' stdout. Returns immediately after
 forking child.
 @end deffn
 
 @anchor{run/file}
-@deffn Macro run/file . @var{epf}
+@deffn Syntax run/file . @var{epf}
 Value is name of a temp file containing process' output. Returns when
 process exits.
 @end deffn
 
 @anchor{run/string}
-@deffn Macro run/string . @var{epf}
+@deffn Syntax run/string . @var{epf}
 Value is a string containing process' output. Returns when
 @acronym{eof} read.
 @end deffn
 
 @anchor{run/strings}
-@deffn Macro run/strings . @var{epf}
+@deffn Syntax run/strings . @var{epf}
 Splits process' output into a list of newline-delimited
 strings. Returns when @acronym{eof} read.
 @end deffn
 
 @anchor{run/sexp}
-@deffn Macro run/sexp . @var{epf}
+@deffn Syntax run/sexp . @var{epf}
 Reads a single object from process' stdout with @code{read}. Returns
 as soon as the read completes.
 @end deffn
 
 @anchor{run/sexps}
-@deffn Macro run/sexps . @var{epf}
+@deffn Syntax run/sexps . @var{epf}
 Repeatedly reads objects from process' stdout with
 @code{read}. Returns accumulated list upon @acronym{eof}.
 @end deffn
@@ -1046,7 +1046,7 @@ of the process. These special forms and procedures provide more
 complicated facilities for manipulating processes.
 
 @subsection Pids and ports together
-@deffn Macro run/port+proc . @var{epf}
+@deffn Syntax run/port+proc . @var{epf}
 @deffnx Procedure run/port+proc* @var{thunk}
 This special form and its analogous procedure can be used if the
 programmer also wishes access to the process' pid, exit status, or
@@ -1079,7 +1079,7 @@ stdout and stderr streams into two distinct strings. This is
 accomplished with the @code{run/collecting} form and its analogous
 procedure, @code{run/collecting*}.
 
-@deffn Macro run/collecting @var{fds} . @var{epf}
+@deffn Syntax run/collecting @var{fds} . @var{epf}
 @deffnx Procedure run/collecting* @var{fds} @var{thunk}
 @code{Run/collecting} runs processes that
 produce multiple output streams and return ports open on these
@@ -1190,13 +1190,13 @@ files as communication channels.
 @section Conditional process sequencing forms
 These forms allow conditional execution of a sequence of processes.
 
-@deffn Macro || @math{pf_1} @dots{} @math{pf_n}
+@deffn Syntax || @math{pf_1} @dots{} @math{pf_n}
 Run each proc until one completes successfully (i.e., exit status
 zero). Return true if some proc completes successfully; otherwise
 @code{#f}.
 @end deffn
 
-@deffn Macro && @math{pf_1} @dots{} @math{pf_n}
+@deffn Syntax && @math{pf_1} @dots{} @math{pf_n}
 Run each proc until one fails (i.e., exit status non-zero). Return
 true if all procs complete successfully; otherwise @code{#f}.
 @end deffn
@@ -1277,7 +1277,7 @@ passed to the exception handler.
 @end deffn
 
 @deffn Procedure with-errno-handler* @var{handler} @var{thunk}
-@deffnx Macro with-errno-handler @var{handler-spec} . @var{body}
+@deffnx Syntax with-errno-handler @var{handler-spec} . @var{body}
 UNIX syscalls raise error exceptions by calling @code{errno-error}. Programs can use 
 @code{with-errno-handler*} to establish handlers for these exceptions.
 
@@ -1416,9 +1416,9 @@ output, and error output port, respectively, for the duration of a call
 to @var{thunk}.
 @end deffn
 
-@deffn Macro with-current-input-port @var{port} . @var{body}
-@deffnx Macro with-current-output-port @var{port} . @var{body}
-@deffnx Macro with-error-output-port @var{port} . @var{body}
+@deffn Syntax with-current-input-port @var{port} . @var{body}
+@deffnx Syntax with-current-output-port @var{port} . @var{body}
+@deffnx Syntax with-error-output-port @var{port} . @var{body}
 These special forms are simply syntactic sugar for the
 @code{with-current-input-port*} procedure and friends.
 @end deffn
@@ -1483,7 +1483,7 @@ However, you are more likely to find the dynamic-extent variant,
 @end deffn
 
 @deffn Procedure with-stdio-ports* @var{thunk}
-@deffnx Macro with-stdio-ports @var{body} . . . 
+@deffnx Syntax with-stdio-ports @var{body} . . . 
 @code{With-stdio-ports*} binds the standard ports
 @code{(current-input-port)}, @code{(current-output-port)}, and
 @code{(error-output-port)} to be ports on file descriptors 0, 1, 2,
@@ -2307,7 +2307,7 @@ Release a lock from a file.
 @end deffn
 
 @deffn Procedure with-region-lock* @var{fdes} @var{lock} @var{thunk}
-@deffnx Macro with-region-lock @var{fdes} @var{lock} @var{body} @dots{}
+@deffnx Syntax with-region-lock @var{fdes} @var{lock} @var{body} @dots{}
 
 This procedure obtains the requested lock, and then calls
 @var{thunk}. When @var{thunk} returns, the lock is released. A
@@ -4524,8 +4524,8 @@ The @var{env-alist} argument specifies a complete environment that is
 installed for @var{thunk}.
 @end deffn
 
-@deffn Macro with-env env-alist-delta . body
-@deffnx Macro with-total-env env-alist . body
+@deffn Syntax with-env env-alist-delta . body
+@deffnx Syntax with-total-env env-alist . body
 
 These special forms provide syntactic sugar for @code{with-env*} and
 @code{with-total-env*}. The environment alists are not evaluated
@@ -6613,7 +6613,7 @@ Being able to convert regexps to @acronym{POSIX} strings allows
 implementations to implement regexp matching using standard
 @acronym{POSIX} C-based engines.
 
-@item Macro support for the @acronym{SRE} notation
+@item Syntax support for the @acronym{SRE} notation
 
 The @code{rx} macro provides a new special form that allows you to
 embed regexps in the s-expression notation within a Scheme
@@ -7648,7 +7648,7 @@ values.
 
 @subsection Standard procedures and syntax
 
-@deffn Macro rx sre @dots{}
+@deffn Syntax rx sre @dots{}
 
 This allows you to describe a regexp value with @acronym{SRE}
 notation.
