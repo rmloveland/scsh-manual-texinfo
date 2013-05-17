@@ -7597,64 +7597,92 @@ can be simplified to
 value.
 
 @subsubsection Static and dynamic regexps
-@c We separate @acronym{SRE} expressions into two classes: static and dynamic expressions.A static expression is one that has no run-time dependencies; it is a complete,
-@c self-contained description of a regular set. A dynamic expression is one thatrequires run-time computation to determine the particular regular set being
-@c described. There are two places where one can embed run-time computationsin an @acronym{SRE}:
-@c 
-@c * The from or to repetition counts of **, =, and >= forms;
-@c 
-@c * ,exp and ,@exp forms.
-@c 
-@c A static @acronym{SRE} is one that does not contain any ,exp or ,@exp forms, and whose
-@c **, =, and >= forms all contain constant repetition counts.
-@c 
-@c Scsh's rx macro is able, at macro-expansion time, to completely parse, sim-plify and translate any static @acronym{SRE} into the equivalent @acronym{POSIX} string which is used
-@c 
-@c to drive the underlying C-based matching engine; there is no run-time over-head. Dynamic @acronym{SRE}s are partially simplified and then expanded into Scheme
-@c code that constructs the regexp at run-time.
-@c 
-@c 128
-@c 
+
+We separate @acronym{SRE} expressions into two classes: static and
+dynamic expressions. A @emph{static} expression is one that has no
+run-time dependencies; it is a complete, self-contained description of
+a regular set. A @emph{dynamic} expression is one that requires
+run-time computation to determine the particular regular set being
+described. There are two places where one can embed run-time
+computations in an @acronym{SRE}:
+
+@itemize
+@item 
+The @var{from} or @var{to} repetition counts of @code{**}, @code{=}, and @code{>=} forms
+
+@item 
+@var{,exp} and @var{,@@exp} forms
+@end itemize
+
+A static @acronym{SRE} is one that does not contain any @var{,exp} or
+@var{,@@exp} forms, and whose @code{**}, @code{=}, and @code{>=} forms
+all contain constant repetition counts.
+
+Scsh's @code{rx} macro is able, at macro-expansion time, to completely
+parse, simplify and translate any static @acronym{SRE} into the
+equivalent @acronym{POSIX} string which is used to drive the
+underlying C-based matching engine; there is no run-time
+overhead. Dynamic @acronym{SRE}s are partially simplified and then
+expanded into Scheme code that constructs the regexp at run-time.
+
 @section Regexp functions
-@c 
-@c @subsection Obsolete, deprecated procedures
-@c 
-@c These two procedures are survivors from the previous, now-obsolete scsh reg-exp interface. Old code must open the
-@c 
-@c re-old-funs package to access them.They should not be used in new code.
-@c 
-@c (string-match posix-re-string string [start]) -! match or false procedure
-@c (make-regexp posix-re-string) -! regexp procedure
-@c 
-@c These are old functions included for backwards compatibility with pre-vious releases. They are deprecated and will go away at some point in
-@c 
-@c the future.
-@c Note that the new release has no "regexp compiling" procedure at all--regexp values are compiled for the matching engine on-demand, and the
-@c 
-@c necessary data structures are cached inside the @acronym{ADT} values.
-@c 
-@c @subsection Standard procedures and syntax
-@c 
-@c (rx sre . . . ) -! regexp Syntax
-@c 
-@c This allows you to describe a regexp value with @acronym{SRE} notation.
-@c 
-@c (regexp? x) -! boolean procedure
-@c 
-@c Returns true if the value is a regular expression.
-@c 
-@c (regexp-search re string [start flags]) -! match-data or false procedure
-@c (regexp-search? re string [start flags]) -! boolean procedure
-@c 
-@c Search string starting at position start, looking for a match for regexp re.If a match is found, return a match structure describing the match, otherwise #f. Start defaults to 0.
-@c Flags is the bitwise-or of regexp/bos-not-bol and regexp/eos-not-eol.
-@c regexp/bos-not-bol means the beginning of the string isn't a line-begin.
-@c regexp/eos-not-eol is analogous. {Note They're currently ignored be-cause begining/end-of-line anchors aren't supported by the current implementation.}
-@c Use regexp-search? when you don't need submatch information, as ithas the potential to be significantly faster on submatch-containing regexps.
-@c There is no longer a separate regexp "compilation" function; regexp val-ues are compiled for the C engine on demand, and the resulting C structures are cached in the regexp structure after the first use.
-@c 
-@c 129
-@c 
+
+@subsection Obsolete, deprecated procedures
+
+These two procedures are survivors from the previous, now-obsolete
+scsh regexp interface. Old code must open the @code{re-old-funs}
+package to access them. They should not be used in new code.
+
+@deffn Procedure string-match posix-re-string string [start]
+@deffnx Procedure make-regexp posix-re-string
+
+These are old functions included for backwards compatibility with
+previous releases. They are deprecated and will go away at some point
+in the future.
+
+Note that the new release has no ``regexp compiling'' procedure at
+all---regexp values are compiled for the matching engine on-demand,
+and the necessary data structures are cached inside the @acronym{ADT}
+values.
+@end deffn
+
+@subsection Standard procedures and syntax
+
+@deffn Macro rx sre @dots{}
+
+This allows you to describe a regexp value with @acronym{SRE}
+notation.
+@end deffn
+
+@deffn Procedure regexp? x
+
+Returns true if the value is a regular expression.
+@end deffn
+
+@deffn Procedure regexp-search re string [start flags]
+@deffnx Procedure regexp-search? re string [start flags]
+
+Search @var{string} starting at position @var{start}, looking for a
+match for regexp @var{re}. If a match is found, return a match
+structure describing the match, otherwise @code{#f}. @var{Start}
+defaults to 0.
+
+@var{Flags} is the bitwise-or of @code{regexp/bos-not-bol} and
+@code{regexp/eos-not-eol}. @code{Regexp/bos-not-bol} means the
+beginning of the string isn't a line-begin. @code{Regexp/eos-not-eol}
+is analogous. @emph{Note}: They're currently ignored because
+begining/end-of-line anchors aren't supported by the current
+implementation.
+
+Use @code{regexp-search?} when you don't need submatch information, as
+it has the potential to be significantly faster on submatch-containing
+regexps.
+
+There is no longer a separate regexp ``compilation'' function; regexp
+values are compiled for the C engine on demand, and the resulting C
+structures are cached in the regexp structure after the first use.
+@end deffn
+
 @c (match:start m [i]) -! integer or false procedure
 @c (match:end m [i]) -! integer or false procedure
 @c (match:substring m [i]) -! string or false procedure
