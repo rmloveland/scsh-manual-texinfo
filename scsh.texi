@@ -7683,39 +7683,60 @@ values are compiled for the C engine on demand, and the resulting C
 structures are cached in the regexp structure after the first use.
 @end deffn
 
-@c (match:start m [i]) -! integer or false procedure
-@c (match:end m [i]) -! integer or false procedure
-@c (match:substring m [i]) -! string or false procedure
-@c 
-@c match:start returns the start position of the submatch denoted bymatch-number. The whole regexp is 0; positive integers index submatches
-@c 
-@c in the regexp, counting left-to-right. Match-number defaults to 0.
-@c If the regular expression matches as a whole, but a particular sub-expression does not match, then
-@c 
-@c match:start returns #f.
-@c 
-@c match:end is analogous to match:start, returning the end position ofthe indexed submatch.
-@c 
-@c match:substring returns the substring matched regexp's submatch. Ifthere was no match for the indexed submatch, it returns false.
-@c 
-@c (regexp-substitute port-or-false match . items) -! object procedure
-@c 
-@c This procedure can be used to perform string substitutions based onregular-expression matches. The results of the substitution can be either
-@c 
-@c output to a port or returned as a string.
-@c The match argument is a regular-expression match structure that controlsthe substitution. If port is an output port, the items are written out to the
-@c 
-@c port:
-@c 
-@c * If an item is a string, it is copied directly to the port.*
-@c 
-@c If an item is an integer, the corresponding submatch from match iswritten to the port.
-@c 
-@c * If an item is 'pre, the prefix of the matched string (the text precedingthe match) is written to the port.
-@c 
-@c * If an item is 'post, the suffix of the matched string is written.
-@c If port is #f, nothing is written, and a string is constructed and returnedinstead.
-@c 
+@deffn Procedure match:start m [i]
+@deffnx Procedure match:end m [i]
+@deffnx Procedure match:substring m [i]
+
+@code{Match:start} returns the start position of the submatch denoted
+by @var{match-number}. The whole regexp is 0; positive integers index
+submatches in the regexp, counting left to right. @var{Match-number}
+defaults to 0.
+
+If the regular expression matches as a whole, but a particular
+sub-expression does not match, then @code{match:start} returns
+@code{#f}.
+
+@code{Match:end} is analogous to @code{match:start}, returning the end
+position of the indexed submatch.
+
+@c FIXME: Rewrite this.
+@code{Match:substring} returns the substring matched regexp's
+submatch. If there was no match for the indexed submatch, it returns
+false.
+@end deffn
+
+@deffn Procedure regexp-substitute port-or-false match [items]
+
+This procedure can be used to perform string substitutions based
+on regular-expression matches. The results of the substitution can be
+either output to a port or returned as a string.
+
+The @var{match} argument is a regular-expression match structure that
+controls the substitution. If @var{port} is an output port, the items are
+written out to the port:
+
+@itemize
+@item
+If an item is a string, it is copied directly to the port.
+
+@item
+If an item is an integer, the corresponding submatch from @var{match}
+is written to the port.
+
+@item
+If an item is @code{'pre}, the prefix of the matched string (the text
+preceding the match) is written to the port.
+
+@item
+If an item is @code{'post}, the suffix of the matched string is
+written.
+@end itemize
+
+If @var{port} is @code{#f}, nothing is written, and a string is
+constructed and returned instead.
+
+@end deffn
+
 @c (regexp-substitute/global port-or-false re str . items) -! object procedure
 @c 
 @c This procedure is similar to regexp-substitute, but can be used to per-form repeated match/substitute operations over a string. It has the following differences with regexp-substitute:
