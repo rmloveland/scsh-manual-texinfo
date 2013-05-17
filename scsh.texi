@@ -7366,8 +7366,8 @@ consider the Scheme expression
                        "30"                     ; 30
                        "31")))))                ; 31
   ;; Now we can use DATE several times:
-  (rx dots{} ,date dots{} (* dots{} ,date dots{})
-      dots{} ,date dots{}))
+  (rx @dots{} ,date @dots{} (* @dots{} ,date @dots{})
+      @dots{} ,date @dots{}))
 @end example
 
 where the @code{(rx @var{sre} @dots{})} macro is the Scheme special
@@ -7393,12 +7393,12 @@ computing dynamic regexps:
          (: ,re               ; or RE followed by
             (* ", " ,re)))))  ; zero or more comma-space-RE matches.
 
-(rx dots{} ,date dots{}
+(rx @dots{} ,date @dots{}
     ,(csl (rx (| "John" "Paul" "George" "Ringo")))
-    dots{}
+    @dots{}
     ,(csl date)
-    dots{})
-@End example
+    @dots{})
+@end example
 
 We leave the extension of @code{csl} to allow for an optional ``and''
 between the last two matches as an exercise for the interested reader
@@ -7441,8 +7441,8 @@ appearing after a ,@emph{exp} form in a regexp.
 On the other hand, the @acronym{SRE}
 
 @example
-,@exp
-@end @example
+,@@exp
+@end example
 
 ``splices'' its resulting regexp into place, exposing its submatches
 to the containing regexp. This is useful if the computed regexp is
@@ -7472,7 +7472,7 @@ The @acronym{SRE} @code{(posix-string @var{string})}, where
 @var{string} is a string literal (not a general Scheme expression),
 allows one to use @acronym{POSIX} string notation for a regexp. It's
 intended for backwards compatibility and is deprecated. For example,
-@code{(posix-string "[aeiou]+|x*|y{3,5}")} matches a string of vowels,
+@code{(posix-string "[aeiou]+|x*|y@{3,5@}")} matches a string of vowels,
 a possibly empty string of x's, or three to five y's.
 
 Note that parentheses are used ambiguously in @acronym{POSIX}
