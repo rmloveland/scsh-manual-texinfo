@@ -5,7 +5,6 @@
 @synindex vr fn @c Use `@vindex' and `@findex', respectively.
 @c %**end of header
 
-
 @c Part 2: Summary Description and Copyright
 @c -----------------------------------------
 
@@ -7737,134 +7736,169 @@ constructed and returned instead.
 
 @end deffn
 
-@c (regexp-substitute/global port-or-false re str . items) -! object procedure
-@c 
-@c This procedure is similar to regexp-substitute, but can be used to per-form repeated match/substitute operations over a string. It has the following differences with regexp-substitute:
-@c 
-@c * It takes a regular expression and string to be matched as parameters,instead of a completed match structure.
-@c 
-@c * If the regular expression doesn't match the string, this procedure isthe identity transform--it returns or outputs the string.
-@c 
-@c 130
-@c 
-@c * If an item is 'post, the procedure recurses on the suffix string (thetext from string following the match). Including a
-@c 
-@c 'post in the listof items is how one gets multiple match/substitution operations.
-@c 
-@c * If an item is a procedure, it is applied to the match structure for agiven match. The procedure returns a string to be used in the result.
-@c 
-@c The regexp parameter can be either a compiled regular expression or astring specifying a regular expression.
-@c Some examples:
-@c ;;; Replace occurrences of "Cotton" with "Jin".
-@c (regexp-substitute/global #f (rx "Cotton") s
-@c 
-@c 'pre "Jin" 'post)
-@c 
-@c ;;; mm/dd/yy -> dd/mm/yy date conversion.
-@c (regexp-substitute/global #f (rx (submatch (+ digit)) "/" ; 1 = M
-@c 
-@c (submatch (+ digit)) "/" ; 2 = D
-@c (submatch (+ digit))) ; 3 = Y
-@c s ; Source string
-@c 'pre 2 "/" 1 "/" 3 'post)
-@c 
-@c ;;; "9/29/61" -> "Sep 29, 1961" date conversion.
-@c (regexp-substitute/global #f (rx (submatch (+ digit)) "/" ; 1 = M
-@c 
-@c (submatch (+ digit)) "/" ; 2 = D
-@c (submatch (+ digit))) ; 3 = Y
-@c s ; Source string
-@c 'pre
-@c ;; Sleazy converter -- ignores "year 2000" issue,
-@c ;; and blows up if month is out of range.
-@c (lambda (m)
-@c 
-@c (let ((mon (vector-ref '#("Jan" "Feb" "Mar" "Apr" "May" "Jun"
-@c 
-@c "Jul" "Aug" "Sep" "Oct" "Nov" "Dec")
-@c (- (string->number (match:substring m 1)) 1)))
-@c (day (match:substring m 2))
-@c (year (match:substring m 3)))
-@c (string-append mon " " day ", 19" year)))
-@c 'post)
-@c 
-@c ;;; Remove potentially offensive substrings from string S.
-@c (define (kill-matches re s)
-@c 
-@c (regexp-substitute/global #f re s 'pre 'post))
-@c 
-@c (kill-matches (rx (| "Windows" "tcl" "Intel")) s) ; Protect the children.
-@c 
-@c (regexp-fold re kons knil s [finish start]) -! object procedure
-@c 
-@c 131
-@c 
-@c The following definition is a bit unwieldy, but the intuition is sim-ple: this procedure uses the regexp re to divide up string s into nonmatching/matching chunks, and then "folds" the procedure kons acrossthis sequence of chunks. It is useful when you wish to operate on a
-@c string in sub-units defined by some regular expression, as are the related
-@c regexp-fold-right and regexp-for-each procedures.
-@c 
-@c Search from start (defaulting to 0) for a match to re; call this match m. Leti be the index of the end of the match (that is,
-@c 
-@c (match:end m 0)). Loopas follows:
-@c 
-@c (regexp-fold re kons (kons start m knil) s finish i)If there is no match, return instead
-@c (finish start knil)Finish defaults to
-@c 
-@c (lambda (i knil) knil).
-@c 
-@c In other words, we divide up s into a sequence of non-matching/matching chunks:
-@c 
-@c NM1 M1 NM1 M2 . . . NMk-1 Mk-1 NMk
-@c where NM1 is the initial part of s that isn't matched by the regexp re,M
-@c 
-@c 1 is the first match, NM2 is the following part of s that isn't matched,M
-@c 2 is the second match, and so forth--NMk is the final non-matchingchunk of s. We apply kons from left to right to build up a result, passing it one non-matching/matching chunk each time: on an application
-@c (kons i m knil), the non-matching chunk goes from i to (match:beginm
-@c 
-@c 0), and the following matching chunk goes from (match:begin m 0)to
-@c (match:end m 0). The last non-matching chunk NMk is processed byk. So the computation we perform is
-@c 
-@c (final Q (kons jk Mk ... (kons J1 M1 knil) ...))
-@c where Ji is the index of the start of NMi, Mi is a match value describingM
-@c 
-@c i, and Q is the index of the beginning of NMk.
-@c Hint: The let-match macro is frequently useful for operating on thematch value M passed to the kons function.
-@c 
-@c (regexp-fold-right re kons knil s [finish start]) -! object procedure
-@c 
-@c The right-to-left variant of regexp-fold.
-@c This procedure repeatedly matches regexp re across string s. This dividess up into a sequence of matching/non-matching chunks:
-@c 
-@c NM1 M1 NM1 M2 . . . NMk-1 Mk-1 NMk
-@c where NM1 is the initial part of s that isn't matched by the regexp re, M1is the first match, NM
-@c 
-@c 2 is the following part of s that isn't matched, M2
-@c 
-@c 132
-@c 
-@c is the second match, and so forth--NMk is the final non-matching chunkof s. We apply kons from right to left to build up a result, passing it one
-@c non-matching/matching chunk each time:
-@c 
-@c (final Q (kons M1 j1 ... (kons Mk Jk knil) ...))
-@c where MTCHi is a match value describing Mi, Ji is the index of the endof NMi (or, equivalently, the beginning of Mi+1), and Q is the index of
-@c 
-@c the beginning of M1. In other words, KONS is passed a match, an indexdescribing the following non-matching text, and the value produced by
-@c folding the following text. The FINAL function "polishes off" the fold op-eration by handling the initial chunk of non-matching text (NM0, above).
-@c FINISH defaults to (lambda (i knil) knil)
-@c Example: To pick out all the matches to re in s, say
-@c 
-@c (regexp-fold-right re
-@c 
-@c (* (m i lis)
-@c 
-@c (cons (match:substring m 0) lis))
-@c 
-@c '() s)
-@c 
-@c Hint: The let-match macro is frequently useful for operating on thematch value m passed to the
-@c 
-@c kons function.
-@c 
+@deffn Procedure regexp-substitute/global port-or-false re str . items
+
+This procedure is similar to @code{regexp-substitute}, but can be used
+to perform repeated match/substitute operations over a string. It has
+the following differences with @code{regexp-substitute}:
+
+@itemize
+@item It takes a regular expression and string to be matched as
+parameters, instead of a completed match structure.
+@item If the regular expression doesn't match the string, this procedure
+is the identity transform---it returns or outputs the string.
+@item If an item is @code{'post}, the procedure recurses on the suffix
+string (the text from @var{string} following the match). Including a
+@code{'post} in the list of items is how one gets multiple match/substitution operations.
+@item If an item is a procedure, it is applied to the match structure
+for a given match. The procedure returns a string to be used in the result.
+@end itemize
+
+The @var{regexp} parameter can be either a compiled regular expression
+or a string specifying a regular expression.
+
+Some examples:
+
+@example
+;;; Replace occurrences of "Cotton" with "Jin".
+(regexp-substitute/global #f (rx "Cotton") s
+                                          'pre "Jin" 'post)
+
+;;; mm/dd/yy -> dd/mm/yy date conversion.
+(regexp-substitute/global #f (rx (submatch (+ digit)) "/" ; 1 = M
+                                                    (submatch (+ digit)) "/" ; 2 = D
+                                                    (submatch (+ digit))) ; 3 = Y
+                                           s ; Source string
+          'pre 2 "/" 1 "/" 3 'post)
+
+;;; "9/29/61" -> "Sep 29, 1961" date conversion.
+(regexp-substitute/global #f (rx (submatch (+ digit)) "/" ; 1 = M
+                                                    (submatch (+ digit)) "/" ; 2 = D
+                                                    (submatch (+ digit))) ; 3 = Y
+                                           s ; Source string
+        'pre
+
+;; Sleazy converter -- ignores "year 2000" issue,
+;; and blows up if month is out of range.
+        (lambda (m)
+            (let ((mon (vector-ref '#("Jan" "Feb" "Mar" "Apr" "May" "Jun"
+                                                  "Jul" "Aug" "Sep" "Oct" "Nov" "Dec")
+                                             (- (string->number (match:substring m 1)) 1)))
+                   (day (match:substring m 2))
+                   (year (match:substring m 3)))
+               (string-append mon " " day ", 19" year)))
+        'post)
+
+;;; Remove potentially offensive substrings from string S.
+(define (kill-matches re s)
+   (regexp-substitute/global #f re s 'pre 'post))
+
+(kill-matches (rx (| "Windows" "tcl" "Intel")) s)   ; Protect the children.
+@end example
+@end deffn
+
+@deffn Procedure regexp-fold re kons knil s [finish start]
+
+The following definition is a bit unwieldy, but the intuition is simple:
+this procedure uses the regexp @var{re} to divide up string @var{s} into
+non-matching/matching chunks, and then ``folds'' the procedure
+@var{kons} across this sequence of chunks. It is useful when you wish to
+operate on a string in sub-units defined by some regular expression, as
+are the related @code{regexp-fold-right} and @code{regexp-for-each}
+procedures.
+
+Search from @var{start} (defaulting to 0) for a match to @var{re}; call
+this match @var{m}. Let @var{i} be the index of the end of the match
+(that is, @code{(match:end m 0)}). Loop as follows:
+
+@example
+(regexp-fold re kons (kons start m knil) s finish i)
+@end example
+
+If there is no match, return instead
+
+@example
+(finish start knil)
+@end example
+
+@var{Finish} defaults to
+
+@example
+(lambda (i knil) knil).
+@end example
+
+In other words, we divide up @var{s} into a sequence of
+non-matching/matching chunks:
+
+@math{NM_1 M_1 NM_2 M_2 @dots{} NM_k-1 M_k-1 NM_k}
+
+where @math{NM_1} is the initial part of @var{s} that isn't matched by
+the regexp @var{re}, @math{M_1} is the first match, @math{NM_2} is the
+following part of @var{s} that isn't matched, @math{M_2} is the second
+match, and so forth---@math{NM_k} is the final non-matching chunk of
+@var{s}. We apply @var{kons} from left to right to build up a result,
+passing it one non-matching/matching chunk each time: on an application
+@code{(kons i m knil)}, the non-matching chunk goes from @var{i} to
+@code{(match:begin @var{m} 0)}, and the following matching chunk goes
+from @code{(match:begin @var{m} 0)} to @code{(match:end @var{m} 0)}. The
+last non-matching chunk @code{NM_k} is processed by @var{k}. So the
+computation we perform is @c does k mean KONS?
+
+@example
+(final @math{Q} (@var{kons} @math{J_k} @math{M_k} @dots{} (@var{kons} @math{J_1} @math{M_1} @var{knil}) @dots{}))
+@end example
+
+where @math{J_i} is the index of the start of @math{NM_i}, @math{M_i} is
+a match value describing @math{M_i}, and @math{Q} is the index of the
+beginning of @math{NM_k}.
+
+@emph{Hint}: The @code{let-match} macro is frequently useful for
+operating on the match value @math{M} passed to the @var{kons} function.
+@end deffn
+
+@deffn Procedure regexp-fold-right re kons knil s [finish start]
+
+The right-to-left variant of @code{regexp-fold}.
+
+This procedure repeatedly matches regexp @var{re} across string
+@var{s}. This divides @var{s} up into a sequence of matching/non-matching chunks:
+
+@math{@math{NM_1} @math{M_1} @math{NM_1} @math{M_2} @dots{} @math{NM_k-1} @math{M_k-1} @math{NM_k}}
+
+where @math{NM_1} is the initial part of @var{s} that isn't matched by
+the regexp @var{re}, @math{M_1} is the first match, @math{NM_2} is the
+following part of @var{s} that isn't matched, @math{M_2} is the second
+match, and so forth---@math{NM_k} is the final non-matching chunkof
+@var{s}. We apply @var{kons} from right to left to build up a result,
+passing it one non-matching/matching chunk each time:
+
+@example
+(final Q (kons @math{M_1} @math{J_1} @dots{} (kons @math{M_k} @math{J_k} knil) ...))
+@end example
+
+where @math{MATCH_i} is a match value describing @math{M_i}, @math{J_i}
+is the index of the endof @math{NM_i} (or, equivalently, the beginning
+of @math{M_i+1}), and Q is the index of the beginning of @math{M_1}. In
+other words, @var{kons} is passed a match, an index describing the
+following non-matching text, and the value produced by folding the
+following text. The @var{final} function ``polishes off'' the fold
+operation by handling the initial chunk of non-matching text
+(@math{NM_0}, above).  @var{Finish} defaults to @code{(lambda (i knil)
+knil)}.
+
+Example: To pick out all the matches to @var{re} in @var{s}, say
+
+@example
+(regexp-fold-right re
+    (lambda (m i lis)
+        (cons (match:substring m 0) lis))
+    '() s)
+@end example
+
+@emph{Hint}: The @code{let-match} macro is frequently useful for
+operating on the match value @var{m} passed to the @var{kons} function.
+@end deffn
+
 @c (regexp-for-each re proc s [start]) -! undefined procedure
 @c 
 @c Repeatedly match regexp re against string s. Apply proc to each matchthat is produced. Matches do not overlap.
