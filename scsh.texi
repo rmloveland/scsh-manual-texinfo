@@ -7930,51 +7930,57 @@ the @var{no-match} expression is evaluated; this would be an error in
 @code{let-match}.
 @end deffn
 
-@c (match-cond clause . . . ) -! object Syntax
-@c 
-@c 133
-@c 
-@c This macro allows one to conditionally attempt a sequence of patternmatches, interspersed with other, general conditional tests. There are
-@c four kinds of match-cond clause, one introducing a pattern match, andthe other three simply being regular
-@c 
-@c cond-style clauses, marked by the
-@c test and else keywords:
-@c 
-@c (match-cond (match-exp match-vars body ...) ; As in if-match
-@c 
-@c (test exp body ...) ; As in cond
-@c (test exp => proc) ; As in cond
-@c (else body ...)) ; As in cond
-@c 
-@c (flush-submatches re) -! re procedure
-@c (uncase re) -! re procedure
-@c (simplify-regexp re) -! re procedure
-@c (uncase-char-set cset) -! re procedure
-@c (uncase-string str) -! re procedure
-@c 
-@c These functions map regexps and char sets to other regexps.
-@c flush-submatches returns a regexp which matches exactly what its ar-gument matches, but contains no submatches.
-@c 
-@c uncase returns a regexp that matches any case-permutation of its argu-ment regexp.
-@c simplify-regexp applies the simplifier to its argument. This is done au-tomatically when compiling regular expressions, so this is only useful for
-@c programmers that are directly examining the @acronym{ADT} value with lower-levelaccessors.
-@c 
-@c uncase-char-set maps a char set to a regular expression thatmatches any character from that set, regardless of case. Similarly,
-@c uncase-string returns a regexp that matches any case-permutation ofthe string. For example,
-@c 
-@c (uncase-string "Knight") returns the samevalue that
-@c (rx ("kK") ("nN") ("iI") ("gG") ("hH") ("tT")) or (rx
-@c (w/nocase "Knight")).
-@c 
-@c (sre->regexp sre) -! re procedure
-@c (regexp->sre re) -! sre procedure
-@c 
-@c These are the @acronym{SRE} parser and unparser. That is, sre->regexp maps an@acronym{SRE} to a regexp value, and
-@c 
-@c regexp->sre does the inverse. The latterfunction can be useful for printing out regexps in a readable format.
-@c 
-@c 134
-@c 
+@deffn Syntax match-cond clause @dots{}  ---> object
+
+This macro allows one to conditionally attempt a sequence of pattern
+matches, interspersed with other, general conditional tests. There are
+four kinds of @code{match-cond} clause, one introducing a pattern
+match, and the other three simply being regular @code{cond}-style
+clauses, marked by the @code{test} and @code{else} keywords:
+
+@example
+(match-cond (match-exp match-vars body @dots{}) ; As in if-match
+            (test exp body @dots{})             ; As in cond
+            (test exp => proc)                 ; As in cond
+            (else body @dots{}))                ; As in cond
+@end example
+@end deffn
+
+@deffn Procedure flush-submatches re ---> re
+@deffnx Procedure uncase re ---> re
+@deffnx Procedure simplify-regexp re ---> re
+@deffnx Procedure uncase-char-set cset ---> re
+@deffnx Procedure uncase-string str ---> re
+
+These functions map regexps and char sets to other regexps.
+@code{Flush-submatches} returns a regexp which matches exactly what
+its argument matches, but contains no submatches.
+
+@code{Uncase} returns a regexp that matches any case-permutation of
+its argument regexp.
+
+@code{Simplify-regexp} applies the simplifier to its argument. This is
+done automatically when compiling regular expressions, so this is only
+useful for programmers that are directly examining the @acronym{ADT}
+value with lower-level accessors.
+
+@code{Uncase-char-set} maps a char set to a regular expression that
+matches any character from that set, regardless of case. Similarly,
+@code{uncase-string} returns a regexp that matches any
+case-permutation of the string. For example, @code{(uncase-string
+"Knight")} returns the same value as @code{(rx ("kK") ("nN") ("iI")
+("gG") ("hH") ("tT"))} or @code{(rx (w/nocase "Knight"))}.
+@end deffn
+
+@deffn Procedure sre->regexp sre ---> re
+@deffnx Procedure regexp->sre re --> sre
+
+These are the @acronym{SRE} parser and unparser. That is,
+@code{sre->regexp} maps an @acronym{SRE} to a regexp value, and
+@code{regexp->sre} does the inverse. The latter function can be useful
+for printing out regexps in a readable format.
+@end deffn
+
 @c (sre->regexp '(: "Olin " (? "G. ") "Shivers")) =) regexp
 @c (define re (re-seq (re-string "Pete ")
 @c 
