@@ -7899,32 +7899,37 @@ Example: To pick out all the matches to @var{re} in @var{s}, say
 operating on the match value @var{m} passed to the @var{kons} function.
 @end deffn
 
-@c (regexp-for-each re proc s [start]) -! undefined procedure
-@c 
-@c Repeatedly match regexp re against string s. Apply proc to each matchthat is produced. Matches do not overlap.
-@c 
-@c Hint: The let-match macro is frequently useful for operating on thematch value m passed to varproc.
-@c 
-@c (let-match match-exp mvars body . . . ) -! object Syntax
-@c (if-match match-exp mvars on-match no-match) -! object Syntax
-@c 
-@c Mvars is a list of vars that is bound to the match and submatches of thestring;
-@c 
-@c #F is allowed as a don't-care element. For example,
-@c 
-@c (let-match (regexp-search date s) (whole-date month day year)
-@c 
-@c ... body ...)
-@c 
-@c matches the regexp against string s, then evaluates the body of the
-@c let-match in a scope where whole-date is bound to the matched string,and
-@c 
-@c month, day and year are bound to the first, second and third sub-matches.
-@c 
-@c if-match is similar, but if the match expression is false, then the no-matchexpression is evaluated; this would be an error in
-@c 
-@c let-match.
-@c 
+@deffn Procedure regexp-for-each re proc s [start]
+
+Repeatedly match regexp @var{re} against string @var{s}. Apply
+@var{proc} to each match that is produced. Matches do not overlap.
+
+@emph{Hint}: The @code{let-match} macro is frequently useful for
+operating on the match value @var{m} passed to @var{proc}.
+@end deffn
+
+@deffn Syntax let-match match-exp mvars body @dots{} ---> object
+@deffnx Syntax if-match match-exp mvars on-match no-match ---> object
+
+@var{Mvars} is a list of vars that is bound to the match and
+submatches of the string; @code{#f} is allowed as a don't-care
+element. For example,
+
+@example
+(let-match (regexp-search date s) (whole-date month day year)
+   @dots{} body @dots{})
+@end example
+
+matches the regexp against string @var{s}, then evaluates the body of
+the @code{let-match} in a scope where @code{whole-date} is bound to
+the matched string, and @code{month}, @code{day} and @code{year} are
+bound to the first, second and third sub-matches.
+
+@code{If-match} is similar, but if the match expression is false, then
+the @var{no-match} expression is evaluated; this would be an error in
+@code{let-match}.
+@end deffn
+
 @c (match-cond clause . . . ) -! object Syntax
 @c 
 @c 133
