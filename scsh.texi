@@ -7979,36 +7979,45 @@ These are the @acronym{SRE} parser and unparser. That is,
 @code{sre->regexp} maps an @acronym{SRE} to a regexp value, and
 @code{regexp->sre} does the inverse. The latter function can be useful
 for printing out regexps in a readable format.
+
+@example
+(sre->regexp '(: "Olin " (? "G. ") "Shivers"))
+   ==> regexp
+
+(define re (re-seq (re-string "Pete ")
+                   (re-repeat 1 #f (re-string "Sz"))
+                   (re-string "ilagyi")))
+
+(regexp->sre (re-repeat 0 1 re))
+   ==> '(? "Pete" (+ "Sz") "ilagyi")
+@end example
 @end deffn
 
-@c (sre->regexp '(: "Olin " (? "G. ") "Shivers")) =) regexp
-@c (define re (re-seq (re-string "Pete ")
-@c 
-@c (re-repeat 1 #f (re-string "Sz"))
-@c (re-string "ilagyi")))
-@c (regexp->sre (re-repeat 0 1 re))=)
-@c 
-@c '(? "Pete" (+ "Sz") "ilagyi")
-@c 
-@c (posix-string->regexp string) -! re procedure
-@c (regexp->posix-string re) -! [string syntax-level paren-count submatches-vector] procedure
-@c 
-@c These two functions are the @acronym{POSIX} notation parser and unparser. That is,
-@c posix-string->regexp maps a @acronym{POSIX}-notation regular expression, suchas
-@c 
-@c "g(ee|oo)se", to a regexp value, and regexp->posix-string does theinverse.
-@c 
-@c You can use these tools to map between scsh regexps and @acronym{POSIX} regexpstrings, which can be useful if you want to do conversion between @acronym{SRE}s
-@c and @acronym{POSIX} form. For example, you can write a particularly complex reg-exp in @acronym{SRE} form, or compute it using the @acronym{ADT} constructors, then convert
-@c to @acronym{POSIX} form, print it out, cut and paste it into a C or emacs lisp program.Or you can import an old regexp from some other program, parse it into
-@c an @acronym{ADT} value, render it to an @acronym{SRE}, print it out, then cut and paste it intoa scsh program.
-@c 
-@c Note:
-@c 
-@c * The string parser doesn't handle the exotica of character class namessuch as
-@c 
-@c [[:alnum:]]; the current implementation was written in inthree hours.
-@c 
+@deffn Procedure posix-string->regexp string ---> re
+@deffnx Procedure regexp->posix-string re ---> [string syntax-level paren-count submatches-vector]
+
+These two functions are the @acronym{POSIX} notation parser and
+unparser. That is, @code{posix-string->regexp} maps a
+@acronym{POSIX}-notation regular expression, such as
+@code{"g(ee|oo)se"}, to a regexp value, and
+@code{regexp->posix-string} does the inverse.
+
+You can use these tools to map between scsh regexps and
+@acronym{POSIX} regexp strings, which can be useful if you want to do
+conversion between @acronym{SRE}s and @acronym{POSIX} form. For
+example, you can write a particularly complex regexp in @acronym{SRE}
+form, or compute it using the @acronym{ADT} constructors, then convert
+to @acronym{POSIX} form, print it out, cut and paste it into a C or
+Emacs Lisp program. Or you can import an old regexp from some other
+program, parse it into an @acronym{ADT} value, render it to an
+@acronym{SRE}, print it out, then cut and paste it into a scsh
+program.
+
+@emph{Note}: The string parser doesn't handle the exotica of character
+class names such as @code{[[:alnum:]]}; the current implementation was
+written in in three hours.
+@end deffn
+
 @section The regexp @acronym{ADT}
 @c 
 @c The following functions may be used to construct and examine scsh's regexpabstract data type. They are in the following Scheme 48 packages: re-adt-lib
