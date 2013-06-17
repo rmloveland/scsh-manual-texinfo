@@ -30,3 +30,8 @@ the scsh manual.
 
   - `filename' is one word; `file name' and `file-name' will not be
     used except in procedure and variable names.
+
+  - Paragraphs are filled using M-q. Auto-fill-mode may have
+    unexpected results on code examples.
+
+  - Sections marked `Note' use simple emphasis only.
