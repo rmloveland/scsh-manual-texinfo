@@ -8019,73 +8019,183 @@ written in in three hours.
 @end deffn
 
 @section The regexp @acronym{ADT}
-@c 
-@c The following functions may be used to construct and examine scsh's regexpabstract data type. They are in the following Scheme 48 packages: re-adt-lib
-@c re-lib scsh
-@c 
-@c Each basic class of regexp has a predicate, a basic constructor, a "smart"consructor that performs limited "peephole" optimisation on its arguments,
-@c 
-@c and a set of accessors. The ...:tsm accessor returns the total number of sub-matches contained in the regular expression.
-@c 
-@c (re-seq? x) -! boolean Type predicate
-@c (make-re-seq re-list) -! re Basic constructor
-@c (re-seq re-list) -! re Smart constructor
-@c (re-seq:elts re) -! re-list Accessor
-@c 
-@c 135
-@c 
-@c (re-seq:tsm re) -! integer Accessor
-@c (re-choice? x) -! boolean Type predicate
-@c (make-re-choice re-list) -! re Basic constructor
-@c (re-choice re-list) -! re Smart constructor
-@c (re-choice:elts re) -! re-list Accessor
-@c (re-choice:tsm re) -! integer Accessor
-@c 
-@c (re-repeat? x) -! boolean Type predicate
-@c (make-re-repeat from to body) -! re Accessor
-@c (re-repeat:from re) -! integer Accessor
-@c (re-repeat:to re) -! integer Accessor
-@c (re-repeat:tsm re) -! integer Accessor
-@c 
-@c (re-submatch? x) -! boolean Type predicate
-@c (make-re-submatch body [pre-dsm post-dsm]) -! re Accessor
-@c (re-submatch:pre-dsm re) -! integer Accessor
-@c (re-submatch:post-dsm re) -! integer Accessor
-@c (re-submatch:tsm re) -! integer Accessor
-@c 
-@c (re-string? x) -! boolean Type predicate
-@c (make-re-string chars) -! re Basic constructor
-@c (re-string chars) -! re Basic constructor
-@c (re-string:chars re) -! string Accessor
-@c 
-@c (re-char-set? x) -! boolean Type predicate
-@c (make-re-char-set cset) -! re Basic constructor
-@c (re-char-set cset) -! re Basic constructor
-@c (re-char-set:cset re) -! char-set Accessor
-@c 
-@c (re-dsm? x) -! boolean Type predicate
-@c (make-re-dsm body pre-dsm post-dsm) -! re Basic constructor
-@c (re-dsm body pre-dsm post-dsm) -! re Smart constructor
-@c (re-dsm:body re) -! re Accessor
-@c (re-dsm:pre-dsm re) -! integer Accessor
-@c (re-dsm:post-dsm re) -! integer Accessor
-@c (re-dsm:tsm re) -! integer Accessor
-@c 
-@c re-bos regexp
-@c re-eos regexp
-@c re-bol regexp
-@c re-eol regexp
-@c 
-@c These variables are bound to the primitive anchor regexps.
-@c 
-@c (re-bos? object) -! boolean procedure
-@c (re-eos? object) -! boolean procedure
-@c (re-bol? object) -! boolean procedure
-@c (re-eol? object) -! boolean procedure
-@c 
-@c 136
-@c 
-@c These predicates recognise the associated primitive anchor regexp.
+
+The following functions may be used to construct and examine scsh's
+regexp abstract data type. They are in the following Scheme 48 packages:
+
+@itemize
+@item re-adt-lib
+@item re-lib scsh
+@end itemize
+
+Each basic class of regexp has a predicate, a basic constructor, a
+``smart'' consructor that performs limited ``peephole'' optimisation on
+its arguments, and a set of accessors. The @code{@dots{}:tsm} accessor
+returns the total number of sub-matches contained in the regular
+expression.
+
+@multitable
+@headitem Procedure
+@tab Returns
+@tab Is of Type
+
+@item @code{(re-seq? @var{x})}
+@tab boolean 
+@tab Type predicate
+
+@item @code{(make-re-seq @var{re-list})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-seq @var{re-list})}
+@tab re
+@tab Smart constructor
+
+@item @code{(re-seq:elts @var{re})}
+@tab re-list
+@tab Accessor
+
+@item @code{(re-seq:tsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-choice? @var{x})}
+@tab boolean
+@tab Type predicate
+
+@item @code{(make-re-choice @var{re-list})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-choice @var{re-list})}
+@tab re
+@tab Smart constructor
+
+@item @code{(re-choice:elts @var{re})}
+@tab re-list
+@tab Accessor
+
+@item @code{(re-choice:tsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-repeat? @var{x})}
+@tab boolean
+@tab Type predicate
+
+@item @code{(make-re-repeat @var{from} @var{to} @var{body})}
+@tab re
+@tab Accessor
+
+@item @code{(re-repeat:from @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-repeat:to @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-repeat:tsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-submatch? @var{x})}
+@tab boolean
+@tab Type predicate
+
+@item @code{(make-re-submatch @var{body} @var{[pre-dsm post-dsm]})}
+@tab re
+@tab Accessor
+
+@item @code{(re-submatch:pre-dsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-submatch:post-dsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-submatch:tsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-string? @var{x})}
+@tab boolean
+@tab Type predicate
+
+@item @code{(make-re-string @var{chars})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-string @var{chars})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-string:chars @var{re})}
+@tab string
+@tab Accessor
+
+@item @code{(re-char-set? @var{x})}
+@tab boolean
+@tab Type predicate
+
+@item @code{(make-re-char-set @var{cset})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-char-set @var{cset})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-char-set:cset @var{re})}
+@tab char-set
+@tab Accessor
+
+@item @code{(re-dsm? @var{x})}
+@tab boolean
+@tab Type predicate
+
+@item @code{(make-re-dsm @var{body} @var{pre-dsm} @var{post-dsm})}
+@tab re
+@tab Basic constructor
+
+@item @code{(re-dsm @var{body} @var{pre-dsm} @var{post-dsm})}
+@tab re
+@tab Smart constructor
+
+@item @code{(re-dsm:body @var{re})}
+@tab re
+@tab Accessor
+
+@item @code{(re-dsm:pre-dsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-dsm:post-dsm @var{re})}
+@tab integer
+@tab Accessor
+
+@item @code{(re-dsm:tsm @var{re})}
+@tab integer
+@tab Accessor
+@end multitable
+
+@deffn Variable re-bos ---> regexp
+@deffnx Variable re-eos ---> regexp
+@deffnx Variable re-bol ---> regexp
+@deffnx Variable re-eol ---> regexp
+
+These variables are bound to the primitive anchor regexps.
+@end deffn
+
+@deffn Procedure (re-bos? object) ---> boolean
+@deffnx Procedure (re-eos? object) ---> boolean
+@deffnx Procedure (re-bol? object) ---> boolean
+@deffnx Procedure (re-eol? object) ---> boolean
+
+These predicates recognise the associated primitive anchor regexp.
+@end deffn
+
 @c re-trivial regexp
 @c (re-trivial? re) -! boolean procedure
 @c 
