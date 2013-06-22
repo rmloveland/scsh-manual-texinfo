@@ -8188,113 +8188,139 @@ expression.
 These variables are bound to the primitive anchor regexps.
 @end deffn
 
-@deffn Procedure (re-bos? object) ---> boolean
-@deffnx Procedure (re-eos? object) ---> boolean
-@deffnx Procedure (re-bol? object) ---> boolean
-@deffnx Procedure (re-eol? object) ---> boolean
+@deffn Procedure re-bos? object ---> boolean
+@deffnx Procedure re-eos? object ---> boolean
+@deffnx Procedure re-bol? object ---> boolean
+@deffnx Procedure re-eol? object ---> boolean
 
 These predicates recognise the associated primitive anchor regexp.
 @end deffn
 
-@c re-trivial regexp
-@c (re-trivial? re) -! boolean procedure
-@c 
-@c The variable re-trivial is bound to a regular expression that matchesthe empty string (corresponding to the @acronym{SRE}
-@c 
-@c "" or (:)); it is recognisedby the associated predicate. Note that the predicate is only guaranteed to
-@c 
-@c recognise this particular trivial regexp; other trivial regexps built usingother constructors may or may not produce a true value.
-@c 
-@c re-empty regexp
-@c (re-empty? re) -! boolean procedure
-@c 
-@c The variable re-empty is bound to a regular expression that nevermatches (corresponding to the @acronym{SRE}
-@c 
-@c (|)); it is recognised by the associ-ated predicate. Note that the predicate is only guaranteed to recognise
-@c 
-@c this particular empty regexp; other empty regexps built using other con-structors may or may not produce a true value.
-@c 
-@c re-any regexp
-@c (re-any? re) -! boolean procedure
-@c 
-@c The variable re-any is bound to a regular expression that matches anycharacter (corresponding to the @acronym{SRE}
-@c 
-@c any); it is recognised by the associ-ated predicate. Note that the predicate is only guaranteed to recognise
-@c 
-@c this particular any-character regexp value; other any-character regexpsbuilt using other constructors may or may not produce a true value.
-@c 
-@c re-nonl regexp
-@c 
-@c The variable re-nonl is bound to a regular expression that matches anynon-newline character (corresponding to the @acronym{SRE}
-@c 
-@c (~ #\newline)).
-@c 
-@c (regexp? object) -! boolean procedure
-@c 
-@c Is the object a regexp?
-@c 
-@c (re-tsm re) -! integer procedure
-@c 
-@c Return the total number of submatches contained in the regexp.
-@c 
-@c (clean-up-cres) -! undefined procedure
-@c 
-@c The current scsh implementation should call this function periodically torelease C-heap storage associated with compiled regexps. Hopefully, this
-@c 
-@c procedure will be removed at a later date.
-@c 
-@c 137
-@c 
+@deffn Variable re-trivial ---> regexp
+@deffnx Procedure re-trivial? re ---> boolean
+
+The variable @code{re-trivial} is bound to a regular expression that
+matches the empty string (corresponding to the @acronym{SRE} @code{""}
+or @code{(:)}); it is recognised by the associated predicate. Note that
+the predicate is only guaranteed to recognise this particular trivial
+regexp; other trivial regexps built using other constructors may or may
+not produce a true value.
+@end deffn
+
+@deffn Variable re-empty ---> regexp
+@deffnx Procedure re-empty? re ---> boolean 
+
+The variable @code{re-empty} is bound to a regular expression that never
+matches (corresponding to the @acronym{SRE} @code{(|)}); it is
+recognised by the associated predicate. Note that the predicate is only
+guaranteed to recognise this particular empty regexp; other empty
+regexps built using other constructors may or may not produce a true
+value.
+@end deffn
+
+@deffn Variable re-any ---> regexp
+@deffnx Procedure re-any? re ---> boolean 
+
+The variable re-any is bound to a regular expression that matches
+anycharacter (corresponding to the @acronym{SRE} @code{any}); it is
+recognised by the associated predicate. Note that the predicate is only
+guaranteed to recognise this particular any-character regexp value;
+other any-character regexps built using other constructors may or may
+not produce a true value.
+@end deffn
+
+@deffn Variable re-nonl ---> regexp
+
+The variable @code{re-nonl} is bound to a regular expression that
+matches any non-newline character (corresponding to the @acronym{SRE}
+@code{(~ #\newline)}).
+@end deffn
+
+@deffn Procedure regexp? object --> boolean
+
+Is the object a regexp?
+@end deffn
+
+@deffn Procedure re-tsm re ---> integer
+
+Return the total number of submatches contained in the regexp.
+@end deffn
+
+@deffn Procedure clean-up-cres ---> undefined
+
+The current scsh implementation should call this function periodically
+to release C-heap storage associated with compiled regexps. Hopefully,
+this procedure will be removed at a later date.
+@end deffn
+
 @section Syntax-hacking tools
-@c 
-@c The Scheme 48 package sre-syntax-tools exports several tools for macrowriters that want to use @acronym{SRE}s in their macros. In the functions defined below,
-@c compare and rename parameters are as passed to Clinger-Rees explicit-renaminglow-level macros.
-@c 
-@c (if-sre-form form conseq-form alt-form) -! form Syntax
-@c 
-@c If form is a legal @acronym{SRE}, this is equivalent to the expression conseq-form, oth-erwise it expands to alt-form.
-@c 
-@c This is useful for high-level macro authors who want to write a macrowhere one field in the macro can be an @acronym{SRE} or possibly something else.
-@c E.g., we might have a conditional form wherein if the test part of one armis an @acronym{SRE}, it expands to a regexp match on some implied value, otherwise
-@c the form is evaluated as a boolean Scheme expression. For example, aconditional macro might expand into code containing the following form,
-@c which in turn would have one of two possible expansions:
-@c 
-@c (if-sre-form test-exp ; If TEST-EXP is @acronym{SRE},
-@c 
-@c (regexp-search? (rx test-exp) line) ; match it w/the line,
-@c test-exp) ; otw it's a text exp.
-@c 
-@c (sre-form? form rename compare) -! boolean procedure
-@c 
-@c This procedure is for low-level macros doing things equivalent to
-@c if-sre-form. It returns true if the form is a legal @acronym{SRE}.
-@c 
-@c Note that neither sre-form nor if-sre-form does a deep recursion overthe form in the case where the form is a list. They simply check the car of
-@c 
-@c the form for one of the legal @acronym{SRE} keywords.
-@c (parse-sre sre-form compare rename) -! re procedure
-@c (parse-sres sre-forms compare rename) -! re procedure
-@c 
-@c Parse sre-form into an @acronym{ADT}. Note that if the @acronym{SRE} is dynamic--contains
-@c ,exp or ,@exp forms, or has repeat operators whose from/to counts arenot constants--then the returned @acronym{ADT} will have Scheme expressions in the
-@c 
-@c corresponding slots of the regexp records instead of the correspondinginteger, char-set, or regexp. In other words, we use the @acronym{ADT} as its own
-@c AST. It's called a "hack."
-@c parse-sres parses a list of @acronym{SRE} forms that comprise an implicit sequence.
-@c 
-@c (regexp->scheme re rename) -! Scheme-expression procedure
-@c 
-@c Returns a Scheme expression that will construct the regexp re using @acronym{ADT}constructors such as
-@c 
-@c make-re-sequence, make-re-repeat, and so forth.
-@c 
-@c If the regexp is static, it will be simplified and pre-translated to a @acronym{POSIX}string as well, which will be part of the constructed regexp value.
-@c 
-@c 138
-@c 
-@c (static-regexp? re) -! boolean procedure
-@c 
-@c Is the regexp a static one?
+
+The Scheme 48 package @code{sre-syntax-tools} exports several tools for
+macro writers who want to use @acronym{SRE}s in their macros. In the
+functions defined below, @var{compare} and @var{rename} parameters are
+as passed to Clinger-Rees explicit-renaming low-level macros.
+
+@deffn Syntax if-sre-form form conseq-form alt-form ---> form
+
+If @var{form} is a legal @acronym{SRE}, this is equivalent to the
+expression @var{conseq-form}, otherwise it expands to @var{alt-form}.
+
+This is useful for high-level macro authors who want to write a macro
+where one field in the macro can be an @acronym{SRE} or possibly
+something else.  For example, we might have a conditional form wherein
+if the test part of one arm is an @acronym{SRE}, it expands to a regexp
+match on some implied value, otherwise the form is evaluated as a
+boolean Scheme expression. For example, a conditional macro might expand
+into code containing the following form, which in turn would have one of
+two possible expansions:
+
+@example
+(if-sre-form test-exp                  ; If TEST-EXP is @acronym{SRE},
+   (regexp-search? (rx test-exp) line) ; match it w/the line,
+   test-exp)                           ; otw it's a text exp.
+@end example
+@end deffn
+
+@deffn Procedure sre-form? form rename compare ---> boolean
+
+This procedure is for low-level macros doing things equivalent to
+@code{if-sre-form}. It returns true if the form is a legal
+@acronym{SRE}.
+
+Note that neither @code{sre-form} nor @code{if-sre-form} does a deep
+recursion over the form in the case where the form is a list. They
+simply check the @code{car} of the form for one of the legal
+@acronym{SRE} keywords.
+@end deffn
+
+@deffn Procedure parse-sre sre-form compare rename ---> re
+@deffnx Procedure parse-sres sre-forms compare rename ---> re
+
+Parse @var{sre-form} into an @acronym{ADT}. Note that if the
+@acronym{SRE} is dynamic---contains @var{,exp} or @var{,@@exp} forms, or
+has repeat operators whose from/to counts are not constants---then the
+returned @acronym{ADT} will have Scheme expressions in the corresponding
+slots of the regexp records instead of the corresponding integer,
+char-set, or regexp. In other words, we use the @acronym{ADT} as its own
+@acronym{AST}. It's called a "hack."
+
+@code{Parse-sres} parses a list of @acronym{SRE} forms that comprise an
+implicit sequence.
+@end deffn
+
+@deffn Procedure regexp->scheme re rename ---> Scheme-expression
+
+Returns a Scheme expression that will construct the regexp @var{re}
+using @acronym{ADT} constructors such as @code{make-re-sequence},
+@code{make-re-repeat}, and so forth. If the regexp is static, it will be
+simplified and pre-translated to a @acronym{POSIX} string as well, which
+will be part of the constructed regexp value.
+@end deffn
+
+@deffn Procedure static-regexp? re ---> boolean
+
+Is the regexp a static one?
+@end deffn
 
 @node Reading delimited strings
 @chapter Reading delimited strings
