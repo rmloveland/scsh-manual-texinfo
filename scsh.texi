@@ -6516,6 +6516,7 @@ for @acronym{R5RS} compatibility:
 @end multitable
 @end deffn
 
+@node Deprecated character-set procedures
 @section Deprecated character-set procedures
 
 The SRFI-13 character-set library grew out of an earlier library
@@ -8325,91 +8326,136 @@ Is the regexp a static one?
 @node Reading delimited strings
 @chapter Reading delimited strings
 
-@c Scsh provides a set of procedures that read delimited strings from input ports.There are procedures to read a single line of text (terminated by a newline character), a single paragraph (terminated by a blank line), and general delimitedstrings (terminated by a character belonging to an arbitrary character set).
-@c 
-@c These procedures can be applied to any Scheme input port. However, thescsh virtual machine has native-code support for performing delimited reads
-@c on UNIX ports, and these input operations should be particularly fast--muchfaster than doing the equivalent character-at-a-time operation from Scheme
-@c code.
-@c 
-@c All of the delimited input operations described below take a handle-delimparameter, which determines what the procedure does with the terminating
-@c 
-@c delimiter character. There are four possible choices for a handle-delim param-eter:
-@c 
-@c handle-delim Meaning
-@c 'trim Ignore delimiter character.
-@c 'peek Leave delimiter character in input stream.
-@c 'concat Append delimiter character to returned value.
-@c 'split Return delimiter as second value.
-@c 
-@c The first case, 'trim, is the standard default for all the routines described inthis section. The last three cases allow the programmer to distinguish between
-@c 
-@c strings that are terminated by a delimiter character, and strings that are termi-nated by an end-of-file.
-@c 
-@c (read-line [port handle-newline]) -! string or eof-object procedure
-@c 
-@c Reads and returns one line of text; on @acronym{eof}, returns the @acronym{eof} object. A line isterminated by newline or @acronym{eof}.
-@c 
-@c 140
-@c 
-@c handle-newline determines what read-line does with the newline or @acronym{eof} that terminates the line; it takes the general set of values described for
-@c the general handle-delim case above, and defaults to 'trim (discard thenewline). Using this argument allows one to tell whether or not the last
-@c line of input in a file is newline terminated.
-@c 
-@c (read-paragraph [port handle-delim]) -! string or @acronym{eof} procedure
-@c 
-@c This procedure skips blank lines, then reads text from a port until a blankline or @acronym{eof} is found. A "blank line" is a (possibly empty) line composed
-@c 
-@c only of white space. The handle-delim parameter determines how the ter-minating blank line is handled. It is described above, and defaults to
-@c 'trim. The 'peek option is not available.
-@c The following procedures read in strings from ports delimited by charactersbelonging to a specific set. See section @ref{5.5} for information on character set
-@c 
-@c manipulation.
-@c (read-delimited char-set [port handle-delim]) -! string or @acronym{eof} procedure
-@c 
-@c Read until we encounter one of the chars in char-set or @acronym{eof}. Thehandle-delim parameter determines how the terminating character is handled. It is described above, and defaults to 'trim.
-@c The char-set argument may be a charset, a string, or a character; it is co-erced to a charset.
-@c 
-@c (read-delimited! char-set buf [port handle-delim start end]) -! nchars or @acronym{eof} or #f procedure
-@c 
-@c A side-effecting variant of read-delimited.
-@c The data is written into the string buf at the indices in the half-open in-terval [start
-@c 
-@c , end); the default interval is the whole string: start = 0 andend =
-@c (string-length buf). The values of start and end must specify awell-defined interval in str, i.e., 0 <= start <= end <=
-@c 
-@c (string-length buf).
-@c 
-@c It returns nbytes, the number of bytes read. If the buffer filled up withouta delimiter character being found,
-@c 
-@c #f is returned. If the port is at @acronym{eof}when the read starts, the @acronym{eof} object is returned.
-@c 
-@c If an integer is returned (i.e., the read is successfully terminated by read-ing a delimiter character), then the handle-delim parameter determines
-@c how the terminating character is handled. It is described above, and de-faults to
-@c 
-@c 'trim.
-@c 
-@c (%read-delimited! char-set buf gobble? [port start end]) -! [char-or-@acronym{eof}-or-#f integer] procedure
-@c 
-@c This low-level delimited reader uses an alternate interface. It returns twovalues: terminator and num-read.
-@c 
-@c 141
-@c 
-@c terminator A value describing why the read was terminated:
-@c 
-@c Character or @acronym{eof}-object ) Read terminated by this value.
-@c #f ) Filled buffer without finding a delimiter.
-@c 
-@c num-read Number of characters read into buf.
-@c 
-@c If the read is successfully terminated by reading a delimiter character,then the gobble? parameter determines what to do with the terminating
-@c 
-@c character. If true, the character is removed from the input stream; if false,the character is left in the input stream where a subsequent read operation will retrieve it. In either case, the character is also the first valuereturned by the procedure call.
-@c 
-@c (skip-char-set skip-chars [port]) -! integer procedure
-@c 
-@c Skip characters occurring in the set skip-chars; return the number of char-acters skipped. The skip-chars argument may be a charset, a string, or a
-@c 
-@c character; it is coerced to a charset.
+Scsh provides a set of procedures that read delimited strings from
+input ports. There are procedures to read a single line of text
+(terminated by a newline character), a single paragraph (terminated by
+a blank line), and general delimited strings (terminated by a
+character belonging to an arbitrary character set).
+
+These procedures can be applied to any Scheme input port. However, the
+scsh virtual machine has native-code support for performing delimited
+reads on UNIX ports, and these input operations should be particularly
+fast---much faster than doing the equivalent character-at-a-time
+operation from Scheme code.
+
+All of the delimited input operations described below take a
+@code{handle-delim} parameter, which determines what the procedure does
+with the terminating delimiter character. There are four possible
+choices for a @code{handle-delim} parameter:
+
+@multitable
+@headitem @code{handle-delim}
+@tab Meaning
+
+@item @code{'trim}
+@tab Ignore delimiter character.
+
+@item @code{'peek}
+@tab Leave delimiter character in input stream.
+
+@item @code{'concat}
+@tab Append delimiter character to returned value.
+@item 'split 
+@tab Return delimiter as second value.
+@end multitable
+
+The first case, @code{'trim}, is the standard default for all the
+routines described in this section. The last three cases allow the
+programmer to distinguish between strings that are terminated by a
+delimiter character, and strings that are terminated by an
+end-of-file.
+
+@deffn Procedure read-line [port handle-newline] ---> string or eof-object
+
+Reads and returns one line of text; on @acronym{eof}, returns the
+@acronym{eof} object. A line is terminated by newline or
+@acronym{eof}.
+
+@var{Handle-newline} determines what @code{read-line} does with the
+newline or @acronym{eof} that terminates the line; it takes the
+general set of values described for the general @code{handle-delim}
+case above, and defaults to @code{'trim} (discard the newline). Using
+this argument allows one to tell whether or not the last line of input
+in a file is newline-terminated.
+@end deffn
+
+@deffn Procedure read-paragraph [port handle-delim] ---> string or @acronym{eof}
+
+This procedure skips blank lines, then reads text from a port until a
+blank line or @acronym{eof} is found. A "blank line" is a (possibly
+empty) line composed only of white space. The @var{handle-delim}
+parameter determines how the terminating blank line is handled. It is
+described above, and defaults to @code{'trim}. The @code{'peek} option
+is not available.
+@end deffn
+
+The following procedures read in strings from ports delimited by
+characters belonging to a specific set. For information on character
+set manipulation, @xref{Deprecated character-set procedures}.
+
+@deffn Procedure read-delimited char-set [port handle-delim] ---> string or @acronym{eof}
+
+Read until we encounter one of the chars in @var{char-set} or
+@acronym{eof}. The @var{handle-delim} parameter determines how the
+terminating character is handled. It is described above, and defaults
+to @code{'trim}.
+
+The @var{char-set} argument may be a charset, a string, or a
+character; it is coerced to a charset.
+@end deffn
+
+@deffn Procedure read-delimited! char-set buf [port handle-delim start end] ---> nbytes or @acronym{eof} or @code{#f}
+
+A side-effecting variant of @code{read-delimited}.
+
+The data is written into the string @code{buf} at the indices in the
+half-open interval [@var{start}, @var{end}]. The default interval is
+the whole string, such that @var{start} is equal to @code{0} and
+@var{end} is equal to @code{(string-length @var{buf})}. The values of
+@var{start} and @var{end} must specify a well-defined interval in
+@var{buf}, @emph{i.e.}, 0 @math{<=} @var{start} <= @var{end} <=
+@code{(string-length @var{buf})}.
+
+It returns @var{nbytes}, the number of bytes read. If the buffer
+filled up without a delimiter character being found, @code{#f} is
+returned. If the port is at @acronym{eof} when the read starts, the
+@acronym{eof} object is returned.
+
+If an integer is returned (@emph{i.e.}, the read is successfully terminated
+by reading a delimiter character), then the @var{handle-delim} parameter
+determines how the terminating character is handled. It is described
+above, and defaults to @code{'trim}.
+@end deffn
+
+@deffn Procedure %read-delimited! char-set buf gobble? [port start end] ---> [char-or-@acronym{eof}-or-@code{#f} integer]
+
+This low-level delimited reader uses an alternate interface. It
+returns two values: @var{terminator} and @var{num-read}.
+
+@itemize
+@item @var{terminator}
+A value describing why the read was terminated. If the buffer was
+filled without finding a delimiter, return @code{#f}. Otherwise,
+return the character or @acronym{eof} object that terminated the read.
+
+@item @var{num-read}
+Number of characters read into @var{buf}.
+@end itemize
+
+If the read is successfully terminated by reading a delimiter
+character, then the @var{gobble?} parameter determines what to do with
+the terminating character. If true, the character is removed from the
+input stream; if false, the character is left in the input stream
+where a subsequent read operation will retrieve it. In either case,
+the character is also the first value returned by the procedure call.
+@end deffn
+
+@deffn Procedure skip-char-set skip-chars [port] ---> integer
+
+Skip characters occurring in the set @var{skip-chars}; return the
+number of characters skipped. The @var{skip-chars} argument may be a
+charset, a string, or a character; it is coerced to a charset.
+@end deffn
 
 @node Awk record I/O and field parsing
 @chapter Awk record I/O and field parsing
