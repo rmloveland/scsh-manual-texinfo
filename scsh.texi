@@ -3855,7 +3855,7 @@ the asynchronous UNIX signals (table 3.9).
 @item @code{interrupt/alrm}@footnote{Also bound to Scheme 48 interrupt interrupt/alarm.}
 @tab @code{signal/alrm}
 @tab @acronym{POSIX}
-@item @code{interrupt/int}@footnote{bAlso bound to Scheme 48 interrupt interrupt/keyboard.}
+@item @code{interrupt/int}@footnote{Also bound to Scheme 48 interrupt interrupt/keyboard.}
 @tab @code{signal/int} 
 @tab @acronym{POSIX}
 @item @code{interrupt/memory-shortage }
@@ -5707,14 +5707,16 @@ address-family.
 The procedures in this section are presented in the order in which a
 typical program will use them. Consult a text on network systems programming for
 more information on sockets@footnote{Some recommended ones are:
+
 @itemize
 @item @emph{UNIX Network Programming} by W. Richard Stevens
 @item @emph{An Introductory 4.3BSD Interprocess Communication Tutorial} (reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1})
 @item @emph{An Advanced 4.3BSD Interprocess Communication Tutorial} (reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1})
 @end itemize
-The last two tutorials are freely available as partof @acronym{BSD}.}.
-In the absence of these, your UNIX manual pages for @code{socket()} might be a
-good starting point for information.
+
+The last two tutorials are freely available as part of
+@acronym{BSD}.}.  In the absence of these, your UNIX manual pages for
+@code{socket()} might be a good starting point for information.
 
 @deffn Procedure connect-socket socket socket-address
 
@@ -8460,50 +8462,76 @@ charset, a string, or a character; it is coerced to a charset.
 @node Awk record I/O and field parsing
 @chapter Awk record I/O and field parsing
 
-@c UNIX programs frequently process streams of records, where each record isdelimited by a newline, and records are broken into fields with other delimiters (for example, the colon character in /etc/passwd). Scsh has proceduresthat allow the programmer to easily do this kind of processing. Scsh's field
-@c parsers can also be used to parse other kinds of delimited strings, such ascolon-separated
-@c 
-@c $PATH lists. These routines can be used with scsh's awk loopconstruct to conveniently perform pattern-directed computation over streams
-@c 
-@c of records.
-@c 
+UNIX programs frequently process streams of records, where each record
+is delimited by a newline, and records are broken into fields with
+other delimiters (for example, the colon character in
+@code{/etc/passwd}). Scsh has procedures that allow the programmer to
+easily do this kind of processing. Scsh's field parsers can also be
+used to parse other kinds of delimited strings, such as
+colon-separated @code{$PATH} lists. These routines can be used with
+scsh's awk loop construct to conveniently perform pattern-directed
+computation over streams of records.
+
 @section Record I/O and field parsing
-@c 
-@c The procedures in this section are used to read records from I/O streams andparse them into fields. A record is defined as text terminated by some delimiter
-@c (usually a newline). A record can be split into fields by using regular expres-sions in one of several ways: to match fields, to separate fields, or to terminate
-@c fields. The field parsers can be applied to arbitrary strings (one common useis splitting environment variables such as
-@c 
-@c $PATH at colons into its componentelements).
-@c 
-@c The general delimited-input procedures described in chapter 7 are also use-ful for reading simple records, such as single lines, paragraphs of text, or
-@c strings terminated by specific characters.
-@c 
-@c 143
-@c 
-@c @subsection Reading records
-@c 
-@c (record-reader [delims elide-delims? handle-delim]) -! procedure procedure
-@c 
-@c Returns a procedure that reads records from a port. The procedure isinvoked as follows:
-@c 
-@c (reader [port]) -! string or @acronym{eof}
-@c A record is a sequence of characters terminated by one of the charactersin delims or @acronym{eof}. If elide-delims? is true, then a contiguous sequence of
-@c 
-@c delimiter chars are taken as a single record delimiter. If elide-delims? isfalse, then a delimiter char coming immediately after a delimiter char
-@c produces an empty-string record. The reader consumes the delimitingchar(s) before returning from a read.
-@c 
-@c The delims set defaults to the set {newline}. It may be a charset, string,character, or character predicate, and is coerced to a charset. The
-@c elide-delims? flag defaults to #f.
-@c The handle-delim argument controls what is done with the record's termi-nating delimiter.
-@c 
-@c 'trim Delimiters are trimmed. (The default)
-@c 'split Reader returns delimiter string as asecond argument. If record is terminated by @acronym{eof}, then the @acronym{eof} object isreturned as this second argument.
-@c 'concat The record and its delimiter are re-turned as a single string.
-@c 
-@c The reader procedure returned takes one optional argument, the portfrom which to read, which defaults to the current input port. It returns a
-@c string or @acronym{eof}.
-@c 
-@c @subsection Parsing fields
+
+The procedures in this section are used to read records from I/O
+streams and parse them into fields. A record is defined as text
+terminated by some delimiter (usually a newline). A record can be
+split into fields by using regular expressions in one of several ways:
+to @emph{match} fields, to @emph{separate} fields, or to
+@emph{terminate} fields. The field parsers can be applied to arbitrary
+strings (one common use is splitting environment variables such as
+@emph{$PATH} at colons into its component elements).
+
+The general delimited-input procedures described in @ref{Reading
+delimited strings} are also useful for reading simple records, such as
+single lines, paragraphs of text, or strings terminated by specific
+characters.
+
+@subsection Reading records
+
+@deffn Procedure record-reader [delims elide-delims? handle-delim]) ---> procedure
+
+Returns a procedure that reads records from a port. The procedure
+is invoked as follows:
+
+@example
+(@var{reader} [@var{port}]) ---> string or @acronym{eof}
+@end example
+
+A record is a sequence of characters terminated by one of the
+characters in @var{delims} or @acronym{eof}. If @var{elide-delims?}
+is true, then a contiguous sequence of delimiter chars are taken as a
+single record delimiter. If @var{elide-delims?} is false, then a
+delimiter char coming immediately after a delimiter char produces an
+empty-string record. The reader consumes the delimiting char(s) before
+returning from a read.
+
+The @var{delims} set defaults to the set @{newline@}. It may be a
+charset, string, character, or character predicate, and is coerced to
+a charset. The @var{elide-delims?} flag defaults to #f. The
+@var{handle-delim} argument controls what is done with the record's
+terminating delimiter.
+
+@table @code
+@item 'trim 
+Delimiters are trimmed. (The default.)
+
+@item 'split 
+Reader returns delimiter string as a second argument. If record is
+terminated by @acronym{eof}, then the @acronym{eof} object isreturned
+as this second argument.
+
+@item 'concat
+The record and its delimiter are returned as a single string.
+@end table
+
+The reader procedure returned takes one optional argument, the port
+from which to read, which defaults to the current input port. It
+returns a string or @acronym{eof}.
+@end deffn
+
+@subsection Parsing fields
 @c 
 @c (field-splitter [field num-fields]) -! procedure procedure
 @c (infix-splitter [delim num-fields handle-delim]) -! procedure procedure
@@ -8518,7 +8546,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c that terminates fields, or a pattern that matches fields:
 @c 
-@c 144
+@c 
 @c 
 @c Procedure Pattern
 @c field-splitter matches fields
@@ -8563,7 +8591,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c n fields in the record. If num-fields is a negativeinteger or zero, then |
 @c n| fields are parsed, and the remainder of the string
 @c 
-@c 145
+@c 145
 @c 
 @c is returned in the last element of the field list; it is an error if fewer than|
 @c 
@@ -8615,7 +8643,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c ((infix-splitter ":") y))
 @c 
-@c 146
+@c 146
 @c 
 @c Record : suffix :|$ suffix : infix non-: field
 @c "" () () () ()
@@ -8656,13 +8684,13 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Example:
 @c 
-@c 147
+@c 147
 @c 
 @c (join-strings '("foo" "bar" "baz") ":")=)
 @c 
 @c "foo:bar:baz"
 @c 
-@c @subsection Field readers
+@subsection Field readers
 @c 
 @c (field-reader [field-parser rec-reader]) -! procedure procedure
 @c 
@@ -8695,13 +8723,13 @@ charset, a string, or a character; it is coerced to a charset.
 @c The rec-reader defaults to read-line.
 @c Figure 8.2 shows field-reader being used to read different kinds ofUNIX records.
 @c 
-@c @subsection Forward-progress guarantees and empty-string matches
+@subsection Forward-progress guarantees and empty-string matches
 @c 
 @c A loop that pulls text off a string by repeatedly matching a regexp against thatstring can conceivably get stuck in an infinite loop if the regexp matches the
 @c empty string. For example, the @acronym{SRE}s bos, eos, (* any), and (| "foo" (*
 @c ( "f"))) can all match the empty string.
 @c 
-@c 148
+@c 148
 @c 
 @c ;;; /etc/passwd reader
 @c (field-reader (infix-splitter ":" 7))
@@ -8741,7 +8769,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Figure 8.2: Some examples of field-reader
 @c 
-@c 149
+@c 149
 @c 
 @c The routines in this package that iterate through strings with regular ex-pressions are careful to handle this empty-string case. If a regexp matches the
 @c empty string, the next search starts, not from the end of the match (which inthe empty string case is also the beginning--that's the problem), but from the
@@ -8764,7 +8792,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c ((* (s) (map string (string->list s))) "foo")
 @c 
-@c @subsection Reader limitations
+@subsection Reader limitations
 @c 
 @c Since all of the readers in this package require the ability to peek ahead onechar in the input stream, they cannot be applied to raw integer file descriptors,
 @c only Scheme input ports. This is because UNIX doesn't support peeking aheadinto input streams.
@@ -8781,7 +8809,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Awk-in-scheme is given by a loop macro called awk. It looks like this:
 @c 
-@c 150
+@c 150
 @c 
 @c (awk h next-record i h record&field-vars i[h counter i] h state-var-decls i
 @c 
@@ -8825,7 +8853,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c ((var init-exp) (var init-exp) ...)
 @c 
-@c 151
+@c 151
 @c 
 @c list rather like the let form. Whenever a clause in the loop body executes, itevaluates to as many values as there are state variables, updating them.
 @c 
@@ -8868,7 +8896,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c The colons control whether or not the start and stop lines are processedby the clause. For example:
 @c 
-@c 152
+@c 152
 @c 
 @c (range 1 5 ...) Lines 2 3 4
 @c (:range 1 5 ...) Lines 1 2 3 4
@@ -8892,7 +8920,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c If there is no after clause, awk returns the loop's state variables as multi-ple values.
 @c 
-@c @subsection Examples
+@subsection Examples
 @c 
 @c Here are some examples of awk being used to process various types of inputstream.
 @c 
@@ -8911,7 +8939,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c ($ fields 0)
 @c ($ fields 5)))))))
 @c 
-@c 153
+@c 153
 @c 
 @c ;;; Print out the user-name and home-directory of everyone whose
 @c ;;; name begins with "S"
@@ -8963,7 +8991,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c (#t (max max-len (string-length line))))
 @c 
-@c 154
+@c 154
 @c 
 @c ;;; (This could also be done with PORT-FOLD:)
 @c (port-fold (current-input-port) read-line
@@ -9037,7 +9065,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c spawn does not return a reference to a threadobject. The optional argument name is used when printing the thread.
 @c 
-@c 156
+@c 156
 @c 
 @c The new thread will not inherit the values for the process state from its par-ent, see the procedure
 @c 
@@ -9093,7 +9121,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Obtain lock. Causes the thread to block if the lock is held by a thread.
 @c 
-@c 157
+@c 157
 @c 
 @c (maybe-obtain-lock lock) -! boolean procedure
 @c 
@@ -9139,7 +9167,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 1 Olin's paper "Automatic management of operation-system resources" describes this system in
 @c detail.
 @c 
-@c 158
+@c 158
 @c 
 @c sigevent which corresponds to the single occurrence of a signal. A sigevent hastwo fields: the UNIX signal that occurred and a pointer to the sigevent that
 @c happened or will happen. That is, events are kept in a linked list in increasing-time order. Scsh's structure
@@ -9188,7 +9216,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c disable the corresponding interrupt handler using (set-interrupt-handler
 @c interrupt #f).
 @c 
-@c 159
+@c 159
 
 @section Interaction between threads and process state
 @c 
@@ -9254,7 +9282,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c Section @ref{3.2.8} already points out that @acronym{POSIX}'s file locks are almost useless inpractice. To bypass this restriction other advisory locking mechanisms, based
 @c only on standard file operations, where invented. One of them is the so-called
 @c 
-@c 161
+@c 161
 @c 
 @c dot-locking scheme where the lock of file-name is represented by the file file-name
 @c 
@@ -9303,7 +9331,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c After a normal return from thunk, its return values are returned by
 @c with-dot-lock*. The with-dot-lock special form is equivalent syntac-tic sugar.
 @c 
-@c 162
+@c 162
 @c 
 @section Syslog facility
 @c 
@@ -9339,7 +9367,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c console If syslog cannot pass the message to syslogd it will attempt to writethe message to the console.
 @c 
-@c 163
+@c 163
 @c 
 @c delay Delay opening the connection to syslogd immediately until the firstmessage is logged.
 @c no-delay Open the connection to syslogd immediately. Normally the open isdelayed until the first message is logged. Useful for programs that need
@@ -9375,7 +9403,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c uucp The uucp system.
 @c local0 local1 local2 local3 local4 local5 local6 local7 Reserved for lo-cal use.
 @c 
-@c 164
+@c 164
 @c 
 @c Log levels
 @c A log level identifies the importance of a message from a fixed set of possiblelevels.
@@ -9417,7 +9445,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c with emergency.
 @c 
-@c 165
+@c 165
 @c 
 @c Logging
 @c Scheme 48 dynamically maintains implicit connections to the syslog facilityspecifying a current identifier, current options, a current facility and a current
@@ -9452,7 +9480,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Open-syslog-channel and close-syslog-channel create and destroy aconnection to the syslog facility, respectively. The specified form of calling syslog logs to the specified channel.
 @c 
-@c 166
+@c 166
 @c 
 @section MD5 interface
 @c 
@@ -9500,7 +9528,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c (host) -! string procedure
 @c 
-@c 167
+@c 167
 @c 
 @c (machine) -! string procedure
 @c (vendor) -! string procedure
@@ -9567,7 +9595,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c the vm binary. This produces a true UNIX executable binary file. Since the bytecodes comprising the program are in the file's text section, they are not traced
 @c or copied by the garbage collector, do not occupy space in the vm's heap, and
 @c 
-@c 169
+@c 169
 @c 
 @c do not need to be loaded and linked at startup time. This reduces the program'sstartup time, memory requirements, and paging overhead.
 @c 
@@ -9579,7 +9607,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c the remaining arguments can be accessed as the value of the scsh variable
 @c command-line-arguments.
 @c 
-@c @subsection Scripts and programs
+@subsection Scripts and programs
 @c 
 @c The scsh command-line switches provide sophisticated support for the authorsof shell scripts and programs; they also allow the programmer to write programs that use the Scheme 48 module system.
 @c 
@@ -9591,7 +9619,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c It is more flexible and useful to implement a system as a program than as ascript. Programs can be compiled straightforwardly; they can also export procedural interfaces for use by other Scheme packages. However, scsh supportsboth the script and the program style of programming.
 @c 
-@c @subsection Inserting interpreter triggers into scsh programs
+@subsection Inserting interpreter triggers into scsh programs
 @c 
 @c When UNIX tries to execute an executable file whose first 16 bits are the charac-ter pair "
 @c 
@@ -9601,7 +9629,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c reads in the name of the interpreter, and executes that instead. The interpreteris passed the source filename as its first argument, with the original arguments
 @c following. Consult the UNIX man page for the exec system call for more infor-mation.
 @c 
-@c 170
+@c 170
 @c 
 @c Scsh allows Scheme programs to have these triggers placed on their firstline. Scsh treats the character sequence "
 @c 
@@ -9618,7 +9646,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c header appearing in a Scheme program to be ignored when the program isloaded into scsh.
 @c 
-@c @subsection Module system
+@subsection Module system
 @c 
 @c Scsh uses the Scheme 48 module system, which defines packages, structures, andinterfaces.
 @c 
@@ -9639,7 +9667,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c 1 Why a block-comment instead of an end-of-line delimited comment? See the section on metaargs.
 @c 
-@c 171
+@c 171
 @c 
 @c It may take you a little while to get used to the new style of program devel-opment. Although scsh can be used without referring to the module system at
 @c all, we recommend taking the time to learn and use it. The effort will pay offin the construction of modular, factorable programs.
@@ -9675,7 +9703,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c scsh reference first.
 @c 
-@c @subsection Library directories search facility
+@subsection Library directories search facility
 @c 
 @c Scsh's command line switches allow loading of code not present in the scriptfile or the heap image at startup. To relief the user from specifying full path
 @c names and to improve flexibility, scsh offers the library directories path list.This list contains directories in which scsh searches automatically for a file
@@ -9685,7 +9713,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c the library directories path list. Section @ref{11.1.5} describes these switches and theswitches to actually load files.
 @c 
-@c 172
+@c 172
 @c 
 @c Another way to change the library directories path list is the environmentvariable
 @c 
@@ -9734,7 +9762,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c (lib-dirs-prepend-script-dir!) -! undefined procedure
 @c (lib-dirs-append-script-dir!) -! undefined procedure
 @c 
-@c 173
+@c 173
 @c 
 @c Add the directory of the current script file to the beginning or end of thelibrary-directories path list, respectively.
 @c (lib-dirs-append! dir) -! undefined procedure
@@ -9750,14 +9778,14 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Set the library-directories path list to system default, i.e. to the value ofdefault-lib-dirs.
 @c 
-@c @subsection Switches
+@subsection Switches
 @c 
 @c The scsh top-level takes command-line switches in the following format:
 @c 
 @c scsh [meta-arg] [switchi ...] [end-option arg1 ... argn]
 @c where
 @c 
-@c 174
+@c 174
 @c 
 @c meta-arg: \ script-file-name
 @c switch: -e entry-point Specify top-level entry-point.
@@ -9801,7 +9829,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 2See the Section "Command programs" in the Scheme 48 manual for a description of the exec
 @c language.
 @c 
-@c 175
+@c 175
 @c 
 @c interactive read-eval-print loop is started.
 @c 
@@ -9850,7 +9878,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c -m's and
 @c -n's.)
 @c 
-@c 176
+@c 176
 @c 
 @c When the scsh top-level constructs the scsh command-line in this case, ittakes
 @c 
@@ -9892,7 +9920,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c If the argument list just runs out, without either a terminating -s or
 @c 
-@c 177
+@c 177
 @c 
 @c -- arg, then scsh also starts up in interactive mode, with an empty
 @c command-line-arguments list (for example, simply entering scsh at ashell prompt with no args at all).
@@ -9934,7 +9962,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c like the -le switch, except that it searches the library-directory path listfor the file to load.
 @c 
-@c 178
+@c 178
 @c 
 @c * +lp lib-dir,lp+ lib-dirAdd directory lib-dir to the beginning or end of the library-directories path
 @c 
@@ -9964,7 +9992,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c In these cases, the $SCSH LIB DIRS environment variable is never evenparsed, so a bogus value will not affect the script's execution at all.
 @c 
-@c @subsection The meta argument
+@subsection The meta argument
 @c 
 @c The scsh switch parser takes a special command-line switch, a single back-slash called the "meta-argument," which is useful for shell scripts. If the initial
 @c command-line argument is a "\" argument, followed by a filename argumentfname, scsh will open the file fname and read more arguments from the second
@@ -9976,7 +10004,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c ekko, would implement asimple-minded version of the UNIX
 @c echo program:
 @c 
-@c 179
+@c 179
 @c 
 @c #!/usr/local/bin/scsh -e main -s
 @c !#
@@ -10024,7 +10052,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c /usr/local/bin/scsh \ ekko Hi there.
 @c 
-@c 180
+@c 180
 @c 
 @c When scsh starts up, it expands the "\" argument into the arguments read fromline two of
 @c 
@@ -10066,13 +10094,13 @@ charset, a string, or a character; it is coerced to a charset.
 @c #!/bin/interpreter \
 @c foo bar quux\ yow
 @c 
-@c 181
+@c 181
 @c 
 @c would produce the arguments
 @c 
 @c ("foo" "bar" "" "quux yow")
 @c 
-@c @subsection Examples
+@subsection Examples
 @c 
 @c * scsh -dm -m myprog -e top -s myprog.scmLoad
 @c 
@@ -10119,7 +10147,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c possible to compile the program (and then, for instance, dump it out as aheap image).
 @c 
-@c 182
+@c 182
 @c 
 @c #!/usr/local/bin/scsh \
 @c -e top -s
@@ -10173,7 +10201,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c sort-toplevel structure, (3) calls (top
 @c '("sort" "foo" "bar")) in the package, and finally (4) exits.
 @c 
-@c 183
+@c 183
 @c 
 @c sort foo bar
 @c =) /usr/local/bin/scsh \ sort foo bar
@@ -10191,7 +10219,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c useful to write the sort program with the module language. The command linedesign allows us to run this program as either an interpreted script (given the
 @c #! args in the header) or as a compiled heap image.
 @c 
-@c @subsection Process exit values
+@subsection Process exit values
 @c 
 @c Scsh ignores the value produced by its top-level computation when determin-ing its exit status code. If the top-level computation completed with no errors,
 @c scsh dies with exit code 0. For example, a scsh process whose top-level is spec-ified by a
@@ -10216,7 +10244,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c a 1 Mword heap (split into two semispaces):
 @c 
-@c 184
+@c 184
 @c 
 @c scshvm -o scshvm -h 1000000 -i scsh.image arg1 arg2 ...
 @c The vm peels off initial vm arguments up to the -i heap image argument,which terminates vm argument parsing. The rest of the arguments are
@@ -10226,7 +10254,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c Directly executing the vm can be useful to specify non-standard switches,or invoke the virtual machine on special heap images, which can contain precompiled scsh programs with their own top-level procedures.
 @c 
-@c @subsection VM arguments
+@subsection VM arguments
 @c 
 @c The vm takes arguments in the following form:
 @c 
@@ -10253,7 +10281,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c The -h and -s options tell the vm how much space to allocate for the heapand stack. The heap size value is the total number of words allocated for the
 @c heap; this space is then split into two semi-spaces for Scheme 48's stop-and-copy collector.
 @c 
-@c 185
+@c 185
 @c 
 @c End options
 @c End options terminate argument parsing. The -i switch is followed by thename of a heap image for the vm to execute. The image-file-name string is also
@@ -10268,7 +10296,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c -i or -- flags.
 @c 
-@c @subsection Stripped image
+@subsection Stripped image
 @c 
 @c Besides the standard image scsh.image scsh also ships with the muchsmaller image
 @c 
@@ -10279,7 +10307,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c 
 @c -i argument.
 @c 
-@c @subsection Inserting interpreter triggers into heap images
+@subsection Inserting interpreter triggers into heap images
 @c 
 @c Scheme 48's heap image format allows for an informational header: when thevm loads in a heap image, it ignores all data occurring before the first control-L
 @c character (ASCII 12). This means that you can insert a "#!" trigger line into aheap image, making it a form of executable "shell script." Since the vm requires
@@ -10289,11 +10317,11 @@ charset, a string, or a character; it is coerced to a charset.
 @c -o /usr/local/lib/scsh/scshvm -i
 @c ... Your heap image goes here ...
 @c 
-@c @subsection Inserting a double-level trigger into Scheme programs
+@subsection Inserting a double-level trigger into Scheme programs
 @c 
 @c If you're a nerd, you may enjoy doing a double-level machine shift in the trig-ger line of your Scheme programs with the following magic:
 @c 
-@c 186
+@c 186
 @c 
 @c #!/usr/local/lib/scsh/scshvm \
 @c -o /usr/local/lib/scsh/scshvm -i /usr/local/lib/scsh/scsh.image -s
@@ -10332,7 +10360,7 @@ charset, a string, or a character; it is coerced to a charset.
 @c Unfortunately, Scheme 48 does not support separate compilation of Schemefiles or Scheme modules. The only way to compile is to load source and then
 @c dump out a heap image. One occasionally hears rumours that this is beingaddressed by the Scheme 48 development team.
 @c 
-@c 187
+@c 187
 @section Standard file locations
 @c 
 @c Because the scshvm binary is intended to be used for writing shell scripts, it isimportant that the binary be installed in a standard place, so that shell scripts
@@ -10360,798 +10388,8 @@ charset, a string, or a character; it is coerced to a charset.
 @node Index
 @unnumbered Index
 
-@c @printindex cp
-@c 
-@c @c The below procedures will presumably be moved to a separate index
-@c @c file. Or perhaps they need to be moved back into the document? That'll
-@c @c be a pain in the ass.
-@c 
-@c @c *temp-file-template*, 52
-@c @c ->uid, 64
-@c @c ->username, 64
-@c @c %exec, 55
-@c @c %exit, 55
-@c @c %fork, 56
-@c @c %fork/pipe, 56
-@c @c %fork/pipe+, 57
-@c @c %read-delimited!, 141&, 13
-@c 
-@c @c &, 13
-@c @c &&, 20
-@c 
-@c @c reduce-port , 16
-@c @c absolute-file-name, 109
-@c @c accept-connection, 99
-@c @c add-after, 80
-@c @c add-before, 80
-@c @c alist->env, 78
-@c @c alist-compress, 79
-@c @c alist-delete, 78
-@c @c alist-update, 78
-@c @c arg, 65
-@c @c arg*, 65
-@c @c argv, 65
-@c @c arithmetic-shift, 161
-@c @c ascii->char, 110
-@c @c autoreap-policy, 59awk, 151
-@c 
-@c @c become-session-leader, 87
-@c @c bin-dir, 168
-@c @c bind-listen-accept-loop, 95
-@c @c bind-prepare-listen-accept-loop,95
-@c 
-@c @c bind-socket, 98
-@c @c bitwise-and, 161
-@c @c bitwise-ior, 161
-@c @c bitwise-not, 161
-@c @c bitwise-xor, 161
-@c @c break-dot-lock, 162
-@c @c bufpol/block, 38
-@c @c bufpol/line, 38
-@c @c bufpol/none, 38
-@c 
-@c @c call-terminally, 55
-@c @c call-with-string-output-port,26
-@c 
-@c @c call/fdes, 30
-@c @c cflags, 168
-@c @c char->ascii, 110
-@c @c char-ascii?, 110
-@c @c char-blank?, 110
-@c @c char-digit?, 110
-@c @c char-graphic?, 110
-@c @c char-hex-digit?, 110
-@c @c char-iso-control?, 110
-@c @c char-letter+digit?, 110
-@c @c char-letter?, 110
-@c @c char-lower-case?, 110
-@c @c char-printing?, 110
-@c @c char-punctuation?, 110
-@c @c char-title-case?, 110
-@c @c char-upper-case?, 110
-@c @c char-whitespace?, 110
-@c @c chdir, 62
-@c @c clean-up-cres, 137
-@c @c close, 25
-@c @c close-after, 24
-@c @c close-directory-stream, 47
-@c 
-@c @c 189
-@c 
-@c @c close-socket, 95
-@c @c close-syslog-channel, 166
-@c @c command-line, 64command-line-arguments, 64
-@c 
-@c @c compiler-flags, 168
-@c @c connect-socket, 98
-@c @c connect-socket-no-wait, 98
-@c @c connect-socket-successful?, 98
-@c @c control-tty-file-name, 87
-@c @c copy-tty-info, 84
-@c @c cppflags, 168
-@c @c cpu-ticks/sec, 64
-@c @c create-directory, 41
-@c @c create-fifo, 41
-@c @c create-hard-link, 41
-@c @c create-socket, 95
-@c @c create-socket-pair, 95
-@c @c create-symlink, 41
-@c @c create-temp-file, 51
-@c @c crypt, 161
-@c @c current-thread, 157
-@c @c cwd, 62
-@c 
-@c @c date, 72
-@c @c date, 74
-@c @c date->string, 75default-lib-dirs, 173
-@c 
-@c @c define-record, 7
-@c @c defs, 168
-@c @c delete-directory, 42
-@c @c delete-file, 42
-@c @c delete-filesys-object, 42
-@c @c directory-as-file-name, 106
-@c @c directory-files, 46
-@c @c disable-tty-char, 83
-@c @c drain-tty, 85
-@c @c dump-scsh, 187
-@c @c dump-scsh-program, 187
-@c @c dup, 31
-@c @c dup->fdes, 31
-@c @c dup->inport, 31
-@c @c dup->outport, 31
-@c 
-@c @c enabled-interrupts, 70
-@c 
-@c @c env->alist, 78
-@c @c errno-error, 21
-@c @c error-output-port, 24
-@c @c exec, 54exec-epf, 13
-@c 
-@c @c exec-epf, 13
-@c @c exec-path, 54exec-path-list, 81
-@c 
-@c @c exec-path-search, 55
-@c @c exec-path/env, 54
-@c @c exec-prefix, 168
-@c @c exec/env, 54
-@c @c exit, 55
-@c @c expand-file-name, 109
-@c 
-@c @c fdes->inport, 30
-@c @c fdes->outport, 30
-@c @c fdes-flags, 32
-@c @c fdes-status, 33
-@c @c field-reader, 148
-@c @c field-splitter, 144
-@c @c file-directory?, 44
-@c @c file-executable?, 46
-@c @c file-exists?, 46
-@c @c file-fifo?, 44
-@c @c file-group, 44
-@c @c file-info, 43
-@c @c file-info-directory?, 45
-@c @c file-info-executable?, 46
-@c @c file-info-fifo?, 45
-@c @c file-info-not-executable?, 46
-@c @c file-info-not-readable?, 46
-@c @c file-info-not-writable?, 46
-@c @c file-info-readable?, 46
-@c @c file-info-regular?, 45
-@c @c file-info-socket?, 45
-@c @c file-info-special?, 45
-@c @c file-info-symlink?, 45
-@c @c file-info-writable?, 46
-@c @c file-info:atime, 43
-@c @c file-info:ctime, 43
-@c @c file-info:device, 43
-@c @c file-info:gid, 43
-@c @c file-info:inode, 43
-@c 
-@c @c 190
-@c 
-@c @c file-info:mode, 43
-@c @c file-info:mtime, 43
-@c @c file-info:nlinks, 43
-@c @c file-info:size, 43
-@c @c file-info:type, 43
-@c @c file-info:uid, 43
-@c @c file-inode, 44
-@c @c file-last-access, 44
-@c @c file-last-mod, 44
-@c @c file-last-status-change, 44
-@c @c file-match, 49
-@c @c file-mode, 44
-@c @c file-name-absolute?, 106
-@c @c file-name-as-directory, 105
-@c @c file-name-directory, 106
-@c @c file-name-directory?, 105
-@c @c file-name-extension, 107
-@c @c file-name-non-directory?, 105
-@c @c file-name-nondirectory, 106
-@c @c file-name-sans-extension, 108
-@c @c file-nlinks, 44
-@c @c file-not-executable?, 45
-@c @c file-not-exists?, 46
-@c @c file-not-readable?, 45
-@c @c file-not-writable?, 45
-@c @c file-owner, 44
-@c @c file-readable?, 46
-@c @c file-regular?, 44
-@c @c file-size, 44
-@c @c file-socket?, 44
-@c @c file-special?, 44
-@c @c file-symlink?, 44
-@c @c file-type, 44
-@c @c file-writable?, 46
-@c @c fill-in-date!, 75
-@c @c find-library-file, 173
-@c @c flush-all-ports, 39
-@c @c flush-submatches, 134
-@c @c flush-tty/both, 86
-@c @c flush-tty/input, 86
-@c @c flush-tty/output, 86
-@c @c force-output, 38
-@c @c fork, 56
-@c @c fork-pty-session, 87
-@c 
-@c @c fork-thread, 160
-@c @c fork/pipe, 56
-@c @c fork/pipe+, 57
-@c @c format-date, 75
-@c 
-@c @c get-lock-region, 40
-@c @c getenv, 77
-@c @c glob, 47
-@c @c glob-quote, 49
-@c @c group-info, 64
-@c @c group-info:gid, 64
-@c @c group-info:members, 64
-@c @c group-info:name, 64
-@c 
-@c @c handle-signal-default, 71
-@c @c home-dir, 109home-directory, 81
-@c 
-@c @c home-file, 109
-@c @c host, 167
-@c @c host-info, 101
-@c 
-@c @c if-match, 133
-@c @c if-sre-form, 138
-@c @c ignore-signal, 71
-@c @c include-dir, 168
-@c @c infix-splitter, 144
-@c @c internet-address->socket-address,97
-@c 
-@c @c interrupt-handler, 71
-@c @c interrupt-set, 70
-@c @c interrupt/alarm, 68
-@c @c interrupt/alrm, 68
-@c @c interrupt/chld, 68
-@c @c interrupt/cont, 68
-@c @c interrupt/hup, 68
-@c @c interrupt/info, 68
-@c @c interrupt/int, 68
-@c @c interrupt/io, 68
-@c @c interrupt/keyboard, 68
-@c @c interrupt/memory-shortage, 68
-@c @c interrupt/poll, 68
-@c @c interrupt/prof, 68
-@c @c interrupt/pwr, 68
-@c @c interrupt/quit, 68
-@c 
-@c @c 191
-@c 
-@c @c interrupt/term, 68
-@c @c interrupt/tstp, 68
-@c @c interrupt/urg, 68
-@c @c interrupt/usr1, 68
-@c @c interrupt/usr2, 68
-@c @c interrupt/vtalrm, 68
-@c @c interrupt/winch, 68
-@c @c interrupt/xcpu, 68
-@c @c interrupt/xfsz, 68
-@c @c itimer, 67
-@c 
-@c @c join-strings, 147
-@c @c ldflags, 168
-@c @c let-match, 133
-@c @c lib-dir, 168
-@c @c lib-dirs, 173
-@c @c lib-dirs-list, 168
-@c @c libs, 168
-@c @c linker-flags, 168
-@c @c listen-socket, 99
-@c @c lock-owner-uid, 158
-@c @c lock-region, 40
-@c @c lock-region/no-block, 40
-@c @c lock-region:end, 39
-@c @c lock-region:exclusive?, 39
-@c @c lock-region:len, 39
-@c @c lock-region:proc, 39
-@c @c lock-region:start, 39
-@c @c lock-region:whence, 39
-@c @c lock-region?, 39
-@c @c lock?, 157
-@c 
-@c @c machine, 168
-@c @c make-char-port-filter, 20
-@c @c make-date, 73
-@c @c make-lock, 157
-@c @c make-lock-region, 40
-@c @c make-md5-context, 167
-@c @c make-placeholder, 158
-@c @c make-pty-generator, 88
-@c @c make-re-char-set, 136
-@c @c make-re-choice, 136
-@c @c make-re-dsm, 136
-@c 
-@c @c make-re-repeat, 136
-@c @c make-re-seq, 135
-@c @c make-re-string, 136
-@c @c make-re-submatch, 136
-@c @c make-regexp, 129
-@c @c make-string-input-port, 26
-@c @c make-string-output-port, 26
-@c @c make-string-port-filter, 20
-@c @c make-syslog-mask, 165
-@c @c make-syslog-options, 163
-@c @c make-tty-info, 84
-@c @c man-dir, 168
-@c @c match-cond, 133
-@c @c match:end, 130
-@c @c match:start, 130
-@c @c match:substring, 130
-@c @c maybe-obtain-lock, 158
-@c @c md5-context->md5-digest, 167
-@c @c md5-context?, 167
-@c @c md5-digest->number, 167
-@c @c md5-digest-for-port, 167
-@c @c md5-digest-for-string, 167
-@c @c md5-digest?, 167
-@c @c most-recent-sigevent, 159
-@c @c move->fdes, 30
-@c 
-@c @c network-info, 101
-@c @c next-sigevent, 159
-@c @c next-sigevent-set, 159
-@c @c next-sigevent-set/no-wait, 159
-@c @c next-sigevent/no-wait, 159
-@c @c nice, 63
-@c @c number->md5-digest, 167
-@c 
-@c @c obtain-dot-lock, 162
-@c @c obtain-lock, 157
-@c @c open-control-tty, 86
-@c @c open-directory-stream, 47
-@c @c open-fdes, 32
-@c @c open-file, 32
-@c @c open-input-file, 32
-@c @c open-output-file, 32
-@c @c open-pty, 88
-@c @c open-syslog-channel, 166
-@c 
-@c @c 192
-@c 
-@c @c os, 168
-@c @c parent-pid, 62
-@c @c parse-file-name, 108
-@c @c parse-sre, 138
-@c @c parse-sres, 138
-@c @c path-list->file-name, 107
-@c @c pid, 62
-@c @c pid->proc, 58
-@c @c pipe, 33
-@c @c placeholder-value, 158
-@c @c placeholder?, 158
-@c @c port->fdes, 30
-@c @c port->list, 15
-@c @c port->sexp-list, 15
-@c @c port->socket, 96
-@c @c port->string, 15
-@c @c port->string-list, 15
-@c @c port-fold, 16
-@c @c port-revealed, 30
-@c @c posix-string->regexp, 135
-@c @c prefix, 168
-@c @c priority, 63proc, 58
-@c 
-@c @c proc:pid, 58proc?, 58
-@c @c process-group, 62
-@c @c process-sleep, 67
-@c @c process-sleep-until, 67
-@c @c process-times, 63
-@c @c protocol-info, 101
-@c @c pty-name->tty-name, 88
-@c 
-@c @c re-any, 137
-@c @c re-any?, 137re-bol, 136
-@c 
-@c @c re-bol?, 136re-bos, 136
-@c @c re-bos?, 136
-@c @c re-char-set, 136
-@c @c re-char-set:cset, 136
-@c @c re-char-set?, 136
-@c @c re-choice, 136
-@c @c re-choice:elts, 136
-@c 
-@c @c re-choice:tsm, 136
-@c @c re-choice?, 136
-@c @c re-dsm, 136
-@c @c re-dsm:body, 136
-@c @c re-dsm:post-dsm, 136
-@c @c re-dsm:pre-dsm, 136
-@c @c re-dsm:tsm, 136
-@c @c re-dsm?, 136re-empty, 137
-@c 
-@c @c re-empty?, 137re-eol, 136
-@c @c re-eol?, 136re-eos, 136
-@c @c re-eos?, 136re-nonl, 137
-@c @c re-repeat:from, 136
-@c @c re-repeat:to, 136
-@c @c re-repeat:tsm, 136
-@c @c re-repeat?, 136
-@c @c re-seq, 135
-@c @c re-seq:elts, 135
-@c @c re-seq:tsm, 136
-@c @c re-seq?, 135
-@c @c re-string, 136
-@c @c re-string:chars, 136
-@c @c re-string?, 136
-@c @c re-submatch:post-dsm, 136
-@c @c re-submatch:pre-dsm, 136
-@c @c re-submatch:tsm, 136
-@c @c re-submatch?, 136re-trivial, 137
-@c 
-@c @c re-trivial?, 137
-@c @c re-tsm, 137
-@c @c read-delimited, 141
-@c @c read-delimited!, 141
-@c @c read-directory-stream, 47
-@c @c read-line, 140
-@c @c read-paragraph, 141
-@c @c read-string, 33
-@c @c read-string!, 33
-@c @c read-string!/partial, 34
-@c @c read-string/partial, 34
-@c @c read-symlink, 42
-@c @c reap-zombies, 59
-@c 
-@c @c 193
-@c 
-@c @c receive-message, 99
-@c @c receive-message!, 99
-@c @c receive-message!/partial, 99
-@c @c receive-message/partial, 99
-@c @c record-reader, 144
-@c @c regexp->posix-string, 135
-@c @c regexp->scheme, 138
-@c @c regexp->sre, 134
-@c @c regexp-fold, 131
-@c @c regexp-fold-right, 132
-@c @c regexp-for-each, 133
-@c @c regexp-search, 129
-@c @c regexp-search?, 129
-@c @c regexp-substitute, 130
-@c @c regexp-substitute/global, 130
-@c @c regexp?, 129, 137
-@c @c release-dot-lock, 162
-@c @c release-lock, 158
-@c @c release-port-handle, 30
-@c @c relinquish-timeslice, 157
-@c @c rename-file, 42
-@c @c replace-extension, 108
-@c @c resolve-file-name, 109run, 13
-@c 
-@c @c run, 13
-@c @c run/collecting, 17
-@c @c run/collecting*, 17
-@c @c run/file, 14
-@c @c run/file*, 15
-@c @c run/port, 14
-@c @c run/port*, 15
-@c @c run/port+proc, 17
-@c @c run/port+proc*, 17
-@c @c run/sexp, 14
-@c @c run/sexp*, 15
-@c @c run/sexps, 14
-@c @c run/sexps*, 15
-@c @c run/string, 14
-@c @c run/string*, 15
-@c @c run/strings, 14
-@c @c run/strings*, 15
-@c @c rx, 129
-@c 
-@c @c seek, 31
-@c 
-@c @c select , 35
-@c @c select-port-channels, 36
-@c @c select-ports, 36
-@c @c send-message, 99
-@c @c send-message/partial, 99
-@c @c send-tty-break, 85
-@c @c service-info, 101
-@c @c set-enabled-interrupts, 70
-@c @c set-fdes-flags, 32
-@c @c set-fdes-status, 33
-@c @c set-file-group, 42
-@c @c set-file-mode, 42
-@c @c set-file-owner, 42
-@c @c set-file-times, 42
-@c @c set-gid, 63
-@c @c set-interrupt-handler, 70
-@c @c set-port-buffering, 38
-@c @c set-priority, 63
-@c @c set-process-group, 62
-@c @c set-socket-option, 100
-@c @c set-tty-info/drain, 85
-@c @c set-tty-info/flush, 85
-@c @c set-tty-info/now, 85
-@c @c set-tty-process-group, 87
-@c @c set-uid, 63
-@c @c set-umask, 62
-@c @c set-user-effective-gid, 63
-@c @c set-user-effective-uid, 63
-@c @c setenv, 77
-@c @c shutdown-socket, 99
-@c @c sigevent?, 159
-@c @c signal->interrupt, 67
-@c @c signal-process, 67
-@c @c signal-process-group, 67
-@c @c signal/abrt, 69
-@c @c signal/alrm, 68
-@c @c signal/bus, 69
-@c @c signal/chld, 68
-@c @c signal/cont, 68
-@c @c signal/emt, 69
-@c @c signal/fpe, 69
-@c @c signal/hup, 68
-@c @c signal/ill, 69
-@c @c signal/info, 68
-@c 
-@c @c 194
-@c 
-@c @c signal/int, 68
-@c @c signal/io, 68
-@c @c signal/iot, 69
-@c @c signal/kill, 69
-@c @c signal/pipe, 69
-@c @c signal/poll, 68
-@c @c signal/prof, 68
-@c @c signal/pwr, 68
-@c @c signal/quit, 68
-@c @c signal/segv, 69
-@c @c signal/stop, 69
-@c @c signal/sys, 69
-@c @c signal/term, 68
-@c @c signal/trap, 69
-@c @c signal/tstp, 68
-@c @c signal/ttin, 69
-@c @c signal/ttou, 69
-@c @c signal/urg, 68
-@c @c signal/usr1, 68
-@c @c signal/usr2, 68
-@c @c signal/vtalrm, 68
-@c @c signal/winch, 68
-@c @c signal/xcpu, 68
-@c @c signal/xfsz, 68
-@c @c simplify-file-name, 109
-@c @c simplify-regexp, 134
-@c @c skip-char-set, 142
-@c @c sleep, 157
-@c @c sloppy-suffix-splitter, 144
-@c @c socket-address->internet-address,97
-@c 
-@c @c socket-address->UNIX-address,97
-@c @c socket-connect, 94
-@c @c socket-local-address, 99
-@c @c socket-option, 100
-@c @c socket-remote-address, 99
-@c @c spawn, 156
-@c @c split-file-name, 107
-@c @c spoon, 160
-@c @c sre->regexp, 134
-@c @c sre-form?, 138
-@c @c start-tty-input, 86
-@c @c start-tty-output, 86
-@c 
-@c @c static-regexp?, 139
-@c @c status:exit-val, 61
-@c @c status:stop-sig, 61
-@c @c status:term-sig, 61
-@c @c stdio->stdports, 25
-@c @c stdports->stdio, 25
-@c @c stop-tty-input, 86
-@c @c stop-tty-output, 86
-@c @c string-match, 129
-@c @c string-output-port-output, 26
-@c @c substitute-env-vars, 110
-@c @c suffix-splitter, 144
-@c @c suspend, 56
-@c @c sync-file, 43
-@c @c sync-file-system, 43
-@c @c syslog, 166
-@c @c syslog-facility, 164
-@c @c syslog-facility?, 164
-@c @c syslog-level, 165
-@c @c syslog-level?, 165
-@c @c syslog-mask, 165syslog-mask-all, 165
-@c 
-@c @c syslog-mask-upto, 165
-@c @c syslog-mask?, 165
-@c @c syslog-option, 163
-@c @c syslog-option?, 163
-@c @c syslog-options, 163
-@c @c syslog-options?, 163
-@c @c system-name, 66
-@c 
-@c @c tell, 32
-@c @c temp-file-channel, 53
-@c @c temp-file-iterate, 52
-@c @c terminate-current-thread, 157
-@c @c thread-name, 157
-@c @c thread-uid, 157
-@c @c thread?, 157
-@c @c ticks/sec, 74time, 72
-@c 
-@c @c time, 75
-@c @c time+ticks, 74
-@c @c truncate-file, 43
-@c @c tty-file-name, 82
-@c @c tty-info, 85
-@c 
-@c @c 195
-@c 
-@c @c tty-info record type, 82
-@c @c tty-info:control-chars, 82
-@c @c tty-info:control-flags, 82
-@c @c tty-info:input-flags, 82
-@c @c tty-info:input-speed, 82
-@c @c tty-info:local-flags, 82
-@c @c tty-info:min, 82
-@c @c tty-info:output-flags, 82
-@c @c tty-info:output-speed, 82
-@c @c tty-info:time, 82
-@c @c tty-info?, 82
-@c @c tty-name->pty-name, 88
-@c @c tty-process-group, 87
-@c @c tty?, 82
-@c @c ttyc/2-stop-bits, 92
-@c @c ttyc/carrier-flow-ctl, 92
-@c @c ttyc/char-size, 92
-@c @c ttyc/char-size5, 92
-@c @c ttyc/char-size6, 92
-@c @c ttyc/char-size7, 92
-@c @c ttyc/char-size8, 92
-@c @c ttyc/CTS-output-flow-ctl, 92
-@c @c ttyc/enable-parity, 92
-@c @c ttyc/enable-read, 92
-@c @c ttyc/hup-on-close, 92
-@c @c ttyc/ignore-flags, 92
-@c @c ttyc/no-modem-sync, 92
-@c @c ttyc/odd-parity, 92
-@c @c ttyc/RTS-input-flow-ctl, 92
-@c @c ttychar/delayed-suspend, 89
-@c @c ttychar/delete-char, 89
-@c @c ttychar/delete-line, 89
-@c @c ttychar/delete-word, 89
-@c @c ttychar/discard, 89
-@c @c ttychar/eof, 89
-@c @c ttychar/eol, 89
-@c @c ttychar/eol2, 89
-@c @c ttychar/interrupt, 89
-@c @c ttychar/literal-next, 89
-@c @c ttychar/quit, 89
-@c @c ttychar/reprint, 89
-@c @c ttychar/start, 89
-@c @c ttychar/status, 89
-@c @c ttychar/stop, 89
-@c 
-@c @c ttychar/suspend, 89
-@c @c ttyin/7bits, 90
-@c @c ttyin/beep-on-overflow, 90
-@c @c ttyin/check-parity, 90
-@c @c ttyin/cr->nl, 90
-@c @c ttyin/ignore-bad-parity-chars,90
-@c 
-@c @c ttyin/ignore-break, 90
-@c @c ttyin/ignore-cr, 90
-@c @c ttyin/input-flow-ctl, 90
-@c @c ttyin/interrupt-on-break, 90
-@c @c ttyin/lowercase, 90
-@c @c ttyin/mark-parity-errors, 90
-@c @c ttyin/nl->cr, 90
-@c @c ttyin/output-flow-ctl, 90
-@c @c ttyin/xon-any, 90
-@c @c ttyl/alt-delete-word, 93
-@c @c ttyl/canonical, 93
-@c @c ttyl/case-map, 93
-@c @c ttyl/echo, 93
-@c @c ttyl/echo-ctl, 93
-@c @c ttyl/echo-delete-line, 93
-@c @c ttyl/echo-nl, 93
-@c @c ttyl/enable-signals, 93
-@c @c ttyl/extended, 93
-@c @c ttyl/flush-output, 93
-@c @c ttyl/hardcopy-delete, 93
-@c @c ttyl/no-flush-on-interrupt, 93
-@c @c ttyl/no-kernel-status, 93
-@c @c ttyl/reprint-unread-chars, 93
-@c @c ttyl/ttou-signal, 93
-@c @c ttyl/visual-delete, 93
-@c @c ttyl/visual-delete-line, 93
-@c @c ttyout/all-delay, 91
-@c @c ttyout/bs-delay, 91
-@c @c ttyout/bs-delay0, 91
-@c @c ttyout/bs-delay1, 91
-@c @c ttyout/cr->nl, 90
-@c @c ttyout/cr-delay, 91
-@c @c ttyout/cr-delay0, 91
-@c @c ttyout/cr-delay1, 91
-@c @c ttyout/cr-delay2, 91
-@c @c ttyout/cr-delay3, 91
-@c @c ttyout/delay-w/fill-char, 90
-@c 
-@c @c 196
-@c 
-@c @c ttyout/discard-eot, 90
-@c @c ttyout/enable, 90
-@c @c ttyout/expand-tabs, 90
-@c @c ttyout/ff-delay, 91
-@c @c ttyout/ff-delay0, 91
-@c @c ttyout/ff-delay1, 91
-@c @c ttyout/fill-w/del, 90
-@c @c ttyout/nl->crnl, 90
-@c @c ttyout/nl-delay, 91
-@c @c ttyout/nl-delay0, 91
-@c @c ttyout/nl-delay1, 91
-@c @c ttyout/nl-does-cr, 90
-@c @c ttyout/no-col0-cr, 90
-@c @c ttyout/tab-delay, 91
-@c @c ttyout/tab-delay0, 91
-@c @c ttyout/tab-delay1, 91
-@c @c ttyout/tab-delay2, 91
-@c @c ttyout/tab-delayx, 91
-@c @c ttyout/uppercase, 90
-@c @c ttyout/vtab-delay, 91
-@c @c ttyout/vtab-delay0, 91
-@c @c ttyout/vtab-delay1, 91
-@c 
-@c @c umask, 62
-@c @c uname, 66
-@c @c uncase, 134
-@c @c uncase-char-set, 134
-@c @c uncase-string, 134
-@c @c UNIX-address->socket-address,97
-@c 
-@c @c unlock-region, 41
-@c @c user-effective-gid, 63
-@c @c user-effective-uid, 63
-@c @c user-gid, 63
-@c @c user-info, 64
-@c @c user-info:gid, 64
-@c @c user-info:home-dir, 64
-@c @c user-info:name, 64
-@c @c user-info:shell, 64
-@c @c user-info:uid, 64
-@c @c user-login-name, 63
-@c @c user-supplementary-gids, 63
-@c @c user-uid, 63
-@c 
-@c @c vendor, 168
-@c @c wait, 60
-@c @c wait-any, 60
-@c @c wait-process-group, 61
-@c @c with-current-input-port, 24
-@c @c with-current-input-port*, 24
-@c @c with-current-output-port, 24
-@c @c with-current-output-port*, 24
-@c @c with-cwd, 62
-@c @c with-cwd*, 62
-@c @c with-dot-lock, 162
-@c @c with-dot-lock*, 162
-@c @c with-enabled-interrupts, 70
-@c @c with-enabled-interrupts*, 70
-@c @c with-env, 79
-@c @c with-env*, 79
-@c @c with-errno-handler, 22
-@c @c with-errno-handler*, 22
-@c @c with-error-output-port, 24
-@c @c with-error-output-port*, 24
-@c @c with-region-lock, 41
-@c @c with-region-lock*, 41
-@c @c with-stdio-ports, 26
-@c @c with-stdio-ports*, 26
-@c @c with-syslog-destination, 166
-@c @c with-total-env, 79
-@c @c with-total-env*, 79
-@c @c with-umask, 62
-@c @c with-umask*, 62
-@c @c with-user-effective-gid, 63
-@c @c with-user-effective-gid*, 63
-@c @c with-user-effective-uid, 63
-@c @c with-user-effective-uid*, 63
-@c @c write-string, 36
-@c @c write-string/partial, 37
+@printindex cp
+@printindex fn
+@printindex vr
 
 @bye 
