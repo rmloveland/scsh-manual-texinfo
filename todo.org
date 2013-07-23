@@ -1,0 +1,7 @@
+#+title: Scsh Manual TODOs
+#+author: Rich Loveland
+#+email: r@rmloveland.com
+
+** TODO Add procedure and macro return values to definitions
+
+** TODO Update all uses of ``file name'' and ``file-name'' to ``filename''
