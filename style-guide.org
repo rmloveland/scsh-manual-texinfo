@@ -1,37 +1,41 @@
 #+title: Style Guide
+#+author: Rich Loveland
+#+email: r@rmloveland.com
 
 Follow these guidelines when editing the Texinfo-formatted version of
 the scsh manual.
 
 * The name of scsh
 
-  The name of scsh is apparently lowercased. Please change all
-  references to reflect this.
+  The name of =scsh= is lowercased, as with other shells such as
+  =bash=. Please change all references to reflect this (except when
+  occurring at the beginning of a sentence).
 
 * Scsh/Scheme 48 Records
 
-  Mentions of scsh record names or fields will use the @code{} notation.
-
+  Mentions of scsh record names or fields will use the `@code{}'
+  notation.
+  
 * Capitalization
 
   Procedure and macro names will be capitalized if they appear at the
-  beginning of a sentence.
+  beginning of a sentence (a la SICP).
 
 * Procedure return values
 
-  All procedure definition blocks will show a return value. (This is
-  currently not the case, and needs to be fixed.)
+  All procedure definition blocks will show a return value, just like
+  in the TeX version.
 
 * Book Titles
 
-  Book titles will use `@emph{}'.
+  Book titles will use the `@emph{}' command.
 
 * Miscellaneous Conventions
 
   - `filename' is one word; `file name' and `file-name' will not be
     used except in procedure and variable names.
 
-  - Paragraphs are filled using M-q. Auto-fill-mode may have
+  - Paragraphs are filled using `M-q'. Auto-fill-mode may have
     unexpected results on code examples.
 
-  - Sections marked `Note' use simple emphasis only.
+  - Sections marked `Note' use simple emphasis only on the first word.
