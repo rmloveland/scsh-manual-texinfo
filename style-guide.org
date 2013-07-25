@@ -43,3 +43,6 @@ the scsh manual.
     unexpected results on code examples.
 
   - Sections marked `Note' use simple emphasis only on the first word.
+* UNIX
+
+  UNIX is a trademarked name, and will be denoted as such.
