@@ -4,4 +4,8 @@
 
 ** TODO Add procedure and macro return values to definitions
 
+** TODO Check all uses of ``char-set''
+
+** TODO Update all ``white space'' to ``whitespace''
+
 ** TODO Update all uses of ``file name'' and ``file-name'' to ``filename''
