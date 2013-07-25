@@ -8,4 +8,7 @@
 
 ** TODO Update all ``white space'' to ``whitespace''
 
+** TODO Update all mentions of UNIX to use trademark
+
+** TODO Update all download and other URLs mentioned in the manual
 ** TODO Update all uses of ``file name'' and ``file-name'' to ``filename''
