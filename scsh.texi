@@ -4034,7 +4034,7 @@ objects and process reaping}.
 
 @emph{Note:} We recommend you avoid using interrupt handlers unless
 you absolutely have to. There is a better interface to handling
-signals; @xref{9.4}.
+signals; @xref{The event interface to interrupts}.
 @end deffn
 
 @deffn Procedure interrupt-handler interrupt
@@ -8532,92 +8532,152 @@ returns a string or @acronym{eof}.
 @end deffn
 
 @subsection Parsing fields
-@c 
-@c (field-splitter [field num-fields]) -! procedure procedure
-@c (infix-splitter [delim num-fields handle-delim]) -! procedure procedure
-@c (suffix-splitter [delim num-fields handle-delim]) -! procedure procedure
-@c (sloppy-suffix-splitter [delim num-fields handle-delim]) -! procedure procedure
-@c 
-@c These functions return a parser function that can be used as follows:
-@c 
-@c (parser string [start]) -! string-list
-@c 
-@c The returned parsers split strings into fields defined by regular expres-sions. You can parse by specifying a pattern that separates fields, a pattern
-@c 
-@c that terminates fields, or a pattern that matches fields:
-@c 
-@c 
-@c 
-@c Procedure Pattern
-@c field-splitter matches fields
-@c infix-splitter separates fields
-@c suffix-splitter terminates fields
-@c sloppy-suffix-splitter terminates fields
-@c 
-@c These parser generators are controlled by a range of options, so that youcan precisely specify what kind of parsing you want. However, these
-@c options default to reasonable values for general use.
-@c Defaults:delim = (rx (| (+ white) eos)) (suffix delimiter: white space or eos)
-@c 
-@c (rx (+ white)) (infix delimiter: white space)field =
-@c (rx (+ (~ white))) (non-white-space)num-fields =
-@c #f (as many fields as possible)handle-delim =
-@c 'trim (discard delimiter chars). . . which means: break the string at white space, discarding the white
-@c 
-@c space, and parse as many fields as possible.
-@c The delim parameter is a regular expression matching the text that occursbetween fields. See chapter 6 for information on regular expressions, and
-@c 
-@c the rx form used to specify them. In the separator case, it defaults to apattern matching white space; in the terminator case, it defaults to white
-@c space or end-of-string.
-@c The field parameter is a regular expression used to match fields. It de-faults to non-white-space.
-@c 
-@c The delim patterns may also be given as a string, character, or char-set,which are coerced to regular expressions. So the following expressions
-@c are all equivalent, each producing a function that splits strings apart atcolons:
-@c 
-@c (infix-splitter (rx ":"))
-@c (infix-splitter ":")
-@c (infix-splitter #\:)
-@c (infix-splitter (char-set #\:))
-@c 
-@c The boolean handle-delim determines what to do with delimiters.'trim Delimiters are thrown away after parsing. (default)
-@c 
-@c 'concat Delimiters are appended to the field preceding them.
-@c 'split Delimiters are returned as separate elements in the field list.
-@c 
-@c The num-fields argument used to create the parser specifies how manyfields to parse. If
-@c 
-@c #f (the default), the procedure parses them all. If a pos-itive integer
-@c n, exactly that many fields are parsed; it is an error if thereare more or fewer than
-@c 
-@c n fields in the record. If num-fields is a negativeinteger or zero, then |
-@c n| fields are parsed, and the remainder of the string
-@c 
-@c 145
-@c 
-@c is returned in the last element of the field list; it is an error if fewer than|
-@c 
-@c n| fields can be parsed.
-@c 
-@c The field parser produced is a procedure that can be employed as follows:
-@c 
-@c (parse string [start]) =) string-list
-@c The optional start argument (default 0) specifies where in the string tobegin the parse. It is an error if start
-@c 
-@c > (string-length string).
-@c 
-@c The parsers returned by the four parser generators implement differentkinds of field parsing:
-@c 
-@c field-splitter The regular expression specifies the actual field.
-@c suffix-splitter Delimiters are interpreted as element terminators. Ifvertical-bar is the the delimiter, then the string
-@c 
-@c "" is the emptyrecord
-@c (), "foo|" produces a one-field record ("foo"), and "foo"is an error.
-@c 
-@c The syntax of suffix-delimited records is:h
-@c 
-@c record i ::= "" (Empty record)| h element i h delim i h record i
-@c 
-@c It is an error if a non-empty record does not end with a delimiter.To make the last delimiter optional, make sure the delimiter regexp
-@c matches the end-of-string (sre eos).
+
+@deffn Procedure field-splitter [field num-fields]) ---> procedure
+@deffnx Procedure infix-splitter [delim num-fields handle-delim]) ---> procedure
+@deffnx Procedure suffix-splitter [delim num-fields handle-delim]) ---> procedure
+@deffnx Procedure sloppy-suffix-splitter [delim num-fields handle-delim]) ---> procedure
+
+These functions return a parser function that can be used as follows:
+
+@example
+(@var{parser} @var{string} [@var{start}]) ---> string-list
+@end example
+
+The returned parsers split strings into fields defined by regular
+expressions. You can parse by specifying a pattern that
+@emph{separates} fields, a pattern that @emph{terminates} fields, or a
+pattern that @emph{matches} fields:
+
+@multitable
+@headitem Procedure 
+@tab Pattern
+
+@item @code{field-splitter}
+@tab matches fields
+
+@item @code{infix-splitter}
+@tab separates fields
+
+@item @code{suffix-splitter}
+@tab terminates fields
+
+@item @code{sloppy-suffix-splitter}
+@tab terminates fields
+@end multitable
+
+These parser generators are controlled by a range of options, so that
+you can precisely specify what kind of parsing you want. However,
+these options default to reasonable values for general use:
+
+@multitable
+@headitem Option
+@tab Default
+@tab Description
+
+@item @var{delim}
+@tab @code{(rx (| (+ white) eos))}
+@tab suffix delimiter: white space or eos
+
+@item 
+@tab @code{(rx (+ white))}
+@tab infix delimiter: white space
+
+@item @var{field}
+@tab @code{(rx (+ (~ white)))}
+@tab non-white-space
+
+@item @var{num-fields}
+@tab @code{#f}
+@tab as many fields as possible
+
+@item @var{handle-delim}
+@tab @code{'trim }
+@tab discard delimiter chars, which means: break the string at white space, discarding the white space, and parse as many fields as possible.
+@end multitable
+
+The @var{delim} parameter is a regular expression matching the text
+that occurs between fields. For information on regular expressions,
+and the @code{rx} form used to specify them, @xref{Pattern-matching
+strings with regular expressions}. In the separator case, it defaults
+to a pattern matching whitespace; in the terminator case, it defaults
+to whitespace or the end of the string.
+
+The @var{field} parameter is a regular expression used to match
+fields. It defaults to non-whitespace.
+
+The @var{delim} patterns may also be given as a string, character, or
+char-set; these are coerced to regular expressions. This means that
+the following expressions are equivalent, each producing a function
+that splits strings apart at colons:
+
+@example
+(infix-splitter (rx ":"))
+(infix-splitter ":")
+(infix-splitter #\:)
+(infix-splitter (char-set #\:))
+@end example
+
+The boolean @var{handle-delim} determines what to do with delimiters:
+
+@table @code
+@item 'trim 
+Delimiters are thrown away after parsing (default).
+
+@item 'concat 
+Delimiters are appended to the field preceding them.
+
+@item 'split 
+Delimiters are returned as separate elements in the field list.
+@end table
+
+The @var{num-fields} argument used to create the parser specifies how
+many fields to parse. If @code{#f} (the default), the procedure parses
+them all. If a positive integer @math{n}, exactly that many fields are
+parsed; it is an error if there are more or fewer than @math{n} fields
+in the record. If @var{num-fields} is a negative integer or zero, then
+@math{|n|} fields are parsed, and the remainder of the string is
+returned in the last element of the field list; it is an error if
+fewer than @math{|n|} fields can be parsed.
+
+The field parser produced is a procedure that can be employed as
+follows:
+
+@example
+(@var{parse} @var{string} [@var{start}]) ---> @var{string-list}
+@end example
+
+The optional @var{start} argument (default 0) specifies where in the
+string to begin the parse. It is an error if @var{start} @math{>}
+@code{(string-length @var{string})}.
+
+The parsers returned by the four parser generators implement different
+kinds of field parsing:
+
+@table @code
+@item field-splitter
+The regular expression specifies the actual field.
+
+@item suffix-splitter
+Delimiters are interpreted as element @var{terminators}. If the
+vertical bar character is the delimiter, then the string @code{""} is
+the empty record @code{()}, @code{"foo|"} produces a one-field record
+@code{("foo")}, and @code{"foo"} returns an error.
+
+The syntax of suffix-delimited records is:
+
+@example
+<@emph{record}> ::= "" (Empty record)
+                | <@emph{element}> <@emph{delim}> <@emph{record}>
+@end example
+
+It is an error if a non-empty record does not end with a delimiter. To
+make the last delimiter optional, make sure the delimiter regexp
+matches the end of the string (@acronym{SRE} notation: @code{eos}).
+@end table
+@end deffn
+
+@c YOU ARE HERE
 @c infix-splitter Delimiters are interpreted as element separators. Ifcomma is the delimiter, then the string
 @c 
 @c "foo," produces a two-fieldrecord
@@ -9160,6 +9220,7 @@ returns a string or @acronym{eof}.
 @c 
 @c placeholder-set!.
 @c 
+@node The event interface to interrupts
 @section The event interface to interrupts
 @c 
 @c Scsh provides an synchronous interface to the asynchronous signals deliveredby the operation system1. The key element in this system is an object called
