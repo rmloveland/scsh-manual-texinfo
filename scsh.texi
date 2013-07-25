@@ -8659,7 +8659,7 @@ kinds of field parsing:
 The regular expression specifies the actual field.
 
 @item suffix-splitter
-Delimiters are interpreted as element @var{terminators}. If the
+Delimiters are interpreted as element @emph{terminators}. If the
 vertical bar character is the delimiter, then the string @code{""} is
 the empty record @code{()}, @code{"foo|"} produces a one-field record
 @code{("foo")}, and @code{"foo"} returns an error.
@@ -8667,59 +8667,69 @@ the empty record @code{()}, @code{"foo|"} produces a one-field record
 The syntax of suffix-delimited records is:
 
 @example
-<@emph{record}> ::= "" (Empty record)
-                | <@emph{element}> <@emph{delim}> <@emph{record}>
+@emph{<record>} ::= "" (Empty record)
+                | @emph{<element>} @emph{<delim>} @emph{<record>}
 @end example
 
 It is an error if a non-empty record does not end with a delimiter. To
 make the last delimiter optional, make sure the delimiter regexp
 matches the end of the string (@acronym{SRE} notation: @code{eos}).
+
+@item infix-splitter
+
+Delimiters are interpreted as element @emph{separators}. If comma is
+the delimiter, then the string @code{"foo,"} produces a two-field
+record @code{("foo" "")}.
+
+The syntax of infix-delimited records is:
+
+@example
+@emph{<record>} ::= "" (Forced to be empty record)
+                | @emph{<real-infix-record>}
+@emph{<real-infix-record>} ::= @emph{<element>} @emph{<delim>} @emph{<real-infix-record>}
+                | @emph{<element>}
+@end example
+
+Note that separator semantics doesn't really allow for empty
+records---the straightforward grammar (i.e.,
+@emph{<real-infix-record>}) parses an empty string as a singleton list
+whose one field is the empty string, @code{("")}, not as the empty
+record @code{()}. This is unfortunate, since it means that infix
+string parsing doesn't make @code{string-append} and @code{append}
+isomorphic. For example,
+
+@example
+((infix-splitter ":") (string-append x ":" y))
+@end example
+
+doesn't always equal
+
+@example
+(append ((infix-splitter ":") x)
+        ((infix-splitter ":") y))
+@end example
+
+It fails when @code{x} or @code{y} are the empty string. Terminator
+semantics does preserve a similar isomorphism.  However, separator
+semantics is frequently what other UNIX software uses, so to parse
+their strings, we need to use it. For example, UNIX @code{$PATH} lists
+have separator semantics. The path list @code{"/bin:"} is broken up
+into @code{("/bin" "")}, not @code{("/bin")}. Comma-separated lists
+should also be parsed this way.
+
 @end table
 @end deffn
 
-@c YOU ARE HERE
-@c infix-splitter Delimiters are interpreted as element separators. Ifcomma is the delimiter, then the string
-@c 
-@c "foo," produces a two-fieldrecord
-@c ("foo" "").
-@c 
-@c The syntax of infix-delimited records is:h
-@c 
-@c record i ::= "" (Forced to be empty record)| h real-infix-record i
-@c 
-@c h real-infix-record i ::= h element i h delim i h real-infix-record i| h element i
-@c Note that separator semantics doesn't really allow for emptyrecords--the straightforward grammar (i.e., h real-infix-record i)
-@c parses an empty string as a singleton list whose one field is theempty string,
-@c 
-@c (""), not as the empty record (). This is unfortunate,since it means that infix string parsing doesn't make
-@c 
-@c string-appendand
-@c append isomorphic. For example,
-@c 
-@c ((infix-splitter ":") (string-append x ":" y))
-@c doesn't always equal
-@c 
-@c (append ((infix-splitter ":") x)
-@c 
-@c ((infix-splitter ":") y))
-@c 
-@c 146
-@c 
 @c Record : suffix :|$ suffix : infix non-: field
 @c "" () () () ()
 @c ":" ("") ("") ("" "") ()
 @c "foo:" ("foo") ("foo") ("foo" "") ("foo")
 @c ":foo" error ("" "foo") ("" "foo") ("foo")
 @c "foo:bar" error ("foo" "bar") ("foo" "bar") ("foo" "bar")
-@c 
+
 @c Figure 8.1: Using different grammars to split records into fields.
-@c 
-@c It fails when x or y are the empty string. Terminator semantics doespreserve a similar isomorphism.
-@c However, separator semantics is frequently what other UNIX soft-ware uses, so to parse their strings, we need to use it. For example,
-@c UNIX $PATH lists have separator semantics. The path list "/bin:" isbroken up into
-@c 
-@c ("/bin" ""), not ("/bin"). Comma-separated listsshould also be parsed this way.
-@c 
+
+
 @c sloppy-suffix The same as the suffix case, except that the parser willskip an initial delimiter string if the string begins with one instead
 @c 
 @c of parsing an initial empty field. This can be used, for example,to field-split a sequence of English text at white-space boundaries,
