@@ -35,6 +35,10 @@ the scsh manual.
   - `filename' is one word; `file name' and `file-name' will not be
     used except in procedure and variable names.
 
+  - `whitespace' is one word.
+
+  - `char-set' is the only acceptable usage other than ``character set''.
+
   - Paragraphs are filled using `M-q'. Auto-fill-mode may have
     unexpected results on code examples.
 
