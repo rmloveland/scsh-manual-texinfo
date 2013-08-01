@@ -8717,156 +8717,207 @@ have separator semantics. The path list @code{"/bin:"} is broken up
 into @code{("/bin" "")}, not @code{("/bin")}. Comma-separated lists
 should also be parsed this way.
 
+@item sloppy-suffix 
+
+The same as the @code{suffix} case, except that the parser will skip an
+initial delimiter string if the string begins with one instead of
+parsing an initial empty field. This can be used, for example, to
+field-split a sequence of English text at whitespace boundaries, where
+the string may begin or end with white space, by using the regexp
+
+@example
+(rx (| (+ white) eos))
+@end example
+
+(But you would be better off using @code{field-splitter} in this case.)
 @end table
 @end deffn
 
-@c Record : suffix :|$ suffix : infix non-: field
-@c "" () () () ()
-@c ":" ("") ("") ("" "") ()
-@c "foo:" ("foo") ("foo") ("foo" "") ("foo")
-@c ":foo" error ("" "foo") ("" "foo") ("foo")
-@c "foo:bar" error ("foo" "bar") ("foo" "bar") ("foo" "bar")
+This figure shows how the different parser grammars split apart the same
+strings.
 
-@c Figure 8.1: Using different grammars to split records into fields.
+@example
+Record          : suffix        :|$ suffix      : infix         non-: field
+""              ()              ()              ()              ()
+":"             ("")            ("")            ("" "")         ()
+"foo:"          ("foo")         ("foo")         ("foo" "")      ("foo")
+":foo"          error           ("" "foo")      ("" "foo")      ("foo")
+"foo:bar"       error           ("foo" "bar")   ("foo" "bar")   ("foo" "bar")
+@end example
 
+@anchor{Figure 6}
 
-@c sloppy-suffix The same as the suffix case, except that the parser willskip an initial delimiter string if the string begins with one instead
-@c 
-@c of parsing an initial empty field. This can be used, for example,to field-split a sequence of English text at white-space boundaries,
-@c where the string may begin or end with white space, by using regex
-@c 
-@c (rx (| (+ white) eos))
-@c (But you would be better off using field-splitter in this case.)
-@c 
-@c Figure 8.1 shows how the different parser grammars split apart the samestrings. Having to choose between the different grammars requires you to
-@c decide what you want, but at least you can be precise about what you areparsing. Take fifteen seconds and think it out. Say what you mean; mean what
-@c you say.
-@c (join-strings string-list [delimiter grammar]) -! string procedure
-@c 
-@c This procedure is a simple unparser--it pastes strings together using thedelimiter string.
-@c 
-@c The grammar argument is one of the symbols infix (the default) or
-@c suffix; it determines whether the delimiter string is used as a separa-tor or as a terminator.
-@c 
-@c The delimiter is the string used to delimit elements; it defaults to a singlespace
-@c 
-@c " ".
-@c 
-@c Example:
-@c 
-@c 147
-@c 
-@c (join-strings '("foo" "bar" "baz") ":")=)
-@c 
-@c "foo:bar:baz"
-@c 
+@emph{Figure 6}: Using different grammars to split records into fields.
+
+Having to choose between the different grammars requires you to decide
+what you want, but at least you can be precise about what you are
+parsing. Take fifteen seconds and think it out. Say what you mean;
+mean what you say.
+
+@deffn Procedure join-strings string-list [delimiter grammar] ---> string
+
+This procedure is a simple unparser---it pastes strings together using
+the delimiter string.
+
+The @var{grammar} argument is one of the symbols @code{infix} (the default)
+or @code{suffix}; it determines whether the delimiter string is used
+as a separator or as a terminator.
+
+The @var{delimiter} is the string used to delimit elements; it
+defaults to a single space @code{" "}.
+
+Example:
+@example
+(join-strings '("foo" "bar" "baz") ":")
+
+==> "foo:bar:baz"
+@end example
+@end deffn
+
 @subsection Field readers
-@c 
-@c (field-reader [field-parser rec-reader]) -! procedure procedure
-@c 
-@c This utility returns a procedure that reads records with field structurefrom a port. The reader's interface is designed to make it useful in the
-@c 
-@c awk loop macro (section @ref{8.2}). The reader is used as follows:
-@c 
-@c (reader [port]) =) [raw-record parsed-record] or [@acronym{eof} ()]
-@c 
-@c When the reader is applied to an input port (default: the current inputport), it reads a record using rec-reader. If this record isn't the @acronym{eof} object, it
-@c 
-@c is parsed with field-parser. These two values--the record, and its parsedrepresentation--are returned as multiple values from the reader.
-@c 
-@c When called at @acronym{eof}, the reader returns [@acronym{eof}-object ()].
-@c Although the record reader typically returns a string, and the field-parsertypically takes a string argument, this is not required. The record reader
-@c 
-@c can produce, and the field-parser consume, values of any type. However,the empty list returned as the parsed value on @acronym{eof} is hardwired into the
-@c field reader.
-@c For example, if port p is open on /etc/passwd, then
-@c 
-@c ((field-reader (infix-splitter ":" 7)) p)
-@c returns two values:
-@c "dalbertz:mx3Uaqq0:107:22:David Albertz:/users/dalbertz:/bin/csh"
-@c ("dalbertz" "mx3Uaqq0" "107" "22" "David Albertz" "/users/dalbertz"
-@c 
-@c "/bin/csh")
-@c 
-@c The field-parser defaults to the value of (field-splitter), a parser thatpicks out sequences of non-white-space strings.
-@c 
-@c The rec-reader defaults to read-line.
-@c Figure 8.2 shows field-reader being used to read different kinds ofUNIX records.
-@c 
+
+@deffn Procedure field-reader [field-parser rec-reader] ---> procedure
+
+This utility returns a procedure that reads records with field
+structure from a port. The reader's interface is designed to make it
+useful in the @code{awk} loop macro. (@xref{Awk}.) The reader is used
+as follows:
+
+@example
+(@var{reader} [@var{port}])
+
+==> [@var{raw-record} @var{parsed-record}]
+or
+==> [@acronym{eof}]
+@end example
+
+When the reader is applied to an input port (default: the current
+inputport), it reads a record using @var{rec-reader}. If this record
+isn't the @acronym{eof} object, it is parsed with
+@var{field-parser}. These two values---the record, and its parsed
+representation---are returned as multiple values from the reader.
+
+When called at @acronym{eof}, the reader returns the @acronym{eof} object.
+
+Although the record reader typically returns a string, and the
+field-parser typically takes a string argument, this is not
+required. The record reader can produce, and the field-parser consume,
+values of any type. However, the empty list returned as the parsed
+value on @acronym{eof} is hardwired into the field reader.
+
+For example, if port @code{p} is open on @code{/etc/passwd}, then
+
+@example
+((field-reader (infix-splitter ":" 7)) p)
+@end example
+
+returns two values:
+
+@example
+"dalbertz:mx3Uaqq0:107:22:David Albertz:/users/dalbertz:/bin/csh"
+
+("dalbertz" "mx3Uaqq0" "107" "22" "David Albertz" "/users/dalbertz" "/bin/csh")
+@end example
+
+The @var{field-parser} defaults to the value of
+@code{(field-splitter)}, a parser that picks out sequences of
+non-whitespace strings.
+
+The @var{rec-reader} defaults to @code{read-line}.
+
+This figure shows @code{field-reader} being used to read different kinds of UNIX records.
+
+@anchor{Figure 7}
+
+@example
+;;; /etc/passwd reader
+(field-reader (infix-splitter ":" 7))
+
+; wandy:3xuncWdpKhR.:73:22:Wandy Saetan:/usr/wandy:/bin/csh
+
+;;; Two ls -l output readers
+(field-reader (infix-splitter (rx (+ white)) 8))
+(field-reader (infix-splitter (rx (+ white)) -7))
+
+; -rw-r--r-- 1 shivers 22880 Sep 24 12:45 scsh.scm
+
+;;; Internet hostname reader
+(field-reader (field-splitter (rx (+ (~ ".")))))
+
+; stat.sinica.edu.tw
+
+;;; Internet IP address reader
+(field-reader (field-splitter (rx (+ (~ "."))) 4))
+
+; 18.24.0.241
+
+;;; Line of integers
+(let ((parser (field-splitter (rx (? ("+-")) (+ digit)))))
+   (field-reader (* (s) (map string->number (parser s))))
+
+; 18 24 0 241
+
+;;; Same as above.
+(let ((reader (field-reader (field-splitter (rx (? ("+-"))
+                                              (+ digit))))))
+    (lambda maybe-port (map string->number (apply reader maybe-port))))
+
+; Yale beat harvard 26 to 7.
+@end example
+
+@emph{Figure 7}: Some examples of @code{field-reader}.
+@end deffn
+
 @subsection Forward-progress guarantees and empty-string matches
-@c 
-@c A loop that pulls text off a string by repeatedly matching a regexp against thatstring can conceivably get stuck in an infinite loop if the regexp matches the
-@c empty string. For example, the @acronym{SRE}s bos, eos, (* any), and (| "foo" (*
-@c ( "f"))) can all match the empty string.
-@c 
-@c 148
-@c 
-@c ;;; /etc/passwd reader
-@c (field-reader (infix-splitter ":" 7))
-@c 
-@c ; wandy:3xuncWdpKhR.:73:22:Wandy Saetan:/usr/wandy:/bin/csh
-@c 
-@c ;;; Two ls -l output readers
-@c (field-reader (infix-splitter (rx (+ white)) 8))
-@c (field-reader (infix-splitter (rx (+ white)) -7))
-@c 
-@c ; -rw-r--r-- 1 shivers 22880 Sep 24 12:45 scsh.scm
-@c 
-@c ;;; Internet hostname reader
-@c (field-reader (field-splitter (rx (+ (~ ".")))))
-@c 
-@c ; stat.sinica.edu.tw
-@c 
-@c ;;; Internet IP address reader
-@c (field-reader (field-splitter (rx (+ (~ "."))) 4))
-@c 
-@c ; 18.24.0.241
-@c 
-@c ;;; Line of integers
-@c (let ((parser (field-splitter (rx (? ("+-")) (+ digit)))))
-@c 
-@c (field-reader (* (s) (map string->number (parser s))))
-@c 
-@c ; 18 24 0 241
-@c 
-@c ;;; Same as above.
-@c (let ((reader (field-reader (field-splitter (rx (? ("+-"))
-@c 
-@c (+ digit))))))
-@c (* maybe-port (map string->number (apply reader maybe-port))))
-@c 
-@c ; Yale beat harvard 26 to 7.
-@c 
-@c Figure 8.2: Some examples of field-reader
-@c 
-@c 149
-@c 
-@c The routines in this package that iterate through strings with regular ex-pressions are careful to handle this empty-string case. If a regexp matches the
-@c empty string, the next search starts, not from the end of the match (which inthe empty string case is also the beginning--that's the problem), but from the
-@c next character over. This is the correct behaviour. Regexps match the longestpossible string at a given location, so if the regexp matched the empty string
-@c at location i, then it is guaranteed it could not have matched a longer patternstarting with character
-@c 
-@c i. So we can safely begin our search for the next matchat char
-@c i + 1.
-@c 
-@c With this provision, every iteration through the loop makes some forwardprogress, and the loop is guaranteed to terminate.
-@c 
-@c This has the effect you want with field parsing. For example, if you split astring with the empty pattern, you will explode the string into its individual
-@c characters:
-@c 
-@c ((suffix-splitter (rx)) "foo") =) ("" "f" "o" "o")
-@c However, even though this boundary case is handled correctly, we don't rec-ommend using it. Say what you mean--just use a field splitter:
-@c 
-@c ((field-splitter (rx any)) "foo") =) ("f" "o" "o")
-@c Or, more efficiently,
-@c 
-@c ((* (s) (map string (string->list s))) "foo")
-@c 
+
+A loop that pulls text off a string by repeatedly matching a regexp
+against that string can conceivably get stuck in an infinite loop if
+the regexp matches the empty string. For example, the @acronym{SRE}s
+@code{bos}, @code{eos}, @code{(* any)}, and @code{(| "foo" (* ("f")))}
+can all match the empty string.
+
+The routines in this package that iterate through strings with regular
+expressions are careful to handle this empty-string case. If a regexp
+matches the empty string, the next search starts, not from the end of
+the match (which inthe empty string case is also the
+beginning---that's the problem), but from the next character
+over. This is the correct behaviour. Regexps match the longest
+possible string at a given location, so if the regexp matched the
+empty string at location @var{i}, then it is guaranteed it could not
+have matched a longer pattern starting with character @var{i}. So we
+can safely begin our search for the next match at char @var{i} + 1.
+
+With this provision, every iteration through the loop makes some
+forward progress, and the loop is guaranteed to terminate.
+
+This has the effect you want with field parsing. For example, if you
+split a string with the empty pattern, you will explode the string
+into its individual characters:
+
+@example
+((suffix-splitter (rx)) "foo") =) ("" "f" "o" "o")
+@end example
+
+However, even though this boundary case is handled correctly, we don't
+recommend using it. Say what you mean---just use a field splitter:
+
+@example
+((field-splitter (rx any)) "foo") =) ("f" "o" "o")
+@end example
+
+Or, more efficiently,
+
+@example
+((* (s) (map string (string->list s))) "foo")
+@end example
+
 @subsection Reader limitations
-@c 
-@c Since all of the readers in this package require the ability to peek ahead onechar in the input stream, they cannot be applied to raw integer file descriptors,
-@c only Scheme input ports. This is because UNIX doesn't support peeking aheadinto input streams.
-@c 
+
+Since all of the readers in this package require the ability to peek
+ahead one char in the input stream, they cannot be applied to raw
+integer file descriptors, only Scheme input ports. This is because
+UNIX doesn't support peeking ahead into input streams.
+     
 @section Awk
 @c 
 @c Scsh provides a loop macro and a set of field parsers that can be used to per-form text processing very similar to the Awk programming language. The
