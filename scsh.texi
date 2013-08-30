@@ -8919,128 +8919,184 @@ integer file descriptors, only Scheme input ports. This is because
 UNIX doesn't support peeking ahead into input streams.
      
 @section Awk
-@c 
-@c Scsh provides a loop macro and a set of field parsers that can be used to per-form text processing very similar to the Awk programming language. The
-@c basic functionality of Awk is factored in scsh into its component parts. Thecontrol structure is provided by the
-@c 
-@c awk loop macro; the text I/O and parsersare provided by the field-reader subroutine library (section @ref{8.1}). This factoring
-@c 
-@c allows the programmer to compose the basic loop structure with any parser orinput mechanism at all. If the parsers provided by the field-reader package are
-@c insufficient, the programmer can write a custom parser in Scheme and use itwith equal ease in the awk framework.
-@c 
-@c Awk-in-scheme is given by a loop macro called awk. It looks like this:
-@c 
-@c 150
-@c 
-@c (awk h next-record i h record&field-vars i[h counter i] h state-var-decls i
-@c 
-@c h clause1 i ...)
-@c 
-@c The body of the loop is a series of clauses, each one representing a kind ofcondition/action pair. The loop repeatedly reads a record, and then executes
-@c each clause whose condition is satisfied by the record.
-@c 
-@c Here's an example that reads lines from port p and prints the line numberand line of every line containing the string "Church-Rosser":
-@c 
-@c (awk (read-line) (ln) lineno ()
-@c ("Church-Rosser" (format #t "~d: ~s~%" lineno ln)))
-@c 
-@c This example has just one clause in the loop body, the one that tests for matchesagainst the regular expression "Church-Rosser".
-@c 
-@c The h next-record i form is an expression that is evaluated each time throughthe loop to produce a record to process. This expression can return multiple
-@c 
-@c values; these values are bound to the variables given in the h record&field-vars ilist of variables. The first value returned is assumed to be the record; when it
-@c is the end-of-file object, the loop terminates.
-@c 
-@c For example, let's suppose we want to read items from /etc/password, andwe use the
-@c 
-@c field-reader procedure to define a record parser for /etc/passwdentries:
-@c 
-@c (define read-passwd (field-reader (infix-splitter ":" 7)))
-@c binds read-passwd to a procedure that reads in a line of text when it is called,and splits the text at colons. It returns two values: the entire line read,
-@c 
-@c and a seven-element list of the split-out fields. (See section @ref{8.1} for more on
-@c field-reader and infix-splitter.)
-@c 
-@c So if the h next-record i form in an awk expression is (read-passwd), thenh record&field-vars i must be a list of two variables, e.g.,
-@c 
-@c (record field-vec)
-@c since read-passwd returns two values.
-@c 
-@c Note that awk allows us to use any record reader we want in the loop, re-turning whatever number of values we like. These values don't have to be
-@c 
-@c strings or string lists. The only requirement is that the record reader return the@acronym{eof} object as its first value when the loop should terminate.
-@c 
-@c The awk loop allows the programmer to have loop variables. These aredeclared and initialised by the h state-var-decls i form, a
-@c 
-@c ((var init-exp) (var init-exp) ...)
-@c 
-@c 151
-@c 
-@c list rather like the let form. Whenever a clause in the loop body executes, itevaluates to as many values as there are state variables, updating them.
-@c 
-@c The optional h counter i variable is an iteration counter. It is bound to 0 whenthe loop starts. The counter is incremented each time a non-@acronym{eof} record is read.
-@c There are several kinds of loop clause. When evaluating the body of theloop,
-@c 
-@c awk evaluates all the clauses sequentially. Unlike cond, it does not stopafter the first clause is satisfied; it checks them all.
-@c 
-@c * (test body1 body2 ...)If test is true, execute the body forms. The last body form is the value
-@c 
-@c of the clause. The test and body forms are evaluated in the scope of therecord and state variables.
-@c 
-@c The test form can be one of:
-@c 
-@c integer: The test is true for that iteration of theloop. The first iteration is #1.
-@c 
-@c sre: A regular expression, in @acronym{SRE} notation(see chapter 6) can be used as a test.
-@c 
-@c The test is successful if the patternmatches the record. In particular, note
-@c that any string is an @acronym{SRE}.
-@c (when expr): The body of a when test is evaluatedas a Scheme boolean expression in the
-@c 
-@c inner scope of the awk form.expr: If the form is none of the above, it
-@c is treated as a Scheme expression--in practice, the
-@c 
-@c when keyword is onlyneeded in cases where @acronym{SRE}/Scheme
-@c 
-@c expression ambiguity might occur.
-@c 
-@c * (range start-test stop-test body1 ...)
-@c 
-@c (:range start-test stop-test body1 ...)
-@c (range: start-test stop-test body1 ...)
-@c (:range: start-test stop-test body1 ...)These clauses become activated when start-test is true; they stay active on
-@c 
-@c all further iterations until stop-test is true.
-@c So, to print out the first ten lines of a file, we use the clause:
-@c 
-@c (:range: 1 10 (display record))
-@c 
-@c The colons control whether or not the start and stop lines are processedby the clause. For example:
-@c 
-@c 152
-@c 
-@c (range 1 5 ...) Lines 2 3 4
-@c (:range 1 5 ...) Lines 1 2 3 4
-@c (range: 1 5 ...) Lines 2 3 4 5
-@c (:range: 1 5 ...) Lines 1 2 3 4 5
-@c 
-@c A line can trigger both tests, either simultaneously starting and stoppingan active region, or simultaneously stopping one and starting a new one,
-@c so ranges can abut seamlessly.
-@c 
-@c * (else body1 body2 ...)If no other clause has executed since the top of the loop, or since the last
-@c 
-@c else clause, this clause executes.
-@c 
-@c * (test => exp)If evaluating
-@c 
-@c test produces a true value, apply exp to that value. If testis a regular expression, then exp is applied to the match data structure
-@c 
-@c returned by the regexp match routine.
-@c 
-@c * (after body1 ...)This clause executes when the loop encounters @acronym{eof}. The body forms execute in the scope of the state vars and the record-count var, if there areany. The value of the last body form is the value of the entire awk form.
-@c 
-@c If there is no after clause, awk returns the loop's state variables as multi-ple values.
-@c 
+
+Scsh provides a loop macro and a set of field parsers that can be used
+to perform text processing very similar to the Awk programming
+language. The basic functionality of Awk is factored in scsh into its
+component parts. The control structure is provided by the @code{awk}
+loop macro; the text I/O and parsers are provided by the field-reader
+subroutine library (@xref{Record I/O and field parsing}.) This factoring @c TODO: Fix this link.
+allows the programmer to compose the basic loop structure with any
+parser or input mechanism at all. If the parsers provided by the
+field-reader package are insufficient, the programmer can write a custom
+parser in Scheme and use it with equal ease in the awk framework.
+
+Awk-in-scheme is given by a loop macro called @code{awk}. It looks like
+this:
+
+@verbatim
+    (awk <next-record> <record&field-vars>
+           [<counter>] <state-var-decls>
+         <clause1> ...)
+@end verbatim
+
+The body of the loop is a series of clauses, each one representing a
+kind of condition/action pair. The loop repeatedly reads a record, and
+then executes each clause whose condition is satisfied by the record.
+
+Here's an example that reads lines from port @emph{p} and prints the
+line number and line of every line containing the string
+``Church-Rosser'':
+
+@example
+(awk (read-line) (ln) lineno ()
+  ("Church-Rosser" (format #t "~d: ~s~%" lineno ln)))
+@end example
+
+This example has just one clause in the loop body, the one that tests
+for matches against the regular expression ``Church-Rosser''.
+
+The @emph{<next-record>} form is an expression that is evaluated each
+time through the loop to produce a record to process. This expression
+can return multiple values; these values are bound to the variables
+given in the @emph{<record&field-vars>} list of variables. The first
+value returned is assumed to be the record; when it is the end-of-file
+object, the loop terminates.
+
+For example, let's suppose we want to read items from
+@code{/etc/password}, and we use the @code{field-reader} procedure to
+define a record parser for @code{/etc/passwd} entries:
+
+@example
+(define read-passwd (field-reader (infix-splitter ":" 7)))
+@end example
+
+binds @code{read-passwd} to a procedure that reads in a line of text
+when it is called, and splits the text at colons. It returns two values:
+the entire line read, and a seven-element list of the split-out
+fields. (For more on @code{field-reader} and @code{infix-splitter},
+@xref{Record I/O and field parsing}.) @c TODO: Fix this link.
+
+So if the @emph{<next-record>} form in an @code{awk} expression is
+@code{(read-passwd)}, then @emph{<record&field-vars>} must be a list of
+two variables, @emph{e.g.},
+
+@example
+(record field-vec)
+@end example
+
+since @code{read-passwd} returns two values.
+
+Note that awk allows us to use any record reader we want in the loop,
+returning whatever number of values we like. These values don't have to
+be strings or string lists. The only requirement is that the record
+reader return the @acronym{eof} object as its first value when the loop
+should terminate.
+
+The @code{awk} loop allows the programmer to have loop variables. These
+are declared and initialised by the @emph{<state-var-decls>} form, a
+
+@example
+((@var{var} @var{init-exp}) (@var{var} @var{init-exp}) @dots{})
+@end example
+
+list rather like the @code{let} form. Whenever a clause in the loop body
+executes, it evaluates to as many values as there are state variables,
+updating them.
+
+The optional @emph{<counter>} variable is an iteration counter. It is
+bound to 0 when the loop starts. The counter is incremented each time a
+non-@acronym{eof} record is read.
+
+There are several kinds of loop clause. When evaluating the body of the
+loop, @code{awk} evaluates @emph{all} the clauses sequentially. Unlike
+@code{cond} , it does not stop after the first clause is satisfied; it
+checks them all.
+
+@itemize
+@item @code{(@var{test} @var{@math{body_1}} @var{@math{body_2}} @dots{})}
+
+If @var{test} is true, execute the body forms. The last body form is the
+value of the clause. The test and body forms are evaluated in the scope
+of the record and state variables.
+
+The @var{test} form can be one of:
+
+@table @var
+@item integer:
+
+The test is true for that iteration of the loop. The first iteration is
+#1.
+
+@item sre:
+A regular expression in @acronym{SRE} notation can be used as a test.
+(@xref{Pattern-matching strings with regular expressions}.) The test is
+successful if the pattern matches the record. In particular, note that
+any string is an @acronym{SRE}.
+
+@item @code{(when @var{expr})}: 
+
+The body of a @code{when} test is evaluated as a Scheme boolean
+expression in the inner scope of the @code{awk} form.
+
+@item expr:
+If the form is none of the above, it
+is treated as a Scheme expression--in practice, the
+when keyword is onlyneeded in cases where @acronym{SRE}/Scheme
+expression ambiguity might occur.
+@end table
+
+@item @code{(range @var{start-test} @var{stop-test} @var{@math{body_1}} @dots{})}
+
+@code{(:range @var{start-test} @var{stop-test} @var{@math{body_1}} @dots{})}
+@code{(range: @var{start-test} @var{stop-test} @var{@math{body_1}} @dots{})}
+@code{(:range: @var{start-test} @var{stop-test} @var{@math{body_1}} @dots{})}
+
+These clauses become activated when @var{start-test} is true; they stay
+active on all further iterations until @var{stop-test} is true.
+
+So, to print out the first ten lines of a file, we use the clause:
+
+@example
+(:range: 1 10 (display record))
+@end example
+
+The colons control whether or not the start and stop lines are processed
+by the clause. For example:
+
+@example
+(range 1 5 @dots{})     ; Lines 2 3 4
+(:range 1 5 @dots{})    ; Lines 1 2 3 4
+(range: 1 5 @dots{})    ; Lines 2 3 4 5
+(:range: 1 5 @dots{})   ; Lines 1 2 3 4 5
+@end example
+
+A line can trigger both tests, either simultaneously starting and
+stopping an active region, or simultaneously stopping one and starting a
+new one, so ranges can abut seamlessly.
+
+@item @code{(else @var{@math{body_1}} @var{@math{body_2}} @dots{})}
+
+If no other clause has executed since the top of the loop, or since the
+last @code{else} clause, this clause executes.
+
+@item @code{(@var{test} => @var{exp})}
+
+If evaluating @var{test} produces a true value, apply @var{exp} to that
+value. If @var{test} is a regular expression, then @var{exp} is applied
+to the match data structure returned by the regexp match routine.
+
+@item @code{(after @var{@math{body_1}} @dots{})}
+
+This clause executes when the loop encounters @acronym{eof}. The body
+forms execute in the scope of the state vars and the record-count var,
+if there are any. The value of the last body form is the value of the
+entire @code{awk} form.
+
+If there is no @code{after} clause, @code{awk} returns the loop's state
+variables as multiple values.
+@end itemize
+
 @subsection Examples
 @c 
 @c Here are some examples of awk being used to process various types of inputstream.
