@@ -9098,120 +9098,108 @@ variables as multiple values.
 @end itemize
 
 @subsection Examples
-@c 
-@c Here are some examples of awk being used to process various types of inputstream.
-@c 
-@c (define $ list-ref) ; Saves typing.
-@c ;;; Print out the name and home-directory of everyone in /etc/passwd:
-@c (let ((read-passwd (field-reader (infix-splitter ":" 7))))
-@c 
-@c (call-with-input-file "/etc/passwd"
-@c 
-@c (lambda (port)
-@c 
-@c (awk (read-passwd port) (record fields) ()
-@c 
-@c (#t (format #t "~a's home directory is ~a~%"
-@c 
-@c ($ fields 0)
-@c ($ fields 5)))))))
-@c 
-@c 153
-@c 
-@c ;;; Print out the user-name and home-directory of everyone whose
-@c ;;; name begins with "S"
-@c (let ((read-passwd (field-reader (infix-splitter ":" 7))))
-@c 
-@c (call-with-input-file "/etc/passwd"
-@c 
-@c (lambda (port)
-@c 
-@c (awk (read-passwd port) (record fields) ()
-@c 
-@c ((: bos "S")
-@c 
-@c (format #t "~a's home directory is ~a~%"
-@c 
-@c ($ fields 0)
-@c ($ fields 5)))))))
-@c 
-@c ;;; Read a series of integers from stdin. This expression evaluates
-@c ;;; to the number of positive numbers that were read. Note our
-@c ;;; "record-reader" is the standard Scheme READ procedure.
-@c (awk (read) (i) ((npos 0))
-@c 
-@c ((> i 0) (+ npos 1)))
-@c 
-@c ;;; Filter -- pass only lines containing my name.
-@c (awk (read-line) (line) ()
-@c 
-@c ("Olin" (display line) (newline)))
-@c 
-@c ;;; Count the number of non-comment lines of code in my Scheme source.
-@c (awk (read-line) (line) ((nlines 0))
-@c 
-@c ((: bos (* white) ";") nlines) ; A comment line.
-@c (else (+ nlines 1))) ; Not a comment line.
-@c 
-@c ;;; Read numbers, counting the evens and odds.
-@c (awk (read) (val) ((evens 0) (odds 0))
-@c 
-@c ((> val 0) (display "pos ") (values evens odds)) ; Tell me about
-@c ((< val 0) (display "neg ") (values evens odds)) ; sign, too.
-@c (else (display "zero ") (values evens odds))
-@c 
-@c ((even? val) (values (+ evens 1) odds))
-@c (else (values evens (+ odds 1))))
-@c 
-@c ;;; Determine the max length of all the lines in the file.
-@c (awk (read-line) (line) ((max-len 0))
-@c 
-@c (#t (max max-len (string-length line))))
-@c 
-@c 154
-@c 
-@c ;;; (This could also be done with PORT-FOLD:)
-@c (port-fold (current-input-port) read-line
-@c 
-@c (lambda (line maxlen) (max (string-length line) maxlen))
-@c 0)
-@c 
-@c ;;; Print every line longer than 80 chars.
-@c ;;; Prefix each line with its line #.
-@c (awk (read-line) (line) lineno ()
-@c 
-@c ((> (string-length line) 80)
-@c 
-@c (format #t "~d: ~s~%" lineno line)))
-@c 
-@c ;;; Strip blank lines from input.
-@c (awk (read-line) (line) ()
-@c 
-@c ((~ white) (display line) (newline)))
-@c 
-@c ;;; Sort the entries in /etc/passwd by login name.
-@c (for-each (lambda (entry) (display (cdr entry)) (newline)) ; Out
-@c 
-@c (sort (lambda (x y) (string<? (car x) (car y))) ; Sort
-@c 
-@c (let ((read (field-reader (infix-splitter ":" 7)))) ; In
-@c 
-@c (awk (read) (line fields) ((ans '()))
-@c 
-@c (#t (cons (cons ($ fields 0) line) ans))))))
-@c 
-@c ;;; Prefix line numbers to the input stream.
-@c (awk (read-line) (line) lineno ()
-@c 
-@c (#t (format #t "~d:\t~a~%" lineno line)))
 
+Here are some examples of awk being used to process various types of inputstream.
+
+@example
+(define $ list-ref) ; Saves typing.
+
+;;; Print out the name and home-directory of everyone in /etc/passwd:
+
+(let ((read-passwd (field-reader (infix-splitter ":" 7))))
+    (call-with-input-file "/etc/passwd"
+      (lambda (port)
+	(awk (read-passwd port) (record fields) ()
+	  (#t (format #t "~a's home directory is ~a~%"
+		      ($ fields 0)
+		      ($ fields 5)))))))
+
+;;; Print out the user-name and home-directory of everyone whose
+;;; name begins with "S"
+
+(let ((read-passwd (field-reader (infix-splitter ":" 7))))
+    (call-with-input-file "/etc/passwd"
+      (lambda (port)
+	(awk (read-passwd port) (record fields) ()
+	  ((: bos "S")
+	   (format #t "~a's home directory is ~a~%"
+		   ($ fields 0)
+		   ($ fields 5)))))))
+
+;;; Read a series of integers from stdin. This expression evaluates
+;;; to the number of positive numbers that were read. Note our
+;;; "record-reader" is the standard Scheme READ procedure.
+
+(awk (read) (i) ((npos 0))
+   ((> i 0) (+ npos 1)))
+
+;;; Filter -- pass only lines containing my name.
+
+(awk (read-line) (line) ()
+   ("Olin" (display line) (newline)))
+
+;;; Count the number of non-comment lines of code in my Scheme source.
+
+(awk (read-line) (line) ((nlines 0))
+    ((: bos (* white) ";") nlines)	; A comment line.
+    (else (+ nlines 1)))		; Not a comment line.
+
+;;; Read numbers, counting the evens and odds.
+
+(awk (read) (val) ((evens 0) (odds 0))
+    ((> val 0) (display "pos ") (values evens odds)) ; Tell me about
+    ((< val 0) (display "neg ") (values evens odds)) ; sign, too.
+    (else (display "zero ") (values evens odds))
+
+    ((even? val) (values (+ evens 1) odds))
+    (else (values evens (+ odds 1))))
+
+;;; Determine the max length of all the lines in the file.
+
+(awk (read-line) (line) ((max-len 0))
+   (#t (max max-len (string-length line))))
+
+;;; (This could also be done with PORT-FOLD:)
+
+(port-fold (current-input-port) read-line
+	     (lambda (line maxlen) (max (string-length line) maxlen))
+	     0)
+
+;;; Print every line longer than 80 chars.
+;;; Prefix each line with its line #.
+
+(awk (read-line) (line) lineno ()
+     ((> (string-length line) 80)
+      (format #t "~d: ~s~%" lineno line)))
+
+;;; Strip blank lines from input.
+
+(awk (read-line) (line) ()
+     ((~ white) (display line) (newline)))
+
+;;; Sort the entries in /etc/passwd by login name.
+
+(for-each (lambda (entry) (display (cdr entry)) (newline)) ; Out
+          (sort (lambda (x y) (string<? (car x) (car y)))  ; Sort
+                (let ((read (field-reader (infix-splitter ":" 7)))) ; In
+                     (awk (read) (line fields) ((ans '()))
+                          (#t (cons (cons ($ fields 0) line) ans))))))
+
+;;; Prefix line numbers to the input stream.
+
+(awk (read-line) (line) lineno ()
+     (#t (format #t "~d:\t~a~%" lineno line)))
+@end example
 
 @section Backwards compatibility
-@c 
-@c Previous scsh releases provided an awk form with a different syntax, designedaround regular expressions written in @acronym{POSIX} notation as strings, rather than
-@c @acronym{SRE}s.
-@c 
-@c This form is still available in a separate module for old code. It'll be docu-mented in the next release of this manual. Dig around in the sources for it.
+
+Previous scsh releases provided an @code{awk} form with a different
+syntax, designed around regular expressions written in @acronym{POSIX}
+notation as strings, rather than @acronym{SRE}s.
+
+This form is still available in a separate module for old code. It'll be
+documented in the next release of this manual. Dig around in the sources
+for it.
 
 @node Concurrent system programming
 @chapter Concurrent system programming
