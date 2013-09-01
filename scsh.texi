@@ -62,104 +62,104 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 * Running scsh::
 * Index::               Complete index.
 
-@c @detailmenu
-@c --- The Detailed Node Listing ---
+@detailmenu
+--- The Detailed Node Listing ---
 
-@c Introduction
+Introduction
 
-@c * Copyright & source-code license::
-@c * Obtaining scsh::
-@c * Building scsh::
-@c * Caveats::
-@c * Naming conventions::
-@c * Lexical issues::
-@c * Record types and the define-record form::
-@c * A word about UNIX standards::
+* Copyright & source-code license::
+* Obtaining scsh::
+* Building scsh::
+* Caveats::
+* Naming conventions::
+* Lexical issues::
+* Record types and the define-record form::
+* A word about UNIX standards::
 
-@c Process notation
+Process notation
 
-@c * Extended process forms and I/O redirections::
-@c * Process forms::
-@c * Using extended process forms in Scheme::
-@c * More complex process operations::
-@c * Conditional process sequencing forms::
-@c * Process filters::
+* Extended process forms and I/O redirections::
+* Process forms::
+* Using extended process forms in Scheme::
+* More complex process operations::
+* Conditional process sequencing forms::
+* Process filters::
 
-@c System Calls
+System Calls
 
-@c * Errors::
-@c * I/O::
-@c * File system::
-@c * Processes::
-@c * Process state::
-@c * User and group database access::
-@c * Accessing command-line arguments::
-@c * System parameters::
-@c * Signal system::
-@c * Time::
-@c * Environment variables::
-@c * Terminal device control::
+* Errors::
+* I/O::
+* File system::
+* Processes::
+* Process state::
+* User and group database access::
+* Accessing command-line arguments::
+* System parameters::
+* Signal system::
+* Time::
+* Environment variables::
+* Terminal device control::
 
-@c Networking
+Networking
 
-@c * High-level interface::
-@c * Sockets::
-@c * Socket addresses::
-@c * Socket primitives::
-@c * Performing input and output on sockets::
-@c * Socket options::
-@c * Database-information entries::
+* High-level interface::
+* Sockets::
+* Socket addresses::
+* Socket primitives::
+* Performing input and output on sockets::
+* Socket options::
+* Database-information entries::
 
-@c Strings and characters
+Strings and characters
 
-@c * Manipulating file names::
-@c * Other string manipulation facilities::
-@c * ASCII encoding::
-@c * Character predicates::
-@c * Deprecated character-set procedures::
+* Manipulating file names::
+* Other string manipulation facilities::
+* ASCII encoding::
+* Character predicates::
+* Deprecated character-set procedures::
 
-@c Pattern-matching strings with regular expressions
+Pattern-matching strings with regular expressions
 
-@c * Summary SRE syntax::
-@c * Examples::
-@c * A short tutorial::
-@c * Regexp functions::
-@c * The regexp @acronym{ADT}::
-@c * Syntax-hacking tools::
+* Summary SRE syntax::
+* Examples::
+* A short tutorial::
+* Regexp functions::
+* The regexp @acronym{ADT}::
+* Syntax-hacking tools::
 
-@c Reading delimited strings
+Reading delimited strings
 
-@c Awk record I/O and field parsing
+Awk record I/O and field parsing
 
-@c * Record I/O and field parsing::
-@c * Awk::
-@c * Backwards compatibility::
+* Record I/O and field parsing::
+* Awk::
+* Backwards compatibility::
 
-@c Concurrent system programming
+Concurrent system programming
 
-@c * Threads::
-@c * Locks::
-@c * Placeholders::
-@c * The event interface to interrupts::
-@c * Interaction between threads and process state::
+* Threads::
+* Locks::
+* Placeholders::
+* The event interface to interrupts::
+* Interaction between threads and process state::
 
-@c Miscellaneous routines
+Miscellaneous routines
 
-@c * Integer bitwise ops::
-@c * Password encryption::
-@c * Dot-Locking::
-@c * Syslog facility::
-@c * MD5 interface::
-@c * Configuration variables::
+* Integer bitwise ops::
+* Password encryption::
+* Dot-Locking::
+* Syslog facility::
+* MD5 interface::
+* Configuration variables::
 
-@c Running scsh
+Running scsh
 
-@c * Scsh command-line switches::
-@c * The scsh virtual machine::
-@c * Compiling scsh programs::
-@c * Standard file locations::
+* Scsh command-line switches::
+* The scsh virtual machine::
+* Compiling scsh programs::
+* Standard file locations::
 
-@c @end detailmenu
+@end detailmenu
 @end menu
 
 
@@ -4554,9 +4554,9 @@ Example: These four pieces of code all run the mailer with special
 ;; In this example, we compute an alternate environment ENV2
 ;; as an alist, and install it with an explicit call to the
 ;; EXEC-PATH/ENV procedure.
-(let* ((env (env->alist))               ; Get the current environment,
-       (env1 (alist-update env "TERM" "xterm"))         ; and compute
-       (env2 (alist-update env1 "EDITOR" my-editor)))   ; the new env.
+(let* ((env (env->alist))                      ; Get the current environment
+       (env1 (alist-update env "TERM" "xterm")); and compute the new env
+       (env2 (alist-update env1 "EDITOR" my-editor)))
   (run (begin (exec-path/env "mail" env2 "shivers@@cs.cmu.edu"))))
 @end example
 
@@ -7911,8 +7911,8 @@ Repeatedly match regexp @var{re} against string @var{s}. Apply
 operating on the match value @var{m} passed to @var{proc}.
 @end deffn
 
-@deffn Syntax let-match match-exp mvars body @dots{} ---> object
-@deffnx Syntax if-match match-exp mvars on-match no-match ---> object
+@deffn Syntax let-match match-exp mvars body @dots{}
+@deffnx Syntax if-match match-exp mvars on-match no-match
 
 @var{Mvars} is a list of vars that is bound to the match and
 submatches of the string; @code{#f} is allowed as a don't-care
@@ -7933,7 +7933,7 @@ the @var{no-match} expression is evaluated; this would be an error in
 @code{let-match}.
 @end deffn
 
-@deffn Syntax match-cond clause @dots{}  ---> object
+@deffn Syntax match-cond clause @dots{}
 
 This macro allows one to conditionally attempt a sequence of pattern
 matches, interspersed with other, general conditional tests. There are
@@ -7949,11 +7949,11 @@ clauses, marked by the @code{test} and @code{else} keywords:
 @end example
 @end deffn
 
-@deffn Procedure flush-submatches re ---> re
-@deffnx Procedure uncase re ---> re
-@deffnx Procedure simplify-regexp re ---> re
-@deffnx Procedure uncase-char-set cset ---> re
-@deffnx Procedure uncase-string str ---> re
+@deffn Procedure flush-submatches re
+@deffnx Procedure uncase re
+@deffnx Procedure simplify-regexp re
+@deffnx Procedure uncase-char-set cset
+@deffnx Procedure uncase-string str
 
 These functions map regexps and char sets to other regexps.
 @code{Flush-submatches} returns a regexp which matches exactly what
@@ -7975,8 +7975,8 @@ case-permutation of the string. For example, @code{(uncase-string
 ("gG") ("hH") ("tT"))} or @code{(rx (w/nocase "Knight"))}.
 @end deffn
 
-@deffn Procedure sre->regexp sre ---> re
-@deffnx Procedure regexp->sre re --> sre
+@deffn Procedure sre->regexp sre
+@deffnx Procedure regexp->sre re
 
 These are the @acronym{SRE} parser and unparser. That is,
 @code{sre->regexp} maps an @acronym{SRE} to a regexp value, and
@@ -7996,8 +7996,8 @@ for printing out regexps in a readable format.
 @end example
 @end deffn
 
-@deffn Procedure posix-string->regexp string ---> re
-@deffnx Procedure regexp->posix-string re ---> [string syntax-level paren-count submatches-vector]
+@deffn Procedure posix-string->regexp string
+@deffnx Procedure regexp->posix-string re
 
 These two functions are the @acronym{POSIX} notation parser and
 unparser. That is, @code{posix-string->regexp} maps a
@@ -8183,24 +8183,24 @@ expression.
 @tab Accessor
 @end multitable
 
-@deffn Variable re-bos ---> regexp
-@deffnx Variable re-eos ---> regexp
-@deffnx Variable re-bol ---> regexp
-@deffnx Variable re-eol ---> regexp
+@deffn Variable re-bos
+@deffnx Variable re-eos
+@deffnx Variable re-bol
+@deffnx Variable re-eol
 
 These variables are bound to the primitive anchor regexps.
 @end deffn
 
-@deffn Procedure re-bos? object ---> boolean
-@deffnx Procedure re-eos? object ---> boolean
-@deffnx Procedure re-bol? object ---> boolean
-@deffnx Procedure re-eol? object ---> boolean
+@deffn Procedure re-bos? object
+@deffnx Procedure re-eos? object
+@deffnx Procedure re-bol? object
+@deffnx Procedure re-eol? object
 
 These predicates recognise the associated primitive anchor regexp.
 @end deffn
 
-@deffn Variable re-trivial ---> regexp
-@deffnx Procedure re-trivial? re ---> boolean
+@deffn Variable re-trivial
+@deffnx Procedure re-trivial? re
 
 The variable @code{re-trivial} is bound to a regular expression that
 matches the empty string (corresponding to the @acronym{SRE} @code{""}
@@ -8210,8 +8210,8 @@ regexp; other trivial regexps built using other constructors may or may
 not produce a true value.
 @end deffn
 
-@deffn Variable re-empty ---> regexp
-@deffnx Procedure re-empty? re ---> boolean 
+@deffn Variable re-empty
+@deffnx Procedure re-empty? re
 
 The variable @code{re-empty} is bound to a regular expression that never
 matches (corresponding to the @acronym{SRE} @code{(|)}); it is
@@ -8221,8 +8221,8 @@ regexps built using other constructors may or may not produce a true
 value.
 @end deffn
 
-@deffn Variable re-any ---> regexp
-@deffnx Procedure re-any? re ---> boolean 
+@deffn Variable re-any
+@deffnx Procedure re-any? re
 
 The variable re-any is bound to a regular expression that matches
 anycharacter (corresponding to the @acronym{SRE} @code{any}); it is
@@ -8232,24 +8232,24 @@ other any-character regexps built using other constructors may or may
 not produce a true value.
 @end deffn
 
-@deffn Variable re-nonl ---> regexp
+@deffn Variable re-nonl
 
 The variable @code{re-nonl} is bound to a regular expression that
 matches any non-newline character (corresponding to the @acronym{SRE}
 @code{(~ #\newline)}).
 @end deffn
 
-@deffn Procedure regexp? object --> boolean
+@deffn Procedure regexp? object
 
 Is the object a regexp?
 @end deffn
 
-@deffn Procedure re-tsm re ---> integer
+@deffn Procedure re-tsm re
 
 Return the total number of submatches contained in the regexp.
 @end deffn
 
-@deffn Procedure clean-up-cres ---> undefined
+@deffn Procedure clean-up-cres
 
 The current scsh implementation should call this function periodically
 to release C-heap storage associated with compiled regexps. Hopefully,
@@ -8263,7 +8263,7 @@ macro writers who want to use @acronym{SRE}s in their macros. In the
 functions defined below, @var{compare} and @var{rename} parameters are
 as passed to Clinger-Rees explicit-renaming low-level macros.
 
-@deffn Syntax if-sre-form form conseq-form alt-form ---> form
+@deffn Syntax if-sre-form form conseq-form alt-form
 
 If @var{form} is a legal @acronym{SRE}, this is equivalent to the
 expression @var{conseq-form}, otherwise it expands to @var{alt-form}.
@@ -8284,7 +8284,7 @@ two possible expansions:
 @end example
 @end deffn
 
-@deffn Procedure sre-form? form rename compare ---> boolean
+@deffn Procedure sre-form? form rename compare
 
 This procedure is for low-level macros doing things equivalent to
 @code{if-sre-form}. It returns true if the form is a legal
@@ -8296,8 +8296,8 @@ simply check the @code{car} of the form for one of the legal
 @acronym{SRE} keywords.
 @end deffn
 
-@deffn Procedure parse-sre sre-form compare rename ---> re
-@deffnx Procedure parse-sres sre-forms compare rename ---> re
+@deffn Procedure parse-sre sre-form compare rename
+@deffnx Procedure parse-sres sre-forms compare rename
 
 Parse @var{sre-form} into an @acronym{ADT}. Note that if the
 @acronym{SRE} is dynamic---contains @var{,exp} or @var{,@@exp} forms, or
@@ -8311,7 +8311,7 @@ char-set, or regexp. In other words, we use the @acronym{ADT} as its own
 implicit sequence.
 @end deffn
 
-@deffn Procedure regexp->scheme re rename ---> Scheme-expression
+@deffn Procedure regexp->scheme re rename
 
 Returns a Scheme expression that will construct the regexp @var{re}
 using @acronym{ADT} constructors such as @code{make-re-sequence},
@@ -8320,7 +8320,7 @@ simplified and pre-translated to a @acronym{POSIX} string as well, which
 will be part of the constructed regexp value.
 @end deffn
 
-@deffn Procedure static-regexp? re ---> boolean
+@deffn Procedure static-regexp? re
 
 Is the regexp a static one?
 @end deffn
@@ -8367,7 +8367,7 @@ programmer to distinguish between strings that are terminated by a
 delimiter character, and strings that are terminated by an
 end-of-file.
 
-@deffn Procedure read-line [port handle-newline] ---> string or eof-object
+@deffn Procedure read-line [port handle-newline]
 
 Reads and returns one line of text; on @acronym{eof}, returns the
 @acronym{eof} object. A line is terminated by newline or
@@ -8381,7 +8381,7 @@ this argument allows one to tell whether or not the last line of input
 in a file is newline-terminated.
 @end deffn
 
-@deffn Procedure read-paragraph [port handle-delim] ---> string or @acronym{eof}
+@deffn Procedure read-paragraph [port handle-delim]
 
 This procedure skips blank lines, then reads text from a port until a
 blank line or @acronym{eof} is found. A "blank line" is a (possibly
@@ -8395,7 +8395,7 @@ The following procedures read in strings from ports delimited by
 characters belonging to a specific set. For information on character
 set manipulation, @xref{Deprecated character-set procedures}.
 
-@deffn Procedure read-delimited char-set [port handle-delim] ---> string or @acronym{eof}
+@deffn Procedure read-delimited char-set [port handle-delim]
 
 Read until we encounter one of the chars in @var{char-set} or
 @acronym{eof}. The @var{handle-delim} parameter determines how the
@@ -8406,7 +8406,7 @@ The @var{char-set} argument may be a charset, a string, or a
 character; it is coerced to a charset.
 @end deffn
 
-@deffn Procedure read-delimited! char-set buf [port handle-delim start end] ---> nbytes or @acronym{eof} or @code{#f}
+@deffn Procedure read-delimited! char-set buf [port handle-delim start end]
 
 A side-effecting variant of @code{read-delimited}.
 
@@ -8429,7 +8429,7 @@ determines how the terminating character is handled. It is described
 above, and defaults to @code{'trim}.
 @end deffn
 
-@deffn Procedure %read-delimited! char-set buf gobble? [port start end] ---> [char-or-@acronym{eof}-or-@code{#f} integer]
+@deffn Procedure %read-delimited! char-set buf gobble? [port start end]
 
 This low-level delimited reader uses an alternate interface. It
 returns two values: @var{terminator} and @var{num-read}.
@@ -8452,7 +8452,7 @@ where a subsequent read operation will retrieve it. In either case,
 the character is also the first value returned by the procedure call.
 @end deffn
 
-@deffn Procedure skip-char-set skip-chars [port] ---> integer
+@deffn Procedure skip-char-set skip-chars [port]
 
 Skip characters occurring in the set @var{skip-chars}; return the
 number of characters skipped. The @var{skip-chars} argument may be a
@@ -8490,13 +8490,13 @@ characters.
 
 @subsection Reading records
 
-@deffn Procedure record-reader [delims elide-delims? handle-delim]) ---> procedure
+@deffn Procedure record-reader [delims elide-delims? handle-delim])
 
 Returns a procedure that reads records from a port. The procedure
 is invoked as follows:
 
 @example
-(@var{reader} [@var{port}]) ---> string or @acronym{eof}
+(@var{reader} [@var{port}])
 @end example
 
 A record is a sequence of characters terminated by one of the
@@ -8533,15 +8533,15 @@ returns a string or @acronym{eof}.
 
 @subsection Parsing fields
 
-@deffn Procedure field-splitter [field num-fields]) ---> procedure
-@deffnx Procedure infix-splitter [delim num-fields handle-delim]) ---> procedure
-@deffnx Procedure suffix-splitter [delim num-fields handle-delim]) ---> procedure
-@deffnx Procedure sloppy-suffix-splitter [delim num-fields handle-delim]) ---> procedure
+@deffn Procedure field-splitter [field num-fields])
+@deffnx Procedure infix-splitter [delim num-fields handle-delim])
+@deffnx Procedure suffix-splitter [delim num-fields handle-delim])
+@deffnx Procedure sloppy-suffix-splitter [delim num-fields handle-delim])
 
 These functions return a parser function that can be used as follows:
 
 @example
-(@var{parser} @var{string} [@var{start}]) ---> string-list
+(@var{parser} @var{string} [@var{start}])
 @end example
 
 The returned parsers split strings into fields defined by regular
@@ -8644,7 +8644,7 @@ The field parser produced is a procedure that can be employed as
 follows:
 
 @example
-(@var{parse} @var{string} [@var{start}]) ---> @var{string-list}
+(@var{parse} @var{string} [@var{start}])
 @end example
 
 The optional @var{start} argument (default 0) specifies where in the
@@ -8754,7 +8754,7 @@ what you want, but at least you can be precise about what you are
 parsing. Take fifteen seconds and think it out. Say what you mean;
 mean what you say.
 
-@deffn Procedure join-strings string-list [delimiter grammar] ---> string
+@deffn Procedure join-strings string-list [delimiter grammar]
 
 This procedure is a simple unparser---it pastes strings together using
 the delimiter string.
@@ -8776,7 +8776,7 @@ Example:
 
 @subsection Field readers
 
-@deffn Procedure field-reader [field-parser rec-reader] ---> procedure
+@deffn Procedure field-reader [field-parser rec-reader]
 
 This utility returns a procedure that reads records with field
 structure from a port. The reader's interface is designed to make it
