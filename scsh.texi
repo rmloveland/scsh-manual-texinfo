@@ -9204,15 +9204,23 @@ for it.
 @node Concurrent system programming
 @chapter Concurrent system programming
 
-@c The Scheme Shell provides the user with support for concurrent programming.The interface consists of several parts:
-@c 
-@c * The thread system
-@c 
-@c * Synchronization vehicles
-@c 
-@c * Process state abstractions
-@c Whereas the user deals with threads and synchronization explicitly, the processstate abstractions are built into the rest of the system, almost transparent for the user. Section @ref{9.5} describes the interaction between process state and threads.
-@c 
+The Scheme Shell provides the user with support for concurrent
+programming. The interface consists of several parts:
+
+@itemize
+@item The thread system
+
+@item Synchronization vehicles
+
+@item Process state abstractions
+@end itemize
+
+Whereas the user deals with threads and synchronization explicitly, the
+process state abstractions are built into the rest of the system, almost
+transparent to the user. For a description of the interaction between
+process state and threads, @xref{Interaction between threads and process
+state}.
+
 @section Threads
 @c 
 @c A thread can be thought of as a procedure that can run independently of andconcurrent to the rest of the system. The calling procedure fires the thread up
