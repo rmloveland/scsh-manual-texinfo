@@ -2,7 +2,7 @@
 #+author: Rich Loveland
 #+email: r@rmloveland.com
 
-** TODO Add procedure and macro return values to definitions
+** TODO Update all uses of ``iff'' to ``if and only if''
 
 ** TODO Check all uses of ``char-set''
 
@@ -11,4 +11,5 @@
 ** TODO Update all mentions of UNIX to use trademark
 
 ** TODO Update all download and other URLs mentioned in the manual
+
 ** TODO Update all uses of ``file name'' and ``file-name'' to ``filename''
