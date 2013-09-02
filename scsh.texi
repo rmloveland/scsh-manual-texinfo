@@ -9222,211 +9222,268 @@ process state and threads, @xref{Interaction between threads and process
 state}.
 
 @section Threads
-@c 
-@c A thread can be thought of as a procedure that can run independently of andconcurrent to the rest of the system. The calling procedure fires the thread up
-@c and forgets about it.
-@c 
-@c The current thread interface is completely taken from Scheme 48. This doc-umentation is an extension of the file
-@c 
-@c doc/threads.txt.
-@c 
-@c The thread structure is named threads, it has to be opened explicitly.
-@c 
-@c (spawn thunk [name]) -! undefined procedure
-@c 
-@c Create and schedule a new thread that will execute thunk, a procedure withno arguments. Note that Scsh's
-@c 
-@c spawn does not return a reference to a threadobject. The optional argument name is used when printing the thread.
-@c 
-@c 156
-@c 
-@c The new thread will not inherit the values for the process state from its par-ent, see the procedure
-@c 
-@c fork-thread in Section @ref{9.5} for a way to create a threadwith semantics similar to process forking.
-@c 
-@c (relinquish-timeslice) -! undefined procedure
-@c 
-@c Let other threads run for a while.
-@c 
-@c (sleep time) -! undefined procedure
-@c 
-@c Puts the current thread into sleep for time milliseconds. The time at whichthe thread is run again may be longer of course.
-@c 
-@c (terminate-current-thread) -! does-not-return procedure
-@c 
-@c Kill the current thread.
-@c Mainly for debugging purposes, there is also an interface to the internalrepresentation of thread objects:
-@c 
-@c (current-thread) -! thread-object procedure
-@c 
-@c Return the object to which the current thread internally corresponds. Notethat this procedure is exported by the package
-@c 
-@c threads-internal only.
-@c 
-@c (thread? thing) -! boolean procedure
-@c 
-@c Returns true iff thing is a thread object.
-@c 
-@c (thread-name thread) -! name procedure
-@c 
-@c Name corresponds to the second parameter that was given to spawn whenthread was created.
-@c 
-@c (thread-uid thread) -! integer procedure
-@c 
-@c Returns a unique identifier for the current thread.
-@c 
+
+A thread can be thought of as a procedure that can run independently of
+and concurrent to the rest of the system. The calling procedure fires
+the thread up and forgets about it.
+
+@c TODO: Fix reference to Scheme 48 docs.
+The current thread interface is completely taken from Scheme 48. This
+documentation is an extension of the file @code{doc/threads.txt}.
+
+The thread structure is named @code{threads}, it has to be opened
+explicitly.
+
+@deffn Procedure spawn thunk [name]
+
+Create and schedule a new thread that will execute @var{thunk}, a
+procedure with no arguments. Note that Scsh's @code{spawn} does not
+return a reference to a thread object. The optional argument @var{name}
+is used when printing the thread.
+
+The new thread will not inherit the values for the process state from
+its parent; to create a thread with semantics similar to process
+forking, use the procedure @code{fork-thread}. (@xref{Interaction
+between threads and process state}.)
+@end deffn
+
+@deffn Procedure relinquish-timeslice
+
+Let other threads run for a while.
+@end deffn
+
+@deffn Procedure sleep time
+
+Puts the current thread to sleep for @var{time} milliseconds. The time
+at which the thread is run again may be longer of course.
+@end deffn
+
+@deffn Procedure terminate-current-thread
+
+Kill the current thread.
+
+Mainly for debugging purposes; there is also an interface to the
+internal representation of thread objects using @code{current-thread}.
+@end deffn
+
+@deffn Procedure current-thread
+
+Return the object to which the current thread internally
+corresponds. Note that this procedure is exported by the package
+@code{threads-internal} only.
+@end deffn
+
+@deffn Procedure thread? thing
+
+Returns true if and only if @var{thing} is a thread object.
+@end deffn
+
+@deffn Procedure thread-name thread
+
+@var{Name} corresponds to the second parameter that was given to
+@code{spawn} when @var{thread} was created.
+@end deffn
+
+@deffn Procedure thread-uid thread
+
+Returns a unique identifier for the current thread.
+@end deffn
+
 @section Locks
-@c 
-@c Locks are a simple mean for mutual exclusion. They implement a concept com-monly known as semaphores. Threads can obtain and release locks. If a thread
-@c tries to obtain a lock which is held by another thread, the first thread is blocked.To access the following procedures, you must open the structure
-@c 
-@c locks.
-@c 
-@c (make-lock) -! lock procedure
-@c 
-@c Creates a lock.
-@c 
-@c (lock? thing) -! boolean procedure
-@c 
-@c Returns true iff thing is a lock.
-@c 
-@c (obtain-lock lock) -! undefined procedure
-@c 
-@c Obtain lock. Causes the thread to block if the lock is held by a thread.
-@c 
-@c 157
-@c 
-@c (maybe-obtain-lock lock) -! boolean procedure
-@c 
-@c Tries to obtain lock, but returns false if the lock cannot be obtained.
-@c 
-@c (release-lock lock) -! boolean procedure
-@c 
-@c Releases lock. Returns true if the lock immediately got a new owner, falseotherwise.
-@c 
-@c (lock-owner-uid lock) -! integer procedure
-@c 
-@c Returns the uid of the thread that currently holds lock or false if the lock isfree.
-@c 
+
+Locks are a simple means for mutual exclusion. They implement a concept
+commonly known as semaphores. Threads can obtain and release locks. If a
+thread tries to obtain a lock which is held by another thread, the first
+thread is blocked. To access the following procedures, you must open the
+structure @code{locks}.
+
+@deffn Procedure make-lock
+
+Creates a lock.
+@end deffn
+
+@deffn Procedure lock? thing
+
+Returns true if and only if @var{thing} is a lock.
+@end deffn
+
+@deffn Procedure obtain-lock lock
+
+Obtain @var{lock}. Causes the thread to block if the lock is held by a
+thread.
+@end deffn
+
+@deffn Procedure maybe-obtain-lock lock
+
+Tries to obtain @var{lock}, but returns false if the lock cannot be
+obtained.
+@end deffn
+
+@deffn Procedure release-lock lock
+
+Releases @var{lock}. Returns true if the lock immediately got a new owner, false otherwise.
+@end deffn
+
+@deffn Procedure lock-owner-uid lock
+
+Returns the uid of the thread that currently holds @var{lock} or false
+if the lock is free.
+@end deffn
+
 @section Placeholders
-@c 
-@c Placeholders combine synchronization with value delivery. They can be thoughtof as special variables. After creation the value of the placeholder is undefined.
-@c If a thread tries to read the placeholders value this thread is blocked. Multi-ple threads are allowed to block on a single placeholder. They will continue
-@c running after another thread sets the value of the placeholder. Now all read-ing threads receive the value and continue executing. Setting a placeholder to
-@c two different values causes an error. The structure placeholders features thefollowing procedures:
-@c 
-@c (make-placeholder) -! placeholder procedure
-@c 
-@c Creates a new placeholder.
-@c 
-@c (placeholder? thing) -! boolean procedure
-@c 
-@c Returns true iff thing is a placeholder.
-@c 
-@c (placeholder-set! placeholder value) -! undefined procedure
-@c 
-@c Sets the placeholders value to value. If the placeholder is already set to adifferent value an exception is risen.
-@c 
-@c (placeholder-value placeholder) -! value procedure
-@c 
-@c Returns the value of the placeholder. If the placeholder is yet unset, thecurrent thread is blocked until another thread sets the value by means of
-@c 
-@c placeholder-set!.
-@c 
+
+Placeholders combine synchronization with value delivery. They can be
+thought of as special variables. After creation, the value of the
+placeholder is undefined. If a thread tries to read the placeholder's
+value, this thread is blocked. Multiple threads are allowed to block on
+a single placeholder. They will continue running after another thread
+sets the value of the placeholder. Now all reading threads receive the
+value and continue executing. Setting a placeholder to two different
+values causes an error. The structure @code{placeholders} features the
+following procedures:
+
+@deffn Procedure make-placeholder
+
+Creates a new placeholder.
+@end deffn
+
+@deffn Procedure placeholder? thing
+
+Returns true if and only if @var{thing} is a placeholder.
+@end deffn
+
+@deffn Procedure placeholder-set! placeholder value
+
+Sets the placeholder's value to @var{value}. If the placeholder is
+already set to a different value, an exception is raised.
+@end deffn
+
+@deffn Procedure placeholder-value placeholder
+
+Returns the value of the @var{placeholder}. If the valuse of
+@var{placeholder} hasn't been set yet, the current thread is blocked
+until another thread sets the value using @code{placeholder-set!}.
+@end deffn
+
 @node The event interface to interrupts
 @section The event interface to interrupts
-@c 
-@c Scsh provides an synchronous interface to the asynchronous signals deliveredby the operation system1. The key element in this system is an object called
-@c 
-@c 1 Olin's paper "Automatic management of operation-system resources" describes this system in
-@c detail.
-@c 
-@c 158
-@c 
-@c sigevent which corresponds to the single occurrence of a signal. A sigevent hastwo fields: the UNIX signal that occurred and a pointer to the sigevent that
-@c happened or will happen. That is, events are kept in a linked list in increasing-time order. Scsh's structure
-@c 
-@c sigevents provides various procedures to accessthis list:
-@c 
-@c (most-recent-sigevent) -! sigevent procedure
-@c 
-@c Returns the most recent sigevent -- the head of the sigevent list.
-@c 
-@c (sigevent? object) -! boolean procedure
-@c 
-@c The predicate for sigevents.
-@c 
-@c (next-sigevent pre-event type) -! event procedure
-@c 
-@c Returns the next sigevent of type type after sigevent pre-event. If no suchevent exists, the procedure blocks.
-@c 
-@c (next-sigevent-set pre-event set) -! event procedure
-@c 
-@c Returns the next sigevent whose type is in set after pre-event. If no suchevent exists, the procdure blocks.
-@c 
-@c (next-sigevent/no-wait pre-event type) -! event or #f procedure
-@c 
-@c Same as next-sigevent, but returns #fif no appropriate event exists.
-@c 
-@c (next-sigevent-set/no-wait set pre-event) -! event or #f procedure
-@c 
-@c Same as next-sigevent-set, but returns #fif no appropriate event exists.
-@c As a small example, consider this piece of code that toggles the variable
-@c state by USR1 and USR2:
-@c 
-@c (define state #t)
-@c (let lp ((sigevent (most-recent-sigevent)))
-@c 
-@c (let ((next (next-sigevent sigevent interrupt/usr1)))
-@c 
-@c (set! state #f)
-@c (let ((next (next-sigevent next interrupt/usr2)))
-@c 
-@c (set! state #t)
-@c (lp next))))
-@c 
-@c Warning: The current version of scsh also defines asynchronous handlersfor interrupts (See Section @ref{3.9}). The default action of some of these handlers is
-@c to terminate the process in which case you will most likely not see an effect ofthe synchronous event interface described here. It is therefore recommended to
-@c disable the corresponding interrupt handler using (set-interrupt-handler
-@c interrupt #f).
-@c 
-@c 159
+
+@c TODO: Clean up reference to paper.
+Scsh provides a synchronous interface to the asynchronous signals
+delivered by the operating system@footnote{Olin Shivers' paper
+``Automatic management of operating-system resources'' describes this
+system in detail.}. The key element in this system is an object called
+@emph{sigevent} which corresponds to the single occurrence of a
+signal. A sigevent has two fields: the UNIX signal that occurred and a
+pointer to the sigevent that happened or will happen. That is, events
+are kept in a linked list in increasing-time order. Scsh's structure
+@code{sigevents} provides various procedures to access this list:
+
+@deffn Procedure most-recent-sigevent
+
+Returns the most recent sigevent --- the head of the sigevent list.
+@end deffn
+
+@deffn Procedure sigevent? object
+
+The predicate for sigevents.
+@end deffn
+
+@deffn Procedure next-sigevent pre-event type
+
+Returns the next sigevent of type @var{type} after sigevent
+@var{pre-event}. If no such event exists, the procedure blocks.
+@end deffn
+
+@deffn Procedure next-sigevent-set pre-event set
+
+Returns the next sigevent whose type is in @var{set} after @var{pre-event}. If no such event exists, the procedure blocks.
+@end deffn
+
+@deffn Procedure next-sigevent/no-wait pre-event type
+
+Same as @code{next-sigevent}, but returns false if no appropriate event
+exists.
+@end deffn
+
+@deffn Procedure next-sigevent-set/no-wait set pre-event
+
+Same as @code{next-sigevent-set}, but returns false if no appropriate
+event exists.
+
+As a small example, consider this piece of code that toggles the
+variable state by @code{USR1} and @code{USR2}:
+
+@example
+(define (state #t)
+    (let lp ((sigevent (most-recent-sigevent)))
+      (let ((next (next-sigevent sigevent interrupt/usr1)))
+	(set! state #f)
+	(let ((next (next-sigevent next interrupt/usr2)))
+	  (set! state #t)
+	  (lp next)))))
+@end example
+@end deffn
+
+@emph{Warning}: The current version of scsh also defines asynchronous
+handlers for interrupts (@xref{Signal system}.). The default action of
+some of these handlers is to terminate the process, in which case you
+will most likely not see an effect of the synchronous event interface
+described here. It is therefore recommended to disable the corresponding
+interrupt handler using @code{(set-interrupt-handler interrupt #f)}.
 
 @section Interaction between threads and process state
-@c 
-@c In UNIX, a number of resources are global to the process: signal handlers, work-ing directory, umask, environment, user and group ids. Modular programming is difficult in the context of this global state and for concurrent program-ming things get even worse. Section @ref{9.4} presents how scsh turns the global,
-@c asynchronous signals handlers into modular, synchronous sigevents. Concur-rent programming also benefit from sigevents as every thread may chase down
-@c the sigevent chain separately.
-@c 
-@c Scsh treats the working directory, umask, environment, and the effectiveuser/group ID as thread-local resources. The initial value of the resources is
-@c 
-@c determined by the way a thread is started: spawn assigns the initial valueswhereas
-@c 
-@c fork-thread adopts the values of its parent. Here is a detailed de-scription of the whole facility:
-@c 
-@c * The procedures to access and modify the resources remain as describedin the previous chapters (
-@c 
-@c cwd and chdir, umask and set-umask, getenvand
-@c putenv).
-@c 
-@c * Every thread receives its own copy of each resource.
-@c 
-@c * If spawn is used to start a new thread, the values of the resources are thesame as they where at the start of scsh.
-@c 
-@c * The procedure
-@c (fork-thread thunk) -! undefined procedure
-@c 
-@c from the structure thread-fluids starts a thread which inherits the val-ues of all resources from its parent. This behaviour is similar to what
-@c 
-@c happens at process forking.
-@c 
-@c * The actual process state is updated only when necessary, i.e. on access ormodification but not on context switch from one thread to another.
-@c 
-@c (spoon thunk) -! undefined procedure
-@c 
-@c This is just an alias for fork-thread suggested by Alan Bawden.
-@c For user and group identities arbitrary changing is not possible. There-fore they remain global process state: If a thread changes one of these values, all other threads see the new value. Consequently, scsh does not provide
-@c with-uid and friends.
+
+In UNIX, a number of resources are global to the process: signal
+handlers, working directory, umask, environment, user and group
+IDs. Modular programming is difficult in the context of this global
+state, and for concurrent programming things get even worse. (For more
+information about how scsh turns the global, asynchronous signals
+handlers into modular, synchronous sigevents, @xref{The event interface
+to interrupts}.) Concurrent programming also benefits from sigevents as
+every thread may chase down the sigevent chain separately.
+
+Scsh treats the working directory, umask, environment, and the effective
+user/group ID as thread-local resources. The initial value of the
+resources is determined by the way a thread is started: @code{spawn}
+assigns the initial values whereas @code{fork-thread} adopts the values
+of its parent. Here is a detailed description of the whole facility:
+
+@itemize
+@item 
+The procedures to access and modify the resources remain as described in
+the previous chapters (@code{cwd}, @code{chdir}, @code{umask},
+@code{set-umask}, @code{getenv}, @code{putenv}).
+
+@item 
+Every thread receives its own copy of each resource.
+
+@item 
+If @code{spawn} is used to start a new thread, the values of the
+resources are the same as they where when scsh started.
+
+@item The procedure
+@deffn Procedure fork-thread thunk
+
+from the structure @code{thread-fluids} starts a thread which inherits
+the values of all resources from its parent. This behaviour is similar
+to what happens at process forking.
+@end deffn
+
+@item
+The actual process state is updated only when necessary, @emph{i.e.}, on
+access or modification but not on context switch from one thread to
+another.
+@end itemize
+
+@deffn Procedure spoon thunk
+
+This is just an alias for @code{fork-thread} suggested by Alan Bawden.
+For user and group identities, arbitrary changing is not
+possible. Therefore they remain global process state: If a thread
+changes one of these values, all other threads see the new
+value. Consequently, scsh does not provide @code{with-uid} and friends.
+@end deffn
 
 @node Miscellaneous routines
 @chapter Miscellaneous routines
