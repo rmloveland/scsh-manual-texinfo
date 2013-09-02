@@ -7701,7 +7701,7 @@ sub-expression does not match, then @code{match:start} returns
 @code{Match:end} is analogous to @code{match:start}, returning the end
 position of the indexed submatch.
 
-@c FIXME: Rewrite this.
+@c TODO: Rewrite this.
 @code{Match:substring} returns the substring matched regexp's
 submatch. If there was no match for the indexed submatch, it returns
 false.
