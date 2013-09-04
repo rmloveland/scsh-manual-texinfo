@@ -9489,126 +9489,178 @@ value. Consequently, scsh does not provide @code{with-uid} and friends.
 @chapter Miscellaneous routines
 
 @section Integer bitwise ops
-@c 
-@c (arithmetic-shift i j) -! integer procedure
-@c (bitwise-and i j) -! integer procedure
-@c (bitwise-ior i j) -! integer procedure
-@c (bitwise-not i) -! integer procedure
-@c (bitwise-xor i j) -! integer procedure
-@c 
-@c These operations operate on integers representing semi-infinite bitstrings, using a 2's-complement encoding.
-@c 
-@c arithmetic-shift shifts i by j bits. A left shift is j > 0; a right shift is
-@c j < 0.
-@c 
+
+@deffn  Procedure arithmetic-shift i j
+@deffnx Procedure bitwise-and i j
+@deffnx Procedure bitwise-ior i j
+@deffnx Procedure bitwise-not i
+@deffnx Procedure bitwise-xor i j
+
+These operations operate on integers representing semi-infinite
+bitstrings, using a 2's-complement encoding.
+
+@code{arithmetic-shift} shifts @var{i} by @var{j} bits. A left shift is
+@math{@var{j}> 0}; a right shift is @math{@var{j} < 0}.
+@end deffn
+
 @section Password encryption
-@c 
-@c (crypt key salt) -! encrypted value procedure
-@c Decrypts key by directly calling the crypt function using salt to perturb thehashing algorithm. Salt must be a two-character string consisting of digits,
-@c 
-@c alphabetic characters, "." or "\". The length of key may be at most eight.
-@c 
+
+@deffn Procedure crypt key salt
+
+Decrypts @var{key} by directly calling the @code{crypt} function using
+@var{salt} to perturb the hashing algorithm. @var{Salt} must be a
+two-character string consisting of digits, alphabetic characters, ``.'',
+or ``\''. The length of @var{key} may be at most eight.
+@end deffn
+
 @section Dot-Locking
-@c 
-@c Section @ref{3.2.8} already points out that @acronym{POSIX}'s file locks are almost useless inpractice. To bypass this restriction other advisory locking mechanisms, based
-@c only on standard file operations, where invented. One of them is the so-called
-@c 
-@c 161
-@c 
-@c dot-locking scheme where the lock of file-name is represented by the file file-name
-@c 
-@c .lock. Care is taken that only one process may generate the lock for agiven file.
-@c 
-@c Here is scsh's interface to dot-locking:
-@c (obtain-dot-lock file-name [interval retry-number stale-time]) -! boolean procedure
-@c 
-@c Tries to obtain the lock for file-name. If the file is already locked, the threadsleeps for interval seconds (default is 1) before it retries. If the lock cannot
-@c 
-@c be obtained after retry-number attempts, the procedure returns #f, other-wise
-@c 
-@c #t. The default value of retry-number is #f which corresponds to aninfinite number of retires.
-@c 
-@c If stale-time is non-#f, it specifies the minimum age a lock may have(in seconds) before it is considered stale.
-@c 
-@c Obtain-dot-lock attempts todelete stale locks. If it was succcessful obtaining a lock after breaking
-@c 
-@c it, obtain-dot-lock returns broken. If stale-time is #f, obtain-dot-locknever considers a lock stale. The default for stale-time is 300.
-@c 
-@c Note that it is possible that obtain-dot-lock breaks a lock but never-theless fails to obtain it otherwise. If it is necessary to handle this case
-@c specially, use break-dot-lock directly (see below) rather than specifyinga non#f stale-time
-@c 
-@c (break-dot-lock file-name) -! undefined procedure
-@c 
-@c Breaks the lock for file-name if one exists. Note that breaking a lockdoes not imply a subsequent
-@c 
-@c obtain-dot-lock will succeed, as an-other party may have acquired the lock between
-@c 
-@c break-dot-lock and
-@c obtain-dot-lock.
-@c 
-@c (release-dot-lock file-name) -! boolean procedure
-@c 
-@c Releases the lock for file-name. On success, release-dot-lock returns #t,otherwise
-@c 
-@c #f. Note that this procedure can also be used to break the lockfor file-name.
-@c 
-@c (with-dot-lock* file-name thunk) -! value(s) of thunk procedure
-@c (with-dot-lock file-name body . . . ) -! value(s) of body syntax
-@c 
-@c The procedure with-dot-lock* obtains the requested lock, and then calls
-@c (thunk). When thunk returns, the lock is released. A non-local exit (e.g.,throwing to a saved continuation or raising an exception) also causes the
-@c 
-@c lock to be released.
-@c After a normal return from thunk, its return values are returned by
-@c with-dot-lock*. The with-dot-lock special form is equivalent syntac-tic sugar.
-@c 
-@c 162
-@c 
+
+@ref{File locking} already points out that @acronym{POSIX}'s file locks
+are almost useless in practice. To bypass this restriction, other
+advisory locking mechanisms, based only on standard file operations,
+were invented. One of them is the so-called @emph{dot-locking} scheme
+where the lock of @var{filename} is represented by the file
+@var{filename.lock}. Care is taken that only one process may generate
+the lock for a given file.
+
+Here is scsh's interface to dot-locking:
+
+@deffn Procedure obtain-dot-lock filename [interval retry-number stale-time]
+
+Tries to obtain the lock for @var{filename}. If the file is already
+locked, the thread sleeps for @var{interval} seconds (default is 1)
+before it retries.  If the lock cannot be obtained after
+@var{retry-number} attempts, the procedure returns @code{#f}, otherwise
+@code{#t}. The default value of @var{retry-number} is @code{#f} which
+corresponds to an infinite number of retries.
+
+If @var{stale-time} is non-@code{#f}, it specifies the minimum age a
+lock may have (in seconds) before it is considered stale.
+@code{Obtain-dot-lock} attempts to delete stale locks. If it was
+succcessful at obtaining a lock after breaking it,
+@code{obtain-dot-lock} returns @code{broken}. If @var{stale-time} is
+@code{#f}, @code{obtain-dot-lock} never considers a lock stale. The
+default value of @var{stale-time} is 300.
+
+Note that it is possible that @code{obtain-dot-lock} breaks a lock but
+nevertheless fails to obtain it otherwise. If it is necessary to handle
+this case specially, use @code{break-dot-lock} directly (see below)
+rather than specifying a non-@code{#f} @var{stale-time}.
+@end deffn
+
+@deffn Procedure break-dot-lock filename
+
+Breaks the lock for @var{filename} if one exists. Note that breaking a
+lock does not imply a subsequent @code{obtain-dot-lock} will succeed, as
+another party may have acquired the lock between @code{break-dot-lock}
+and @code{obtain-dot-lock}.
+@end deffn
+
+@deffn Procedure release-dot-lock filename
+
+Releases the lock for @var{filename}. On success,
+@code{release-dot-lock} returns @code{#t}, otherwise @code{#f}. Note
+that this procedure can also be used to break the lock for
+@var{filename}.
+@end deffn
+
+@deffn Procedure with-dot-lock* file-name thunk
+@deffnx Syntax with-dot-lock file-name body @dots{} 
+
+The procedure @code{with-dot-lock*} obtains the requested lock, and then
+calls @var{thunk}. When @var{thunk} returns, the lock is released. A
+non-local exit (@emph{e.g.}, throwing to a saved continuation or raising
+an exception) also causes the lock to be released.
+
+After a normal return from @var{thunk}, its return values are returned
+by @var{with-dot-lock*}. The @code{with-dot-lock} special form is
+equivalent syntactic sugar.
+@end deffn
+
 @section Syslog facility
-@c 
-@c (Note: the functionality presented in this section is still somewhat experimentaland thus subject to interface changes.)
-@c 
-@c The procedures in this section provide access to the 4.2BSD syslog facil-ity present in most @acronym{POSIX} systems. The functionality is in a structure called
-@c syslog. There's an additional structure syslog-channels documented below.The scsh interface to the syslog facility differs significantly from that of the
-@c UNIX library functionality in order to support multiple simultaneous connec-tions to the syslog facility.
-@c 
-@c Log messages carry a variety of parameters beside the text of the messageitself, namely a set of options controlling the output format and destination,
-@c the facility identifying the class of programs the message is coming from, anidentifier specifying the conrete program, and the level identifying the importance of the message. Moreover, a log mask can prevent messages at certainlevels to be actually sent to the syslog daemon.
-@c 
-@c Log options
-@c A log option specifies details of the I/O behavior of the syslog facility. A syslogoption is an element of a finite type (see the Scheme 48 manual) constructed by
-@c the syslog-option macro. The syslog facility works with sets of options whichare represented as enum sets (see the Scheme 48 manual).
-@c 
-@c (syslog-option option-name) -! option syntax
-@c (syslog-option? x) -! boolean procedure
-@c (make-syslog-options list) -! options procedure
-@c (syslog-options option-name . . . ) -! options syntax
-@c (syslog-options? x) -! boolean procedure
-@c 
-@c Syslog-option constructs a log option from the name of an option. (Thepossible names are listed below.)
-@c 
-@c Syslog-option? is a predicate for logoptions. Options are comparable using
-@c 
-@c eq?. Make-syslog-options con-structs a set of options from a list of options.
-@c 
-@c Syslog-options is a macrowhich expands into an expression returning a set of options from names.
-@c 
-@c Syslog-options? is a predicate for sets of options.
-@c Here is a list of possible names of syslog options:
-@c 
-@c console If syslog cannot pass the message to syslogd it will attempt to writethe message to the console.
-@c 
-@c 163
-@c 
-@c delay Delay opening the connection to syslogd immediately until the firstmessage is logged.
-@c no-delay Open the connection to syslogd immediately. Normally the open isdelayed until the first message is logged. Useful for programs that need
-@c 
-@c to manage the order in which file descriptors are allocated.
-@c NOTA BENE: The delay and no-delay options are included for com-pleteness, but do not have the expected effect in the present Scheme interface: Because the Scheme interface has to multiplex multiple simulta-neous connections to the syslog facility over a single one, open and close
-@c operations on that facility happen at unpredictable times.
-@c log-pid Log the process id with each message: useful for identifying instanti-ations of daemons.
-@c 
-@c Log facilities
+
+(@emph{Note}: the functionality presented in this section is still
+somewhat experimental and thus subject to interface changes.)
+
+The procedures in this section provide access to the 4.2BSD syslog
+facility present in most @acronym{POSIX} systems. The functionality is
+in a structure called @code{syslog}. There's an additional structure
+@code{syslog-channels}, documented below.The scsh interface to the
+syslog facility differs significantly from that of the UNIX library
+functionality in order to support multiple simultaneous connections to
+the syslog facility.
+
+Log messages carry a variety of parameters beside the text of the
+message itself, namely a set of options controlling the output format
+and destination, the facility identifying the class of programs the
+message is coming from, an identifier specifying the concrete program,
+and the level identifying the importance of the message. Moreover, a log
+mask can prevent messages at certain levels from actually being sent to
+the syslog daemon.
+
+@subsection Log options
+
+A log option specifies details of the I/O behavior of the syslog
+facility. A syslog option is an element of a finite type constructed by
+the @code{syslog-option} macro. The syslog facility works with sets of
+options which are represented as enum sets.
+
+For more information about the terms ``element of a finite type'' and
+``enum sets'', see the Scheme 48 manual.
+
+@deffn  Syntax syslog-option option-name
+@deffnx Procedure syslog-option? x
+@deffnx Procedure make-syslog-options list
+@deffnx Syntax syslog-options option-name @dots{}
+@deffnx Procedure syslog-options? x
+
+@code{Syslog-option} constructs a log option from the name of an option.
+(The possible names are listed below.)
+
+@code{Syslog-option?} is a predicate for log options. Options are
+comparable using @code{eq?}. @code{Make-syslog-options} constructs a set
+of options from a list of options.
+
+@code{Syslog-options} is a macro which expands into an expression
+returning a set of options from names.
+
+@code{Syslog-options?} is a predicate for sets of options.
+@end deffn
+
+Here is a list of possible names of syslog options:
+
+@table @code
+@item console 
+
+If syslog cannot pass the message to @code{syslogd} it will attempt to
+write the message to the console.
+
+@item delay
+ 
+Delay opening the connection to @code{syslogd} immediately until the
+first message is logged.
+
+@item no-delay
+
+Open the connection to @code{syslogd} immediately. Normally the
+@code{open} is delayed until the first message is logged. Useful for
+programs that need to manage the order in which file descriptors are
+allocated.
+
+@emph{N.B.}: The @code{delay} and @code{no-delay} options are included
+for completeness, but do not have the expected effect in the present
+Scheme interface: Because the Scheme interface has to multiplex multiple
+simultaneous connections to the syslog facility over a single one,
+@code{open} and @code{close} operations on that facility happen at
+unpredictable times.
+
+@item log-pid
+
+Log the process ID with each message; useful for identifying
+instantiations of daemons.
+@end table
+
+@subsection Log facilities
 @c A log facility identifies the originator of a log message from a finite set knownto the system. Each originator is identified by a name:
 @c 
 @c (syslog-facility facility-name) -! facility syntax
