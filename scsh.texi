@@ -235,10 +235,11 @@ Take all the code you like; we'll just write more.
 @section Obtaining scsh
 Scsh is distributed via net publication. We place new releases at
 well-known network sites, and allow them to propagate from there. We
-currently release scsh to the following site:
+currently release scsh to the following sites:
 
 @flushleft
 @url{http://www.scsh.net/download}
+@url{http://sourceforge.net/projects/scsh}
 @end flushleft
 
 Each should have a compressed tar file of the entire scsh release, which
