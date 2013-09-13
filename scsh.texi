@@ -9915,181 +9915,250 @@ flags to link the scsh library to another program.
 @node Running scsh
 @chapter Running scsh
 
-@c Scsh is currently implemented on top of Scheme 48, a freely-available Schemeimplementation written by Jonathan Rees and Richard Kelsey. Scheme 48 uses
-@c a byte-code interpreter for good code density, portability and medium effi-ciency. It is R5RS. It also has a module system designed by Jonathan Rees.
-@c 
-@c Scsh's design is not Scheme 48 specific, although the current implementa-tion is necessarily so. Scsh is intended to be implementable in other Scheme
-@c implementations. The Scheme 48 virtual machine that scsh uses is a speciallymodified version; standard Scheme 48 virtual machines cannot be used with
-@c the scsh heap image.
-@c 
-@c There are several different ways to invoke scsh. You can run it as aninteractive Scheme system, with a standard read-eval-print interaction loop.
-@c 
-@c Scsh can also be invoked as the interpreter for a shell script by putting a"
-@c 
-@c #!/usr/local/bin/scsh -s" line at the top of the shell script.
-@c 
-@c Descending a level, it is also possible to invoke the underlying virtual ma-chine byte-code interpreter directly on dumped heap images. Scsh programs
-@c 
-@c can be pre-compiled to byte-codes and dumped as raw, binary heap images.Writing heap images strips out unused portions of the scsh runtime (such as
-@c the compiler, the debugger, and other complex subsystems), reducing memorydemands and saving loading and compilation times. The heap image format
-@c allows for an initial #!/usr/local/lib/scsh/scshvm trigger on the first lineof the image, making heap images directly executable as another kind of shell
-@c script.
-@c 
-@c Finally, scsh's static linker system allows dumped heap images to be com-piled to a raw UNIX a.out(5) format, which can be linked into the text section of
-@c 
-@c the vm binary. This produces a true UNIX executable binary file. Since the bytecodes comprising the program are in the file's text section, they are not traced
-@c or copied by the garbage collector, do not occupy space in the vm's heap, and
-@c 
-@c 169
-@c 
-@c do not need to be loaded and linked at startup time. This reduces the program'sstartup time, memory requirements, and paging overhead.
-@c 
-@c This chapter will cover these various ways of invoking scsh programs.
-@c 
+Scsh is currently implemented on top of Scheme 48, a freely-available
+Scheme implementation written by Jonathan Rees and Richard
+Kelsey. Scheme 48 uses a byte-code interpreter for good code density,
+portability and medium efficiency. It is R5RS. It also has a module
+system designed by Jonathan Rees.
+
+Scsh's design is not Scheme 48 specific, although the current
+implementation is necessarily so. Scsh is intended to be implementable
+in other Scheme implementations. The Scheme 48 virtual machine that
+scsh uses is a specially modified version; standard Scheme 48 virtual
+machines cannot be used with the scsh heap image.
+
+There are several different ways to invoke scsh. You can run it as an
+interactive Scheme system, with a standard read-eval-print interaction
+loop.
+
+Scsh can also be invoked as the interpreter for a shell script by
+putting the following line at the top of the shell script:
+
+@example
+#!/usr/local/bin/scsh -s
+@end example
+
+Descending a level, it is also possible to invoke the underlying
+virtual machine byte-code interpreter directly on dumped heap
+images. Scsh programs can be precompiled to byte-codes and dumped as
+raw, binary heap images. Writing heap images strips out unused
+portions of the scsh runtime (such as the compiler, the debugger, and
+other complex subsystems), reducing memory demands and saving loading
+and compilation times. The heap image format allows for an initial
+@code{#!/usr/local/lib/scsh/scshvm} trigger on the first line of the
+image, making heap images directly executable as another kind of shell
+script.
+
+Finally, scsh's static linker system allows dumped heap images to be
+compiled to a raw UNIX @code{a.out(5)} format, which can be linked
+into the text section of the vm binary. This produces a true UNIX
+executable binary file. Since the byte codes comprising the program
+are in the file's text section, they are not traced or copied by the
+garbage collector, do not occupy space in the vm's heap, and do not
+need to be loaded and linked at startup time. This reduces the
+program's startup time, memory requirements, and paging overhead.
+
+This chapter will cover these various ways of invoking scsh programs.
+
 @section Scsh command-line switches
-@c 
-@c When the scsh top-level starts up, it scans the command line for switches thatcontrol its behaviour. These arguments are removed from the command line;
-@c the remaining arguments can be accessed as the value of the scsh variable
-@c command-line-arguments.
-@c 
+
+When the scsh top-level starts up, it scans the command line for
+switches that control its behaviour. These arguments are removed from
+the command line; the remaining arguments can be accessed as the value
+of the scsh variable @code{command-line-arguments}.
+
 @subsection Scripts and programs
-@c 
-@c The scsh command-line switches provide sophisticated support for the authorsof shell scripts and programs; they also allow the programmer to write programs that use the Scheme 48 module system.
-@c 
-@c There is a difference between a script, which performs its action as it isloaded, and a program, which is loaded/linked, and then performs its action
-@c 
-@c by having control transferred to an entry point (e.g., the main() function in Cprograms) that was defined by the load/link operation.
-@c 
-@c A script, by the above definition, cannot be compiled by the simple mecha-nism of loading it into a scsh process and dumping out a heap image--it executes as it loads. It does not have a top-level main()-type entry point.
-@c 
-@c It is more flexible and useful to implement a system as a program than as ascript. Programs can be compiled straightforwardly; they can also export procedural interfaces for use by other Scheme packages. However, scsh supportsboth the script and the program style of programming.
-@c 
+
+The scsh command-line switches provide sophisticated support for the
+authors of shell scripts and programs; they also allow the programmer
+to write programs that use the Scheme 48 module system.
+
+There is a difference between a script, which performs its action as
+it is loaded, and a program, which is loaded/linked, and then performs
+its action by having control transferred to an entry point
+(@emph{e.g.}, the @code{main()} function in C programs) that was
+defined by the load/link operation.
+
+A script, by the above definition, cannot be compiled by the simple
+mechanism of loading it into a scsh process and dumping out a heap
+image---it executes as it loads. It does not have a top-level
+@code{main()}-type entry point.
+
+It is more flexible and useful to implement a system as a program than
+as a script. Programs can be compiled straightforwardly; they can also
+export procedural interfaces for use by other Scheme
+packages. However, scsh supports both the script and the program style
+of programming.
+
 @subsection Inserting interpreter triggers into scsh programs
-@c 
-@c When UNIX tries to execute an executable file whose first 16 bits are the charac-ter pair "
-@c 
-@c #!", it treats the file not as machine-code to be directly executed by thenative processor, but as source code to be executed by some interpreter. The
-@c 
-@c interpreter to use is specified immediately after the "#!" sequence on the firstline of the source file (along with one optional initial argument). The kernel
-@c reads in the name of the interpreter, and executes that instead. The interpreteris passed the source filename as its first argument, with the original arguments
-@c following. Consult the UNIX man page for the exec system call for more infor-mation.
-@c 
-@c 170
-@c 
-@c Scsh allows Scheme programs to have these triggers placed on their firstline. Scsh treats the character sequence "
-@c 
-@c #!" as a block-comment sequence,1and skips all following characters until it reads the comment-terminating
-@c 
-@c sequence newline/exclamation-point/sharp-sign/newline (i.e., the sequence"
-@c 
-@c !#" occurring on its own line).
-@c 
-@c In this way, the programmer can arrange for an initial
-@c 
-@c #!/usr/local/bin/scsh -s
-@c !#
-@c 
-@c header appearing in a Scheme program to be ignored when the program isloaded into scsh.
-@c 
+
+When UNIX tries to execute an executable file whose first 16 bits are
+the character pair ``@code{#!}'', it treats the file not as
+machine-code to be directly executed by the native processor, but as
+source code to be executed by some interpreter. The interpreter to use
+is specified immediately after the ``@code{#!}'' sequence on the first
+line of the source file (along with one optional initial
+argument). The kernel reads in the name of the interpreter, and
+executes that instead. The interpreter is passed the source filename
+as its first argument, with the original arguments following. Consult
+the UNIX man page for the @code{exec} system call for more
+infor-mation.
+
+Scsh allows Scheme programs to have these triggers placed on their
+first line. Scsh treats the character sequence ``@code{#!}'' as a
+block-comment sequence,@footnote{Why a block-comment instead of an
+end-of-line delimited comment? See the section on meta-args.} and
+skips all following characters until it reads the comment-terminating
+sequence newline/exclamation-point/sharp-sign/newline (@emph{i.e.},
+the sequence ``@code{!#}'' occurring on its own line).
+
+In this way, the programmer can arrange for an initial
+
+@example
+#!/usr/local/bin/scsh -s
+!#
+@end example
+
+header appearing in a Scheme program to be ignored when the program is
+loaded into scsh.
+
 @subsection Module system
-@c 
-@c Scsh uses the Scheme 48 module system, which defines packages, structures, andinterfaces.
-@c 
-@c Package A package is an environment--that is, a set of variable/value bind-ings. You can evaluate Scheme forms inside a package, or load a file into a
-@c 
-@c package. Packages export sets of bindings; these sets are called structures.
-@c Structure A structure is a named view on a package--a set of bindings. Otherpackages can open the structure, importing its bindings into their environment. Packages can provide more than one structure, revealing differentportions of the package's environment.
-@c 
-@c Interface An interface is the "type" of a structure. An interface is the set ofnames exported by a structure. These names can also be marked with
-@c 
-@c other static information (e.g., advisory type declarations, or syntax infor-mation).
-@c 
-@c More information on the the Scheme 48 module system can be found in the file
-@c module.ps in the doc directory of the Scheme 48 and scsh releases.
-@c 
-@c Programming Scheme with a module system is different from program-ming in older Scheme implementations, and the associated development problems are consequently different. In Schemes that lack modular abstractionmechanisms, everything is accessible; the major problem is preventing namespace conflicts. In Scheme 48, name-space conflicts vanish; the major problemis that not all bindings are accessible from every place. It takes a little extra
-@c work to specify what packages export which values.
-@c 
-@c 1 Why a block-comment instead of an end-of-line delimited comment? See the section on metaargs.
-@c 
-@c 171
-@c 
-@c It may take you a little while to get used to the new style of program devel-opment. Although scsh can be used without referring to the module system at
-@c all, we recommend taking the time to learn and use it. The effort will pay offin the construction of modular, factorable programs.
-@c 
-@c Module warning
-@c Most scsh programs will need to import from the scheme structure as well asfrom the
-@c 
-@c scsh structure. However, putting both of these structures in the same
-@c open clause is a bad idea because the structures scheme and scsh export somenames of I/O functions in common but with different definitions. The current
-@c 
-@c implementation of the module system does not recognize this as an error butsilently overwrites the exports of one structure with the exports of the other. If
-@c the scheme structure overwrites the exports of the scsh structures the programwill access the R
-@c 
-@c 5RS definitions of the I/O functions which is not what you
-@c 
-@c want.
-@c 
-@c Previous versions of this manual suggested to list scheme and scsh in a spe-cific order in the
-@c 
-@c open clause of a structure to ensure that the definitions from
-@c scsh overwrite the ones from scheme. This approach is error-prone and frag-ile: A simple change in the implementation of the module system will render
-@c 
-@c thousands of programs useless. Starting with release 0.6.3 scsh provides a bet-ter means to deal with this problem: the structure
-@c 
-@c scheme-with-scsh providesall the exports of the modules
-@c scheme and scsh but exports the right denota-tions for the I/O functions in question. To make a long story short:
-@c 
-@c Scsh programs should open the structure scheme-with-scsh if they needaccess to the exports of
-@c 
-@c scheme and scsh.
-@c 
-@c For programs which should run in versions of scsh prior to release 0.6.3,programmers should make sure to always put the
-@c 
-@c scsh reference first.
-@c 
+
+Scsh uses the Scheme 48 module system, which defines @emph{packages},
+@emph{structures}, and @emph{interfaces}.
+
+@table @strong
+
+@item Package 
+
+A package is an environment---that is, a set of variable/value
+bindings. You can evaluate Scheme forms inside a package, or load a
+file into a package. Packages export sets of bindings; these sets are
+called @emph{structures}.
+
+@item Structure
+
+A structure is a named view on a package---a set of bindings. Other
+packages can open the structure, importing its bindings into their
+environment. Packages can provide more than one structure, revealing
+different portions of the package's environment.
+
+@item Interface
+
+An interface is the ``type'' of a structure. An interface is the set
+of names exported by a structure. These names can also be marked with
+other static information (@emph{e.g.}, advisory type declarations, or
+syntax information).
+@end table
+
+@c TODO: Update this?
+More information on the the Scheme 48 module system can be found in
+the file @code{module.ps} in the @code{doc} directory of the Scheme 48
+and scsh releases.
+
+Programming Scheme with a module system is different from programming
+in older Scheme implementations, and the associated development
+problems are consequently different. In Schemes that lack modular
+abstraction mechanisms, everything is accessible; the major problem is
+preventing namespace conflicts. In Scheme 48, namespace conflicts
+vanish; the major problem is that not all bindings are accessible from
+every place. It takes a little extra work to specify what packages
+export which values.
+
+It may take you a little while to get used to the new style of program
+development. Although scsh can be used without referring to the module
+system at all, we recommend taking the time to learn and use it. The
+effort will pay off in the construction of modular, factorable
+programs.
+
+@subsubsection Module warning
+
+Most scsh programs will need to import from the @code{scheme}
+structure as well as from the @code{scsh} structure. However, putting
+both of these structures in the same @code{open} clause is a bad idea
+because the structures @code{scheme} and @code{scsh} export some names
+of I/O functions in common but with different definitions. The current
+implementation of the module system does not recognize this as an
+error but silently overwrites the exports of one structure with the
+exports of the other. If the @code{scheme} structure overwrites the
+exports of the @code{scsh} structures the program will access the
+@math{R^5RS} definitions of the I/O functions which is not what you
+want.
+
+Previous versions of this manual suggested to list @code{scheme} and
+@code{scsh} in a specific order in the @code{open} clause of a
+structure to ensure that the definitions from @code{scsh} overwrite
+the ones from @code{scheme}. This approach is error-prone and fragile:
+A simple change in the implementation of the module system will render
+thousands of programs useless. Starting with release 0.6.3 scsh
+provides a better means to deal with this problem: the structure
+@code{scheme-with-scsh} provides all the exports of the modules
+@code{scheme} and @code{scsh} but exports the right denotations for
+the I/O functions in question.
+
+To make a long story short: Scsh programs should open the structure
+@code{scheme-with-scsh} if they need access to the exports of
+@code{scheme} and @code{scsh}.
+
+For programs which should run in versions of scsh prior to release
+0.6.3, programmers should make sure to always put the scsh reference
+first.
+
 @subsection Library directories search facility
-@c 
-@c Scsh's command line switches allow loading of code not present in the scriptfile or the heap image at startup. To relief the user from specifying full path
-@c names and to improve flexibility, scsh offers the library directories path list.This list contains directories in which scsh searches automatically for a file
-@c name argument of the -ll or -le switch.
-@c 
-@c This section describes the programmatic interface to the library directoriessearch facility. In addition, various command line switches for scsh modify
-@c 
-@c the library directories path list. Section @ref{11.1.5} describes these switches and theswitches to actually load files.
-@c 
-@c 172
-@c 
-@c Another way to change the library directories path list is the environmentvariable
-@c 
-@c $SCSH LIB DIRS. If this variable is set, scsh uses it to set library direc-tories path list. The value of this environment variable is treated as a sequence
-@c 
-@c of s-expressions, which are "read" from the string:
-@c 
-@c * A string is treated as a directory,
-@c 
-@c * #f is replaced with the default list of directories.
-@c 
-@c A $SCSH LIB DIRS assignment of this form
-@c SCSH_LIB_DIRS='"." "/usr/contrib/lib/scsh/" #f "/home/shivers/lib/scsh"'
-@c would produce this list of strings for the library-directories list:
-@c 
-@c ("." "/usr/contrib/lib/scsh/"
-@c "/usr/local/lib/scsh/modules/"
-@c "/home/shivers/lib/scsh")
-@c 
-@c It is a startup error if reading the $SCSH LIB DIRS environment variable causesa read error, or produces a value that isn't a list of strings or
-@c 
-@c #f.
-@c 
-@c default-lib-dirs string list
-@c 
+
+Scsh's command line switches allow loading of code not present in the
+script file or the heap image at startup. To relieve the user from
+specifying full path names and to improve flexibility, scsh offers the
+library directories path list. This list contains directories in which
+scsh searches automatically for a file name argument of the @code{-ll}
+or @code{-le} switch.
+
+This section describes the programmatic interface to the library
+directories search facility. In addition, various command line
+switches for scsh modify the library directories path list. For a
+description of these switches and the switches to actually load files,
+@xref{Switches}.
+
+Another way to change the library directories path list is the
+environment variable @code{$SCSH_LIB_DIRS}. If this variable is set, scsh uses
+it to set library directories path list. The value of this
+environment variable is treated as a sequence of s-expressions, which
+are ``read'' from the string as follows:
+
+@itemize
+@item 
+A string is treated as a directory.
+
+@item
+@code{#f} is replaced with the default list of directories.
+@end itemize
+
+For example, a @code{$SCSH_LIB_DIRS} assignment of the form
+
+@example
+SCSH_LIB_DIRS='"." "/usr/contrib/lib/scsh/" #f "/home/shivers/lib/scsh"'
+@end example
+
+would produce this list of strings for the library-directories list:
+
+@example
+("." "/usr/contrib/lib/scsh/"
+"/usr/local/lib/scsh/modules/"
+"/home/shivers/lib/scsh")
+@end example
+
+It is a startup error if reading the @code{$SCSH_LIB_DIRS} environment
+variable causes a read error, or produces a value that isn't a list of
+strings or @code{#f}.
+
+@c @deffn Variable default-lib-dirs
+
 @c The default list of library directories. The original value of this variableis
-@c 
+
 @c ("$prefix/lib/scsh/modules/"). starting with version 0.6.5 the op-tion
-@c 
+
 @c --with-lib-dirs-list of the configure script changes for a newinstallation.
-@c 
+
 @c (find-library-file file lib-dirs script-file) -! undefined procedure
 @c 
 @c Searches the list of library directories lib-dirs for file and returns the fullpath. The variable script-file is used to resolve references to the directory
