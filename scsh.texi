@@ -10203,219 +10203,223 @@ Set the @emph{library-directories} path list to system default,
 @end deffn
 
 @subsection Switches
-@c 
-@c The scsh top-level takes command-line switches in the following format:
-@c 
-@c scsh [meta-arg] [switchi ...] [end-option arg1 ... argn]
-@c where
-@c 
-@c 174
-@c 
-@c meta-arg: \ script-file-name
-@c switch: -e entry-point Specify top-level entry-point.
-@c 
-@c -o structure Open structure in current package.
-@c -m structure Switch to package.
-@c -n new-package Switch to new package.
-@c 
-@c -lm module-file-name Load module into config package.
-@c -le exec-file-name Load module into exec package.
-@c -l file-name Load file into current package.
-@c -ll module-file-name As in -lm, but search the library path list.
-@c -lel exec-file-name As in -le, but search the library path list.
-@c +lp dir Add dir to front of library path list.
-@c lp+ dir Add dir to end of library path list.
-@c +lpe dir +lp, with env var and ~user expansion.
-@c lpe+ dir lp+, with env var and ~user expansion.
-@c +lpsd Add script-file's dir to front of path list.
-@c lpsd+ Add script-file's dir to end of path list.
-@c -lp-clear Clear library path list to ().
-@c -lp-default Reset library path list to system default.
-@c -ds Do script.
-@c -dm Do script module.
-@c -de Do script exec.
-@c 
-@c end-option: -s script
-@c 
-@c -sfd num
-@c -c exp
-@c --
-@c 
-@c These command-line switches essentially provide a little linker language forlinking a shell script or a program together with Scheme 48 modules or Scheme 48 exec programs 2. The command-line processor serially opens structures andloads code into a given package. Switches that side-effect a package operate
-@c on a particular "current" package; there are switches to change this package.(These switches provide functionality equivalent to the interactive
-@c 
-@c ,open ,load
-@c ,in and ,new commands.) Except where indicated, switches specify actionsthat are executed in a left-to-right order. The initial current package is the user
-@c 
-@c package, which is completely empty and opens (imports the bindings of) theR5RS and scsh structures.
-@c 
-@c If the Scheme process is started up in an interactive mode, then the cur-rent package in force at the end of switch scanning is the one inside which the
-@c 2See the Section "Command programs" in the Scheme 48 manual for a description of the exec
-@c language.
-@c 
-@c 175
-@c 
-@c interactive read-eval-print loop is started.
-@c 
-@c The command-line switch processor works in two passes: it first parses theswitches, building a list of actions to perform, then the actions are performed
-@c 
-@c serially. The switch list is terminated by one of the end-option switches. Thearg
-@c 
-@c i arguments occurring after an end-option switch are passed to the scsh pro-gram as the value of command-line-arguments and the tail of the list returned
-@c 
-@c by (command-line). That is, an end-option switch separates switches that con-trol the scsh "machine" from the actual arguments being passed to the scsh
-@c 
-@c program that runs on that machine.
-@c 
-@c The following switches and end options are defined:
-@c 
+
+The scsh top-level takes command-line switches in the following format:
+
+@example
+scsh [meta-arg] [switchi ...] [end-option arg1 ... argn]
+@end example
+
+where
+
+@example
+@emph{meta-arg}:  \ script-file-name
+
+@emph{switch}: -e entry-point        Specify top-level entry-point.
+               -o structure          Open structure in current package.
+               -m structure          Switch to package.
+               -n new-package        Switch to new package.
+               -lm module-file-name  Load module into config package.
+               -le exec-file-name    Load module into exec package.
+               -l file-name          Load file into current package.
+               -ll module-file-name  As in -lm, but search the library path list.
+               -lel exec-file-name   As in -le, but search the library path list.
+               +lp dir               Add dir to front of library path list.
+               lp+ dir               Add dir to end of library path list.
+               +lpe dir              +lp, with env var and ~user expansion.
+               lpe+ dir              lp+, with env var and ~user expansion.
+               +lpsd                 Add script-file's dir to front of path list.
+               lpsd+                 Add script-file's dir to end of path list.
+               -lp-clear             Clear library path list to ().
+               -lp-default           Reset library path list to system default.
+               -ds                   Do script.
+               -dm                   Do script module.
+               -de                   Do script exec.
+
+@emph{end-option}: -s      script
+                   -sfd    num
+                   -c      exp
+                   --
+@end example
+
+These command-line switches essentially provide a little linker
+language for linking a shell script or a program together with Scheme
+48 modules or Scheme 48 exec programs@footnote{See the Section
+``Command programs'' in the Scheme 48 manual for a description of the
+exec language.}. The command-line processor serially opens structures
+and loads code into a given package. Switches that side-effect a
+package operate on a particular ``current'' package; there are
+switches to change this package. (These switches provide functionality
+equivalent to the interactive @code{,open} @code{,load} @code{,in} and
+@code{,new} commands.) Except where indicated, switches specify
+actions that are executed in a left-to-right order. The initial
+current package is the user package, which is completely empty and
+opens (imports the bindings of) the @math{R^5RS} scsh structures.
+
+If the Scheme process is started up in an interactive mode, then the
+current package in force at the end of switch scanning is the one
+inside which the interactive read-eval-print loop is started.
+
+The command-line switch processor works in two passes: it first parses
+the switches, building a list of actions to perform, then the actions
+are performed serially. The switch list is terminated by one of the
+@emph{end-option} switches. The @math{arg_i} arguments occurring after
+an @emph{end-option} switch are passed to the scsh program as the
+value of @code{command-line-arguments} and the tail of the list
+returned by @code{(command-line)}. That is, an @emph{end-option}
+switch separates switches that control the scsh ``machine'' from the
+actual arguments being passed to the scsh program that runs on that
+machine.
+
+The following switches and end options are defined:
+
 @c * -o structOpen the structure in the current package.
-@c 
+
 @c * -n packageMake and enter a new package. The package has an associated structure
-@c 
+
 @c named package with an empty export list. If package is the string "#f", thenew package is anonmyous, with no associated named structure.
-@c 
+
 @c The new package initially opens no other structures, not even the R5RSbindings. You must follow a "
-@c 
+
 @c -n foo" switch with "-o scheme" to accessthe standard identifiers such as
-@c 
+
 @c car and define.
-@c 
+
 @c * -m structChange the current package to the package underlying structure struct.
-@c 
+
 @c (The -m stands for "module.")
-@c 
+
 @c * -lm module-file-nameLoad the specified file into scsh's config package -- the file must contain
-@c 
+
 @c source written in the Scheme 48 module language ("load module"). Doesnot alter the current package.
-@c 
+
 @c * -le exec-file-nameLoad the specified file into scsh's exec package -- the file must contain
-@c 
+
 @c source written in the Scheme 48 exec language ("load exec"). Does notalter the current package.
-@c 
+
 @c * -l file-nameLoad the specified file into the current package.
-@c 
+
 @c * -c expEvaluate expression exp in the current package and exit. This is called
-@c 
+
 @c -c after a common shell convention (see sh and csh). The expression isevaluated in the the current package (and hence is affected by
-@c 
+
 @c -m's and
 @c -n's.)
-@c 
+
 @c 176
-@c 
+
 @c When the scsh top-level constructs the scsh command-line in this case, ittakes
-@c 
+
 @c "scsh" to be the program name. This switch terminates argumentscanning; following args become the tail of the command-line list.
-@c 
+
 @c * -e entry-pointSpecify an entry point for a program. The entry-point is a variable that
-@c 
+
 @c is taken from the current package in force at the end of switch evalua-tion. The entry point does not have to be exported by the package in a
 @c structure; it can be internal to the package. The top level passes control tothe entry point by applying it to the command-line list (so programs executing in private packages can reference their command-line argumentswithout opening the
-@c 
+
 @c scsh package to access the (command-line) proce-dure). Note that, like the list returned by the
-@c 
+
 @c (command-line) procedure,the list passed to the entry point includes the name of the program being
-@c 
+
 @c executed (as the first element of the list), not just the arguments to theprogram.
-@c 
+
 @c A -e switch can occur anywhere in the switch list, but it is the last actionperformed by switch scanning if it occurs. (We violate ordering here as
 @c the shell-script #! mechanism prevents you from putting the -e switchlast, where it belongs.)
-@c 
+
 @c * -s scriptSpecify a file to load. A
-@c 
+
 @c -ds (do-script), -dm (do-module), or -de (do-exec)switch occurring earlier in the switch list gives the place where the script
-@c 
+
 @c should be loaded. If there is no -ds, -dm, or -de switch, then the script isloaded at the end of switch scanning, into the module that is current at
 @c the end of switch scanning.
 @c We use the -ds switch to violate left-to-right switch execution order as the
 @c -s switch is required to be last (because of the #! machinery), independentof when/where in the switch-processing order it should be loaded.
-@c 
+
 @c When the scsh top-level constructs the scsh command-line in this case,it takes script to be the program name. This switch terminates switch
 @c parsing; following args are ignored by the switch-scanner and are passedthrough to the program as the tail of the command-line list.
-@c 
+
 @c * -sfd numLoads the script from file descriptor num. This switch is like the
-@c 
+
 @c -sswitch, except that the script is loaded from one of the process' open input file descriptors. For example, to have the script loaded from standardinput, specify
-@c 
+
 @c -sfd 0.
-@c 
+
 @c * --Terminate argument scanning and start up scsh in interactive mode.
-@c 
+
 @c If the argument list just runs out, without either a terminating -s or
-@c 
+
 @c 177
-@c 
+
 @c -- arg, then scsh also starts up in interactive mode, with an empty
 @c command-line-arguments list (for example, simply entering scsh at ashell prompt with no args at all).
-@c 
+
 @c When the scsh top-level constructs the scsh command-line in this case,it takes
-@c 
+
 @c "scsh" to be the program name. This switch terminates switchparsing; following args are ignored by the switch-scanner and are passed
-@c 
+
 @c through to the program as the tail of the command-line list.
-@c 
+
 @c * -dsSpecify when to load the script ("do-script"). If this switch occurs, the
-@c 
+
 @c switch list must be terminated by a -s script switch. The script is loadedinto the package that is current at the
-@c 
+
 @c -ds switch.
-@c 
+
 @c * -dmAs above, but the current module is ignored. The script is loaded into the
-@c 
+
 @c config package ("do-module"), and hence must be written in the Scheme48 module language. This switch doesn't affect the current module--
 @c after executing this switch, the current module is the same as as it wasbefore.
-@c 
+
 @c This switch is provided to make it easy to write shell scripts in the Scheme48 module language.
-@c 
+
 @c * -deAs above, but the current module is ignored. The script is loaded into the
-@c 
+
 @c exec package ("do-exec"), and hence must be written in the Scheme 48exec language.
-@c 
+
 @c This switch is provided to make it easy to write shell scripts in the Scheme48 exec language.
-@c 
+
 @c * -ll module-file-name
-@c 
+
 @c Load library module into config package. This is just like the -lm switch,except that it searches the library-directory path list (see Section @ref{11.1.4})
 @c for the file to load.
 @c Specifically, it means: search through the library-directories list of directo-ries looking for a module file of the given name, and load it in. Scsh uses
-@c 
+
 @c the procedure find-library-file from Section @ref{11.1.4} to perform the search.
-@c 
+
 @c * -lel exec-file-nameAs above, but load the specified file into scsh's exec package. This is just
-@c 
+
 @c like the -le switch, except that it searches the library-directory path listfor the file to load.
-@c 
+
 @c 178
-@c 
+
 @c * +lp lib-dir,lp+ lib-dirAdd directory lib-dir to the beginning or end of the library-directories path
-@c 
+
 @c list, respectively.
 @c lib-dir is a single directory. It is not split at colons or otherwise processed.These switches correspond to the procedures
-@c 
+
 @c lib-dirs-prepend! and
 @c lib-dirs-append! from Section @ref{11.1.4}.
-@c 
+
 @c * +lpe, lpe+As above, except that ~home-directory syntax and environment variables
-@c 
+
 @c are expanded out.
-@c 
+
 @c * +lpsd,lpsd+Add script-file's directory to the beginning or end of the library-directories
-@c 
+
 @c path list, respectively. These switches correspond to the procedures
 @c lib-dirs-prepend-script-dir! and lib-dirs-append-script-dir!from Section @ref{11.1.4}.
-@c 
+
 @c * -lp-clear, -lp-defaultSet the library-directories path list to the empty list and the system
-@c 
+
 @c default, respectively. These switches correspond to the procedures
 @c clear-lib-dirs! and reset-lib-dirs! from Section @ref{11.1.4}.
-@c 
+
 @c The two switches are useful if you would like to protect your script frominfluence by the
-@c 
+
 @c $SCSH LIB DIRS variable.
-@c 
+
 @c In these cases, the $SCSH LIB DIRS environment variable is never evenparsed, so a bogus value will not affect the script's execution at all.
-@c 
+
 @subsection The meta argument
 @c 
 @c The scsh switch parser takes a special command-line switch, a single back-slash called the "meta-argument," which is useful for shell scripts. If the initial
