@@ -10464,113 +10464,147 @@ execution at all.
 @end itemize
 
 @subsection The meta argument
-@c 
-@c The scsh switch parser takes a special command-line switch, a single back-slash called the "meta-argument," which is useful for shell scripts. If the initial
-@c command-line argument is a "\" argument, followed by a filename argumentfname, scsh will open the file fname and read more arguments from the second
-@c line of this file. This list of arguments will then replace the "\" argument--i.e., the new arguments are inserted in front of fname, and the argument parser
-@c resumes argument scanning. This is used to overcome a limitation of the #!feature: the
-@c 
-@c #! line can only specify a single argument after the interpreter. Forexample, we might hope the following scsh script,
-@c 
-@c ekko, would implement asimple-minded version of the UNIX
-@c echo program:
-@c 
-@c 179
-@c 
-@c #!/usr/local/bin/scsh -e main -s
-@c !#
-@c (define (main args)
-@c 
-@c (map (* (arg) (display arg) (display " "))
-@c 
-@c (cdr args))
-@c (newline))
-@c 
-@c The idea would be that the command
-@c 
-@c ekko Hi there.
-@c would by expanded by the exec(2) kernel call into
-@c 
-@c /usr/local/bin/scsh -e main -s ekko Hi there.
-@c In theory, this would cause scsh to start up, load in file ekko, call the entry pointon the command-line list
-@c 
-@c (main '("ekko" "Hi" "there."))
-@c and exit.
-@c 
-@c Unfortunately, the UNIX exec(2) syscall's support for scripts is not verygeneral or well-designed. It will not handle multiple arguments; the
-@c 
-@c #! lineis usually required to contain no more than 32 characters; it is not recursive.
-@c 
-@c If these restrictions are violated, most UNIX systems will not provide accurateerror reporting, but either fail silently, or simply incorrectly implement the desired functionality. These are the facts of UNIX life.
-@c 
-@c In the ekko example above, our #! trigger line has three arguments ("-e","
-@c main", and "-s"), so it will not work. The meta-argument is how we workaround this problem. We must instead invoke the scsh interpreter with the single \ argument, and put the rest of the arguments on line two of the program.Here's the correct program:
-@c 
-@c #!/usr/local/bin/scsh \
-@c -e main -s
-@c !#
-@c (define (main args)
-@c 
-@c (map (* (arg) (display arg) (display " "))
-@c 
-@c (cdr args))
-@c (newline))
-@c 
-@c Now, the invocation starts as
-@c 
-@c ekko Hi there.
-@c and is expanded by exec(2) into
-@c 
-@c /usr/local/bin/scsh \ ekko Hi there.
-@c 
-@c 180
-@c 
-@c When scsh starts up, it expands the "\" argument into the arguments read fromline two of
-@c 
-@c ekko, producing this argument list:
-@c 
-@c -e main -s ekko Hi there."
-@c Expanded from \ ekko
-@c With this argument list, processing proceeds as we intended.
-@c 
-@c Secondary argument syntax
-@c Scsh uses a very simple grammar to encode the extra arguments on the secondline of the scsh script. The only special characters are space, tab, newline, and
-@c backslash.
-@c 
-@c * Each space character terminates an argument. This means that twospaces in a row introduce an empty-string argument.
-@c 
-@c * The tab character is not permitted (unless you quote it with the backslashcharacter described below). This is to prevent the insidious bug where
-@c 
-@c you believe you have six space characters, but you really have a tab char-acter, and vice-versa.
-@c 
-@c * The newline character terminates an argument, like the space character,and also terminates the argument sequence. This means that an empty
-@c 
-@c line parses to the singleton list whose one element is the empty string:
-@c (""). The grammar doesn't admit the empty list.
-@c 
-@c * The backslash character is the escape character. It escapes backslash,space, tab, and newline, turning off their special functions, and allowing them to be included in arguments. The @acronym{ANSI} C escape sequences(
-@c 
-@c \b, \n, \r and \t) are also supported; these also produce argument-constituents--
-@c 
-@c \n doesn't act like a terminating newline. The escape se-quence
-@c \nnn for exactly three octal digits reads as the character whoseA
-@c SCII code is nnn. It is an error if backslash is followed by just one or twooctal digits:
-@c 
-@c \3Q is an error. Octal escapes are always constituent chars.Backslash followed by other chars is not allowed (so we can extend the
-@c 
-@c escape-code space later if we like).
-@c You have to construct these line-two argument lines carefully. In particular,beware of trailing spaces at the end of the line--they'll give you extra trailing
-@c empty-string arguments. Here's an example:
-@c 
-@c #!/bin/interpreter \
-@c foo bar quux\ yow
-@c 
-@c 181
-@c 
-@c would produce the arguments
-@c 
-@c ("foo" "bar" "" "quux yow")
-@c 
+
+The scsh switch parser takes a special command-line switch, a single
+backslash called the ``meta-argument'', which is useful for shell
+scripts. If the initial command-line argument is a ``\'', followed by a
+filename argument @var{fname}, scsh will open the file @var{fname} and
+read more arguments from the second line of this file. This list of
+arguments will then replace the ``\'' argument---@emph{i.e.}, the new arguments
+are inserted in front of @var{fname}, and the argument parser resumes
+scanning. This is used to overcome a limitation of the @code{#!} feature: the @code{#!}
+line can only specify a single argument after the interpreter.
+For example, we might hope the following scsh script, @code{ekko}, would
+implement a simple-minded version of the UNIX echo program:
+
+@example
+#!/usr/local/bin/scsh -e main -s
+!#
+(define (main args)
+   (map (lambda (arg) (display arg) (display " "))
+        (cdr args))
+   (newline))
+@end example
+
+The idea would be that the command
+
+@example
+ekko Hi there.
+@end example
+
+would by expanded by the @code{exec(2)} kernel call into
+
+@example
+/usr/local/bin/scsh -e main -s ekko Hi there.
+@end example
+
+In theory, this would cause scsh to start up, load in file @code{ekko},
+call the entry point on the command-line list
+
+@example
+(main '("ekko" "Hi" "there."))
+@end example
+
+and exit.
+
+Unfortunately, the UNIX @code{exec(2)} syscall's support for scripts is
+not very general or well-designed. It will not handle multiple
+arguments; the @code{#!} line is usually required to contain no more
+than 32 characters; it is not recursive.  If these restrictions are
+violated, most UNIX systems will not provide accurate error reporting,
+but either fail silently, or simply incorrectly implement the desired
+functionality. These are the facts of UNIX life.
+
+In the ekko example above, our @code{#!} trigger line has three
+arguments @code{("-e"," main", and "-s")}, so it will not work. The
+meta-argument is how we work around this problem. We must instead invoke
+the scsh interpreter with the single ``\'' argument, and put the rest of
+the arguments on line two of the program. Here's the correct program:
+
+@example
+#!/usr/local/bin/scsh \
+-e main -s
+!#
+(define (main args)
+   (map (lambda (arg) (display arg) (display " "))
+        (cdr args))
+   (newline))
+@end example
+
+Now, the invocation starts as
+
+@example
+ekko Hi there.
+@end example
+
+and is expanded by @code{exec(2)} into
+
+@example
+/usr/local/bin/scsh \ ekko Hi there.
+@end example
+
+When scsh starts up, it expands the ``\'' argument into the arguments read
+from line two of @code{ekko}, producing this argument list:
+
+@example
+-e main -s ekko Hi there.
+@end example
+
+With this argument list, processing proceeds as we intended.
+
+@subsubsection Secondary argument syntax
+
+Scsh uses a very simple grammar to encode the extra arguments on the
+second line of the scsh script. The only special characters are space,
+tab, newline, and backslash.
+
+@itemize
+
+@item
+Each space character terminates an argument. This means that two spaces
+in a row introduce an empty-string argument.
+
+@item 
+The tab character is not permitted (unless you quote it with the
+backslash character described below). This is to prevent the insidious
+bug where you believe you have six space characters, but you really have
+a tab character, and vice versa.
+
+@item
+The newline character terminates an argument, like the space
+character,and also terminates the argument sequence. This means that an
+empty line parses to the singleton list whose one element is the empty
+string: @code{("")}. The grammar doesn't admit the empty list.
+
+@item
+The backslash character is the escape character. It escapes backslash,
+space, tab, and newline, turning off their special functions, and
+allowing them to be included in arguments. The @acronym{ANSI} C escape
+sequences (@code{\b}, @code{\n}, @code{\r} and @code{\t}) are also
+supported; these also produce argument-constituents--- @code{\n} doesn't
+act like a terminating newline. The escape sequence @emph{\nnn} for
+exactly three octal digits reads as the character whose @acronym{ASCII}
+code is @emph{nnn}. It is an error if a backslash is followed by just
+one or two octal digits: @code{\3Q} is an error. Octal escapes are
+always constituent characters. Backslash followed by other characters is
+not allowed (so we can extend the escape-code space later if we like).
+@end itemize
+
+You have to construct these line-two argument lines carefully. In
+particular, beware of trailing spaces at the end of the line---they'll
+give you extra trailing empty-string arguments. Here's an example:
+
+@example
+#!/bin/interpreter \
+foo bar quux\ yow
+@end example
+
+would produce the arguments
+
+@example
+("foo" "bar" "" "quux yow")
+@end example
+
 @subsection Examples
 @c 
 @c * scsh -dm -m myprog -e top -s myprog.scmLoad
