@@ -6518,7 +6518,6 @@ for @acronym{R5RS} compatibility:
 @end multitable
 @end deffn
 
-@node Deprecated character-set procedures
 @section Deprecated character-set procedures
 
 The SRFI-13 character-set library grew out of an earlier library
@@ -9365,7 +9364,6 @@ Returns the value of the @var{placeholder}. If the valuse of
 until another thread sets the value using @code{placeholder-set!}.
 @end deffn
 
-@node The event interface to interrupts
 @section The event interface to interrupts
 
 @c TODO: Clean up reference to paper.
@@ -10801,135 +10799,183 @@ which can contain precompiled scsh programs with their own top-level
 procedures.
 
 @subsection VM arguments
-@c 
-@c The vm takes arguments in the following form:
-@c 
-@c scshvm [meta-arg] [vm-options+] [end-option scheme-args]
-@c where
-@c 
-@c meta-arg: \ filename
-@c 
-@c vm-option: -h heap-size-in-words
-@c 
-@c -s stack-size-in-words
-@c -o object-file-name
-@c 
-@c end-option: -i image-file-name
-@c 
-@c --
-@c 
-@c The vm's meta-switch "\ filename" is handled the same as scsh's meta-switch, and serves the same purpose.
-@c 
-@c VM options
-@c The -o object-file-name switch tells the vm where to find relocation informationfor its foreign-function calls. Scsh will use a pre-compiled default if it is not
-@c specified. Scsh must have this information to run, since scsh's syscall interfacesare done with foreign-function calls.
-@c 
-@c The -h and -s options tell the vm how much space to allocate for the heapand stack. The heap size value is the total number of words allocated for the
-@c heap; this space is then split into two semi-spaces for Scheme 48's stop-and-copy collector.
-@c 
-@c 185
-@c 
-@c End options
-@c End options terminate argument parsing. The -i switch is followed by thename of a heap image for the vm to execute. The image-file-name string is also
-@c taken to be the name of the program being executed by the VM; this name be-comes the head of the argument list passed to the heap image's top-level entry
-@c point. The tail of the argument list is constructed from all following arguments.
-@c 
-@c The -- switch terminates argument parsing without giving a specific heapimage; the vm will start up using a default heap (whose location is compiled
-@c 
-@c into the vm). All the following arguments comprise the tail of the list passedoff to the heap image's top-level procedure.
-@c 
-@c Notice that you are not allowed to pass arguments to the heap image's top-level procedure (e.g., scsh) without delimiting them with
-@c 
-@c -i or -- flags.
-@c 
+
+The VM takes arguments in the following form:
+
+@example
+scshvm [@var{meta-arg}] [@var{vm-options+}] [@var{end-option} @var{scheme-args}]
+@end example
+
+where
+
+@example
+meta-arg:    \ filename
+
+vm-option:  -h heap-size-in-words
+            -s stack-size-in-words
+            -o object-file-name
+
+end-option: -i image-file-name
+             -
+@end example
+
+The VM's meta-switch ``\ @var{filename}'' is handled the same as
+scsh's meta-switch, and serves the same purpose.
+
+@subsubsection VM options
+
+The @code{-o} @var{object-file-name} switch tells the VM where to find
+relocation information for its foreign-function calls. Scsh will use a
+pre-compiled default if it is not specified. Scsh must have this
+information to run, since scsh's syscall interfaces are done with
+foreign-function calls.
+
+The @code{-h} and @code{-s} options tell the VM how much space to
+allocate for the heap and stack. The heap size value is the total
+number of words allocated for the heap; this space is then split into
+two semi-spaces for Scheme 48's stop-and-copy collector.
+
+@subsubsection End options
+
+End options terminate argument parsing. The @code{-i} switch is
+followed by the name of a heap image for the VM to execute. The
+@var{image-file-name} string is also taken to be the name of the
+program being executed by the VM; this name becomes the head of the
+argument list passed to the heap image's top-level entry point. The
+tail of the argument list is constructed from all following arguments.
+
+The @code{-} switch terminates argument parsing without giving a
+specific heap image; the VM will start up using a default heap (whose
+location is compiled into the VM). All the following arguments
+comprise the tail of the list passed off to the heap image's top-level
+procedure.
+
+Notice that you are not allowed to pass arguments to the heap image's
+top-level procedure (@emph{e.g.}, scsh) without delimiting them with
+@code{-i} or @code{-} flags.
+
 @subsection Stripped image
-@c 
-@c Besides the standard image scsh.image scsh also ships with the muchsmaller image
-@c 
-@c stripped-scsh.image. This image contains the same codeas the standard image but has almost all debugging information removed.
-@c 
-@c stripped-scsh.image is intended to be used with standalone programs wherestartup time and memory consumption count but debugging the scheme code
-@c is not that important. To use the image the VM has to be called directly and thepath to the image must be given after the
-@c 
-@c -i argument.
-@c 
+
+Besides the standard image @code{scsh.image} scsh also ships with the
+much smaller image @code{stripped-scsh.image}. This image contains the
+same code as the standard image but has almost all debugging
+information removed. @code{Stripped-scsh.image} is intended to be used
+with standalone programs where startup time and memory consumption
+count but debugging the Scheme code is not that important. To use the
+image the VM has to be called directly and the path to the image must
+be given after the @code{-i} argument.
+
 @subsection Inserting interpreter triggers into heap images
-@c 
-@c Scheme 48's heap image format allows for an informational header: when thevm loads in a heap image, it ignores all data occurring before the first control-L
-@c character (ASCII 12). This means that you can insert a "#!" trigger line into aheap image, making it a form of executable "shell script." Since the vm requires
-@c multiple arguments to be given on the command line, you must use the meta-switch. Here's an example heap-image header:
-@c 
-@c #!/usr/local/lib/scsh/scshvm \
-@c -o /usr/local/lib/scsh/scshvm -i
-@c ... Your heap image goes here ...
-@c 
+
+Scheme 48's heap image format allows for an informational header: when
+the VM loads in a heap image, it ignores all data occurring before the
+first control-L character (@acronym{ASCII} 12). This means that you
+can insert a @code{#!} trigger line into a heap image, making it a
+form of executable shell script. Since the VM requires multiple
+arguments to be given on the command line, you must use the
+meta-switch. Here's an example heap-image header:
+
+@example
+#!/usr/local/lib/scsh/scshvm \
+-o /usr/local/lib/scsh/scshvm -i
+... @emph{Your heap image goes here} ...
+@end example
+
 @subsection Inserting a double-level trigger into Scheme programs
-@c 
-@c If you're a nerd, you may enjoy doing a double-level machine shift in the trig-ger line of your Scheme programs with the following magic:
-@c 
-@c 186
-@c 
-@c #!/usr/local/lib/scsh/scshvm \
-@c -o /usr/local/lib/scsh/scshvm -i /usr/local/lib/scsh/scsh.image -s
-@c !#
-@c ... Your Scheme program goes here ...
-@c 
+
+If you're a nerd, you may enjoy doing a double-level machine shift in
+the trigger line of your Scheme programs with the following magic:
+
+@example
+#!/usr/local/lib/scsh/scshvm \
+-o /usr/local/lib/scsh/scshvm -i /usr/local/lib/scsh/scsh.image -s
+!#
+... @emph{Your Scheme program goes here} ...
+@end example
+
 @section Compiling scsh programs
-@c 
-@c Scsh allows you to create a heap image with your own top-level procedure.Adding the pair of lines
-@c 
-@c #!/usr/local/lib/scsh/scshvm \
-@c -o /usr/local/lib/scsh/scshvm -i
-@c 
-@c to the top of the heap image will turn it into an executable UNIX file.
-@c 
-@c You can create heap images with the following two procedures.
-@c 
-@c (dump-scsh-program main fname) -! undefined procedure
-@c 
-@c This procedure writes out a scsh heap image. When the heap image isexecuted by the Scheme 48 vm, it will call the main procedure, passing
-@c 
-@c it the vm's argument list. When main returns an integer value i, the vmexits with exit status
-@c 
-@c i. The Scheme vm will parse command-line switchesas described in section @ref{11.2.1}; remaining arguments form the tail of the
-@c 
-@c command-line list that is passed to main. (The head of the list is the nameof the program being executed by the vm.) Further argument parsing (as
-@c described for scsh in section @ref{11.1.5}) is not performed.
-@c The heap image created by dump-scsh-program has unused code anddata pruned out, so small programs compile to much smaller heap images.
-@c (dump-scsh fname) -! undefined procedure
-@c 
-@c This procedure writes out a heap image with the standard scsh top-level.When the image is resumed by the vm, it will parse and execute scsh
-@c 
-@c command-line switches as described in section @ref{11.1.5}.
-@c You can use this procedure to write out custom scsh heap images thathave specific packages preloaded and start up in specific packages.
-@c 
-@c Unfortunately, Scheme 48 does not support separate compilation of Schemefiles or Scheme modules. The only way to compile is to load source and then
-@c dump out a heap image. One occasionally hears rumours that this is beingaddressed by the Scheme 48 development team.
-@c 
-@c 187
+
+Scsh allows you to create a heap image with your own top-level
+procedure. Adding the pair of lines
+
+@example
+#!/usr/local/lib/scsh/scshvm \
+-o /usr/local/lib/scsh/scshvm -i
+@end example
+
+to the top of the heap image will turn it into an executable UNIX file.
+
+You can create heap images with the following two procedures:
+
+@deffn Procedure dump-scsh-program main fname
+
+This procedure writes out a scsh heap image. When the heap image is
+executed by the Scheme 48 VM, it will call the @code{main} procedure,
+passing it the VM's argument list. When main returns an integer value
+@var{i}, the VM exits with exit status @var{i}. The Scheme VM will
+parse command-line switches (@pxref{VM options});
+remaining arguments form the tail of the command-line list that is
+passed to @code{main}. (The head of the list is the name of the
+program being executed by the VM.) Further argument parsing (as
+described in @pxref{Switches}) is not performed.  The heap image
+created by @code{dump-scsh-program} has unused code and data pruned
+out, so small programs compile to much smaller heap images.
+@end deffn
+
+@deffn Procedure dump-scsh fname
+
+This procedure writes out a heap image with the standard scsh
+top-level. When the image is resumed by the vm, it will parse and
+execute scsh command-line switches. (@xref{Switches}.) You can use
+this procedure to write out custom scsh heap images that have specific
+packages preloaded and start up in specific packages.
+@end deffn
+
+Unfortunately, Scheme 48 does not support separate compilation of
+Scheme files or Scheme modules. The only way to compile is to load
+source and then dump out a heap image. One occasionally hears rumours
+that this is being addressed by the Scheme 48 development team.
+
 @section Standard file locations
-@c 
-@c Because the scshvm binary is intended to be used for writing shell scripts, it isimportant that the binary be installed in a standard place, so that shell scripts
-@c can dependably refer to it. The standard directory for the scsh tree should be
-@c /usr/local/lib/scsh/. Whenever possible, the vm should be located in
-@c 
-@c /usr/local/lib/scsh/scshvm
-@c and a scsh heap image should be located in
-@c 
-@c /usr/local/lib/scsh/scsh.image
-@c The top-level scsh program should be located in
-@c 
-@c /usr/local/lib/scsh/scsh
-@c with a symbolic link to it from
-@c 
-@c /usr/local/bin/scsh
-@c 
-@c The Scheme 48 image format allows heap images to have #! triggers, so
-@c scsh.image should have a #! trigger of the following form:
-@c 
-@c #!/usr/local/lib/scsh/scshvm \
-@c -o /usr/local/lib/scsh/scshvm -i
-@c ... heap image goes here ...
+
+Because the @code{scshvm} binary is intended to be used for writing
+shell scripts, it is important that the binary be installed in a
+standard place, so that shell scripts can dependably refer to it. The
+standard directory for the scsh tree should be
+@code{/usr/local/lib/scsh/}. Whenever possible, the VM should be
+located in
+
+@example
+/usr/local/lib/scsh/scshvm
+@end example
+
+and a scsh heap image should be located in
+
+@example
+/usr/local/lib/scsh/scsh.image
+@end example
+
+The top-level @code{scsh} program should be located in
+
+@example
+/usr/local/lib/scsh/scsh
+@end example
+
+with a symbolic link to it from
+
+@example
+/usr/local/bin/scsh
+@end example
+
+The Scheme 48 image format allows heap images to have @code{#!}
+triggers, so @code{scsh.image} should have a @code{#!} trigger of the
+following form:
+
+@example
+#!/usr/local/lib/scsh/scshvm \
+-o /usr/local/lib/scsh/scshvm -i
+... @emph{heap image goes here} ...
+@end example
 
 @node Index
 @unnumbered Index
