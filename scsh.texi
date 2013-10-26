@@ -10606,139 +10606,167 @@ would produce the arguments
 @end example
 
 @subsection Examples
-@c 
-@c * scsh -dm -m myprog -e top -s myprog.scmLoad
-@c 
-@c myprog.scm into the config package, then shift to the myprog pack-age and call
-@c 
-@c (top '("myprog.scm")), then exit. This sort of invocationis typically used in
-@c 
-@c #! script lines (see below).
-@c 
-@c * scsh -c '(display "Hello, world.")'A simple program.
-@c 
-@c * scsh -o bigschemeStart up interactively in the user package after opening structure
-@c 
-@c bigscheme.
-@c 
-@c * scsh -o bigscheme -- Three args passedStart up interactively in the user package after opening
-@c 
-@c bigscheme. The
-@c command-line-args variable in the scsh package is bound to the list
-@c ("Three" "args" "passed"), and the (command-line) procedure re-turns the list
-@c 
-@c ("scsh" "Three" "args" "passed").
-@c 
-@c * Program ekkoThis shell script, called
-@c 
-@c ekko, implements a version of the UNIX echo pro-gram:
-@c 
-@c #!/usr/local/bin/scsh -s
-@c !#
-@c (for-each (* (arg) (display arg) (display " "))
-@c 
-@c command-line-args)
-@c 
-@c Note this short program is an example of a script--it executes as it loads.The UNIX rule for executing
-@c 
-@c #! shell scripts causes
-@c 
-@c ekko Hello, world.
-@c to expand as
-@c 
-@c /usr/local/bin/scsh -s ekko Hello, world.
-@c 
-@c * Program ekkoThis is the same program, not as a script. Writing it this way makes it
-@c 
-@c possible to compile the program (and then, for instance, dump it out as aheap image).
-@c 
-@c 182
-@c 
-@c #!/usr/local/bin/scsh \
-@c -e top -s
-@c !#
-@c (define (top args)
-@c 
-@c (for-each (* (arg) (display arg) (display " "))
-@c 
-@c (cdr args)))
-@c 
-@c The exec(2) expansion of the #! line together with the scsh expansionof the "
-@c 
-@c \ ekko" meta-argument (see section @ref{11.1.6}) gives the followingcommand-line expansion:
-@c 
-@c ekko Hello, world.=)
-@c 
-@c /usr/local/bin/scsh \ ekko Hello, world.=)
-@c /usr/local/bin/scsh -e top -s ekko Hello, world.
-@c 
-@c * Program sortThis is a program to replace the UNIX
-@c 
-@c sort utility--sorting lines read fromstdin, and printing the results on stdout. Note that the source code defines a general sorting package, which is useful (1) as a Scheme moduleexporting sort procedures to other Scheme code, and (2) as a standalone
-@c program invoked from the top procedure.
-@c 
-@c #!/usr/local/bin/scsh \
-@c -dm -m sort-toplevel -e top -s
-@c !#
-@c 
-@c ;;; This is a sorting module. TOP procedure exports
-@c ;;; the functionality as a UNIX program akin to sort(1).
-@c (define-structures ((sort-struct (export sort-list
-@c 
-@c sort-vector!))
-@c (sort-toplevel (export top)))
-@c (open scheme)
-@c 
-@c (begin (define (sort-list elts <=) ...)
-@c 
-@c (define (sort-vec! vec <=) ...)
-@c 
-@c ;; Parse the command line and
-@c ;; sort stdin to stdout.
-@c (define (top args)
-@c 
-@c ...)))
-@c 
-@c The expansion below shows how the command-line scanner (1) loads theconfig file
-@c 
-@c sort (written in the Scheme 48 module language), (2) switchesto the package underlying the
-@c 
-@c sort-toplevel structure, (3) calls (top
-@c '("sort" "foo" "bar")) in the package, and finally (4) exits.
-@c 
-@c 183
-@c 
-@c sort foo bar
-@c =) /usr/local/bin/scsh \ sort foo bar
-@c =) /usr/local/bin/scsh -dm -m sort-toplevel -e top -s sort foo bar
-@c 
-@c An alternate method would have used a
-@c 
-@c -n #f -o sort-toplevel
-@c sequence of switches to specify a top-level package.
-@c 
-@c Note that the sort example can be compiled into a UNIX program by loadingthe file into an scsh process, and dumping a heap with top-level
-@c 
-@c top. Even ifwe don't want to export the sort's functionality as a subroutine library, it is still
-@c 
-@c useful to write the sort program with the module language. The command linedesign allows us to run this program as either an interpreted script (given the
-@c #! args in the header) or as a compiled heap image.
-@c 
+
+@itemize
+
+@item @code{scsh -dm -m myprog -e top -s myprog.scm}
+
+Load @code{myprog.scm} into the @code{config} package, then shift to
+the @code{myprog} package and call @code{(top '("myprog.scm"))}, then
+exit. This sort of invocation is typically used in @code{#!} script
+lines (see below).
+
+@item @code{scsh -c '(display "Hello, world.")'}
+
+A simple program.
+
+@item @code{scsh -o bigscheme}
+
+Start up interactively in the user package after opening structure
+@code{bigscheme}.
+
+@item @code{scsh -o bigscheme - Three args passed}
+
+Start up interactively in the user package after opening
+@code{bigscheme}. The @code{command-line-args} variable in the
+@code{scsh} package is bound to the list @code{("Three" "args"
+"passed")}, and the @code{(command-line)} procedure returns the list
+@code{("scsh" "Three" "args" "passed")}.
+
+@item Program @code{ekko}
+
+This shell script, called @code{ekko}, implements a version of the UNIX
+@code{echo} program:
+
+@example
+#!/usr/local/bin/scsh -s
+!#
+
+(for-each (lambda (arg) (display arg) (display " "))
+          command-line-args)
+@end example
+
+This short program is an example of a @emph{script} --- it executes as
+it loads. The UNIX rule for executing @code{#!} shell scripts causes
+
+@example
+ekko Hello, world.
+@end example
+
+to expand as
+
+@example
+/usr/local/bin/scsh -s ekko Hello, world.
+@end example
+
+@item Program @code{ekko}
+
+This is the same program, not as a script. Writing it this way makes
+it possible to compile the program (and then, for instance, dump it
+out as a heap image).
+
+@example
+#!/usr/local/bin/scsh \
+-e top -s
+!#
+
+(define (top args)
+  (for-each (lambda (arg) (display arg) (display " "))
+            (cdr args)))
+@end example
+
+The @code{exec(2)} expansion of the @code{#!} line together with the
+scsh expansionof the ``@code{\ ekko}'' meta-argument gives the
+following command-line expansion:
+
+@example
+ekko Hello, world.
+
+    ==> /usr/local/bin/scsh \ ekko Hello, world.
+    ==> /usr/local/bin/scsh -e top -s ekko Hello, world.
+@end example
+
+@item Program @code{sort}
+
+This is a program to replace the UNIX @code{sort} utility --- sorting
+lines read from standard input, and printing the results on standard
+output. Note that the source code defines a general sorting package,
+which is useful (1) as a Scheme module exporting sort procedures to
+other Scheme code, and (2) as a standalone program invoked from the
+@code{top} procedure.
+
+@example
+#!/usr/local/bin/scsh \
+-dm -m sort-toplevel -e top -s
+!#
+
+;;; This is a sorting module. TOP procedure exports the functionality
+;;; as a UNIX program akin to sort(1).
+
+(define-structures ((sort-struct (export sort-list
+                                         sort-vector!))
+                    (sort-toplevel (export top)))
+  (open scheme)
+
+  (begin (define (sort-list elts <=) ...)
+         (define (sort-vec! vec <=) ...)
+
+         ;; Parse the command line and
+         ;; sort stdin to stdout.
+
+         (define (top args)
+           ...)))
+@end example
+
+The expansion below shows how the command-line scanner (1) loads
+theconfig file @code{sort} (written in the Scheme 48 module language),
+(2) switches to the package underlying the @code{sort-toplevel}
+structure, (3) calls @code{(top '("sort" "foo" "bar"))} in the
+package, and finally (4) exits.
+
+@example
+sort foo bar
+==> /usr/local/bin/scsh \ sort foo bar
+==> /usr/local/bin/scsh -dm -m sort-toplevel -e top -s sort foo bar
+@end example
+
+An alternate method would have used a
+
+@example
+-n #f -o sort-toplevel
+@end example
+
+sequence of switches to specify a top-level package.
+@end itemize
+
+Note that the sort example can be compiled into a UNIX program by
+loading the file into a scsh process, and dumping a heap with
+top-level @code{top}. Even if we don't want to export the sort's
+functionality as a subroutine library, it is still useful to write the
+sort program with the module language. The command line design allows
+us to run this program as either an interpreted script (given the
+@code{#!} args in the header) or as a compiled heap image.
+
 @subsection Process exit values
-@c 
-@c Scsh ignores the value produced by its top-level computation when determin-ing its exit status code. If the top-level computation completed with no errors,
-@c scsh dies with exit code 0. For example, a scsh process whose top-level is spec-ified by a
-@c 
-@c -c exp or a -e entry entry point ignores the value produced by eval-uating exp and calling entry, respectively. If these computations terminate with
-@c 
-@c no errors, the scsh process exits with an exit code of 0.
-@c 
-@c To return a specific exit status, use the exit procedure explicitly, e.g.,
-@c 
-@c scsh -c \
-@c 
-@c "(exit (status:exit-val (run (| (fmt) (mail shivers)))))"
-@c 
+
+Scsh ignores the value produced by its top-level computation when
+determining its exit status code. If the top-level computation
+completed with no errors, scsh dies with exit code 0. For example, a
+scsh process whose top-level is specified by a @code{-c} @var{exp} or
+a @code{-e} @var{entry} entry point ignores the value produced by
+evaluating @var{exp} and calling @var{entry}, respectively. If these
+computations terminate with no errors, the scsh process exits with an
+exit code of 0.
+
+To return a specific exit status, use the @code{exit} procedure
+explicitly, @emph{e.g.},
+
+@example
+scsh -c \
+
+"(exit (status:exit-val (run (| (fmt) (mail shivers)))))"
+@end example
+
 @section The scsh virtual machine
 @c 
 @c To run the Scheme 48 implementation of scsh, you run a specially modifiedcopy of the Scheme 48 virtual machine with a scsh heap image. The scsh binary is actually nothing but a small cover program that invokes the byte-codeinterpreter on the scsh heap image for you. This allows you to simply start
