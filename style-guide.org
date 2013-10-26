@@ -21,6 +21,8 @@ the scsh manual.
   Procedure and macro names will be capitalized if they appear at the
   beginning of a sentence (a la SICP).
 
+  The acronym ``VM'' will be uppercased.
+
 * Procedure return values
 
   All procedure definition blocks will show a return value, just like
