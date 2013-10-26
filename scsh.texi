@@ -10768,25 +10768,38 @@ scsh -c \
 @end example
 
 @section The scsh virtual machine
-@c 
-@c To run the Scheme 48 implementation of scsh, you run a specially modifiedcopy of the Scheme 48 virtual machine with a scsh heap image. The scsh binary is actually nothing but a small cover program that invokes the byte-codeinterpreter on the scsh heap image for you. This allows you to simply start
-@c up an interactive scsh from a command line, as well as write shell scripts thatbegin with the simple trigger
-@c 
-@c #!/usr/local/bin/scsh -s
-@c You can also directly execute the virtual machine, which takes its own setof command-line switches.. For example, this command starts the vm up with
-@c 
-@c a 1 Mword heap (split into two semispaces):
-@c 
-@c 184
-@c 
-@c scshvm -o scshvm -h 1000000 -i scsh.image arg1 arg2 ...
-@c The vm peels off initial vm arguments up to the -i heap image argument,which terminates vm argument parsing. The rest of the arguments are
-@c 
-@c passed off to the scsh top-level. Scsh's top-level removes scsh switches,as discussed in the previous section; the rest show up as the value of
-@c command-line-arguments.
-@c 
-@c Directly executing the vm can be useful to specify non-standard switches,or invoke the virtual machine on special heap images, which can contain precompiled scsh programs with their own top-level procedures.
-@c 
+
+To run the Scheme 48 implementation of scsh, you run a specially
+modified copy of the Scheme 48 virtual machine with a scsh heap
+image. The scsh binary is actually nothing but a small cover program
+that invokes the byte-code interpreter on the scsh heap image for
+you. This allows you to simply start up an interactive scsh from a
+command line, as well as write shell scripts that begin with the
+simple trigger
+
+@example
+#!/usr/local/bin/scsh -s
+@end example
+
+You can also directly execute the virtual machine, which takes its own
+set of command-line switches. For example, this command starts the VM
+up with a 1 Mword heap (split into two semispaces):
+
+@example
+scshvm -o scshvm -h 1000000 -i scsh.image arg1 arg2 ...
+@end example
+
+The VM peels off initial VM arguments up to the @code{-i} heap image
+argument, which terminates VM argument parsing. The rest of the
+arguments are passed off to the scsh top-level. Scsh's top-level
+removes scsh switches, as discussed in the previous section; the rest
+show up as the value of @code{command-line-arguments}.
+
+Directly executing the VM can be useful to specify non-standard
+switches, or to invoke the virtual machine on special heap images,
+which can contain precompiled scsh programs with their own top-level
+procedures.
+
 @subsection VM arguments
 @c 
 @c The vm takes arguments in the following form:
