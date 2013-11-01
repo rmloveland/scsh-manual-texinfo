@@ -1,8 +1,12 @@
-\input texinfo  @c -*-texinfo-*-
+\input texinfo  @c                                     -*- Texinfo -*-
 @c %**start of header
 @setfilename scsh.info
 @settitle Scsh Reference Manual
-@synindex vr fn @c Use `@vindex' and `@findex', respectively.
+
+@c VR and FN below correspond to VINDEX and FINDEX, which stand for
+@c variable and function indices, respectively. See the end of this
+@c file for their use.
+@synindex vr fn
 @c %**end of header
 
 @c Part 2: Summary Description and Copyright
@@ -12,6 +16,7 @@
 This manual is for scsh, release 0.6.7.
 
 Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
+Copyright @copyright{} 2013 Rich Loveland (Texinfo conversion, additional edits)
 @end copying
 
 
@@ -26,6 +31,7 @@ Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler,
 @author Brian D. Carlstrom
 @author Martin Gasbichler
 @author Mike Sperber
+@author Rich Loveland (Texinfo conversion, additional edits)
 
 @c The following two commands start the copyright page.
 @page
@@ -46,6 +52,7 @@ Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler,
 For scsh release 0.6.7
 
 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
+(Texinfo conversion and additional edits by Rich Loveland)
 @end ifnottex
 
 @menu
@@ -3888,8 +3895,8 @@ the fully-qualified domain name.
 @section Signal system
 
 Signal numbers are bound to the variables @code{signal/hup},
-@code{signal/int}, @dots{}. See tables 3.9 and 3.3 for the full list.
-@c TODO: Create links to tables.
+@code{signal/int}, @dots{}. For the full list, see @ref{Table 3.2} and
+@ref{Table 3.3}.
 
 @deffn Procedure signal-process proc sig
 @deffnx Procedure signal-process-group prgrp sig
@@ -3932,10 +3939,9 @@ a Scheme 48 interrupt. This ensures that signal delivery happens
 between two VM instructions, keeping individual instructions atomic.
 
 The Scheme 48 machine has its own set of interrupts, which includes
-the asynchronous UNIX signals (table 3.9).
-@c TODO: Create table xref.
+the asynchronous UNIX signals. (See the table below.)
 
-@multitable @columnfractions .33 .33 .33 @code
+@multitable @columnfractions .33 .33 .33
 @headitem Interrupt @tab UNIX signal @tab OS Variant
 @item @code{interrupt/alrm}@footnote{Also bound to Scheme 48 interrupt interrupt/alarm.}
 @tab @code{signal/alrm}
@@ -4001,8 +4007,9 @@ the asynchronous UNIX signals (table 3.9).
 @tab BSD + SVR4
 @end multitable
 
-Table 3.2: Scheme 48 virtual-machine interrupts and related UNIX
-signals. Only the @acronym{POSIX} signals are guaranteed to be
+@anchor{Table 3.2}
+@b{Table 3.2}: Scheme 48 virtual-machine interrupts and related
+UNIX signals. Only the @acronym{POSIX} signals are guaranteed to be
 defined; however, your implementation and OS may define other signals
 and interrupts not listed here.
 
@@ -4052,8 +4059,9 @@ and interrupts not listed here.
 @tab BSD + SVR4
 @end multitable 
 
-Table 3.3: Uncatchable and synchronous UNIX signals. While these
-signals may be sent with @code{signal-process} or
+@anchor{Table 3.3}
+@b{Table 3.3}: Uncatchable and synchronous UNIX signals. While
+these signals may be sent with @code{signal-process} or
 @code{signal-process-group}, there are no corresponding scsh interrupt
 handlers. Only the @acronym{POSIX} signals are guaranteed to be
 defined; however, your implementation and OS may define other signals
@@ -4130,13 +4138,13 @@ interrupt value, not a signal value. A handler is either @code{#f}
 argument.
 @end deffn
 
-@c TODO: Create link to table below.
 Note that Scsh does not support interrupt handlers for ``synchronous''
-UNIX signals, such as @code{signal/ill} or @code{signal/pipe} (see
-table 3.3). Synchronous occurrences of these signals are better
-handled by raising a Scheme exception.  There are, however, some rare
-situations where it is necessary to ignore the occurrence of a
-synchronous signal. For this case, the following procedures exist:
+UNIX signals, such as @code{signal/ill} or @code{signal/pipe}. (For
+more information about these signals, see @ref{Table 3.3}.)
+Synchronous occurrences of these signals are better handled by raising
+a Scheme exception.  There are, however, some rare situations where it
+is necessary to ignore the occurrence of a synchronous signal. For
+this case, the following procedures exist:
 
 @deffn Procedure ignore-signal integer
 @deffnx Procedure handle-signal-default integer
@@ -4479,26 +4487,32 @@ This procedure fills in missing, redundant slots in a date record. In
 decreasing order of priority:
 
 @itemize
+
 @item year, month, month-day -> year-day
+
 If the @code{year}, @code{month}, and @code{month-day} fields are all
 defined (are all integers), the @code{year-day} field is set to the
 corresponding value.
 
 @item year, year-day -> month, month-day
+
 If the @code{month} and @code{month-day} fields aren't set, but the
 @code{year} and @code{year-day} fields are set, then @code{month} and
 @code{month-day} are calculated.
 
 @item year, month, month-day, year-day -> week-day
+
 If either of the above rules is able to determine what day it is, the
 @code{week-day} field is then set.
 
 @item tz-secs -> tz-name
+
 If @code{tz-secs} is defined, but @code{tz-name} is not, it is assigned
 a time-zone name of the form ``@code{UTC+hh:mm:ss}''; the trailing
 @code{:mm:ss} portion is deleted if it is zeroes.
 
 @item tz-name, date, summer? -> tz-secs, summer?
+
 If the date information is provided up to second resolution,
 @code{tz-name} is also provided, and @code{tz-secs} is not set, then
 @code{tz-secs} and @code{summer?} are set to their correct values.
@@ -4507,10 +4521,12 @@ Summer-time ambiguities are resolved using the original value of
 @code{summer?} is set to @code{#f}.
 
 @item local time, date, summer? -> tz-name, tz-secs, summer?
+
 If the date information is provided up to second resolution, but no time
 zone information is provided (both @code{tz-name} and @code{tz-secs}
 aren't set), then we proceed as in the above case, except the system's
 current time zone is used.
+
 @end itemize
 
 These rules allow one particular ambiguity to escape: if both
@@ -4810,7 +4826,7 @@ The primary data structure that describes a terminal's mode is a
 @subsubsection The control-characters string
 
 The @code{control-chars} field is a character string; its characters may
-be indexed by integer values taken from @pxref{Table 4}.
+be indexed by integer values taken from @ref{Table 4}.
 
 As discussed above, only the @acronym{POSIX} entries in table 4 are
 guaranteed to be legal, integer indices. A program can reliably test the
@@ -5811,16 +5827,20 @@ address-family.
 
 The procedures in this section are presented in the order in which a
 typical program will use them. Consult a text on network systems programming for
-more information on sockets@footnote{Some recommended ones are:
+more information on sockets. Some recommended ones are:
 
 @itemize
 @item @emph{UNIX Network Programming} by W. Richard Stevens
-@item @emph{An Introductory 4.3BSD Interprocess Communication Tutorial} (reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1})
-@item @emph{An Advanced 4.3BSD Interprocess Communication Tutorial} (reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1})
+
+@item @emph{An Introductory 4.3BSD Interprocess Communication Tutorial}
+
+@item @emph{An Advanced 4.3BSD Interprocess Communication Tutorial}
+
+@item The previous two documents were reprinted in @emph{UNIX Programmer's Supplementary Documents Volume 1}.
 @end itemize
 
-The last two tutorials are freely available as part of
-@acronym{BSD}.}.  In the absence of these, your UNIX manual pages for
+The middle two tutorials are freely available as part of
+@acronym{BSD}.  In the absence of these, your UNIX manual pages for
 @code{socket()} might be a good starting point for information.
 
 @deffn Procedure connect-socket socket socket-address
@@ -6202,6 +6222,7 @@ form to filename form if it does not have a trailing slash. Bear in
 mind that the ambiguous case, empty string, will be interpreted in file
 name form, i.e., as root.
 
+@page @c Required for printed output.
 @anchor{Filename Procedures}
 @subsection Filename Procedures
 
@@ -6986,6 +7007,7 @@ characters are taken in pairs to form inclusive ranges, @emph{e.g.},
 @b{Figure 5}: These are the ``type-checking'' rules applied to
 @acronym{SRE}s that specify character sets.
 
+@page
 @anchor{Examples}
 @section Examples
 
@@ -7232,11 +7254,10 @@ wildcard in line-oriented matching.
 There are also predefined named character classes for the standard
 @acronym{POSIX} and @acronym{GNU} character classes:
 
-@multitable @columnfractions .25 .25 .25 .25
-@headitem scsh name 
+@multitable @columnfractions .33 .33 .33
+@headitem scsh name
 @tab @acronym{POSIX}/ctype 
 @tab Alternate name 
-@tab Comment
 
 @item lower-case 
 @tab lower
@@ -7267,7 +7288,6 @@ There are also predefined named character classes for the standard
 @item whitespace 
 @tab space 
 @tab white 
-@tab ``@code{space}'' is deprecated.
 
 @item printing 
 @tab print
@@ -7547,7 +7567,7 @@ regexp is submatch #1, and the @code{(? "bar")} part is submatch
 #2. But what number submatch is the "baz" submatch? It's not
 clear. Suppose the Scheme expression @code{(f x)} produces a regular
 expression that itself has 3 subforms. Are these counted (making the
-``baz'' submatch #6), or not counted (making the ``bar'' submatch#3)?
+``baz'' submatch #6), or not counted (making the ``bar'' submatch #3)?
 
 @acronym{SRE} notation provides for both possibilities. The
 @acronym{SRE}
@@ -7825,10 +7845,9 @@ sub-expression does not match, then @code{match:start} returns
 @code{Match:end} is analogous to @code{match:start}, returning the end
 position of the indexed submatch.
 
-@c TODO: Rewrite this.
-@code{Match:substring} returns the substring matched regexp's
-submatch. If there was no match for the indexed submatch, it returns
-false.
+@code{Match:substring} returns the substring matched by the regexp's
+submatch at index @var{i}. If there was no match for the indexed
+submatch, it returns @code{#f}.
 @end deffn
 
 @deffn Procedure regexp-substitute port-or-false match [items]
@@ -7968,8 +7987,8 @@ passing it one non-matching/matching chunk each time: on an application
 @code{(kons i m knil)}, the non-matching chunk goes from @var{i} to
 @code{(match:begin @var{m} 0)}, and the following matching chunk goes
 from @code{(match:begin @var{m} 0)} to @code{(match:end @var{m} 0)}. The
-last non-matching chunk @code{NM_k} is processed by @var{k}. So the
-computation we perform is @c does k mean KONS?
+last non-matching chunk @math{NM_k} is processed by @var{k}. So the
+computation we perform is @c TODO: Does K mean KONS?
 
 @example
 (final @math{Q} (@var{kons} @math{J_k} @math{M_k} @dots{} (@var{kons} @math{J_1} @math{M_1} @var{knil}) @dots{}))
@@ -7990,7 +8009,7 @@ The right-to-left variant of @code{regexp-fold}.
 This procedure repeatedly matches regexp @var{re} across string
 @var{s}. This divides @var{s} up into a sequence of matching/non-matching chunks:
 
-@math{@math{NM_1} @math{M_1} @math{NM_1} @math{M_2} @dots{} @math{NM_k-1} @math{M_k-1} @math{NM_k}}
+@math{NM_1} @math{M_1} @math{NM_1} @math{M_2} @dots{} @math{NM_k-1} @math{M_k-1} @math{NM_k}
 
 where @math{NM_1} is the initial part of @var{s} that isn't matched by
 the regexp @var{re}, @math{M_1} is the first match, @math{NM_2} is the
@@ -9058,7 +9077,7 @@ to perform text processing very similar to the Awk programming
 language. The basic functionality of Awk is factored in scsh into its
 component parts. The control structure is provided by the @code{awk}
 loop macro; the text I/O and parsers are provided by the field-reader
-subroutine library (@xref{Record I/O and field parsing}.) This factoring @c TODO: Fix this link.
+subroutine library (@xref{Record I/O and field parsing}.) This factoring
 allows the programmer to compose the basic loop structure with any
 parser or input mechanism at all. If the parsers provided by the
 field-reader package are insufficient, the programmer can write a custom
@@ -9108,7 +9127,7 @@ binds @code{read-passwd} to a procedure that reads in a line of text
 when it is called, and splits the text at colons. It returns two values:
 the entire line read, and a seven-element list of the split-out
 fields. (For more on @code{field-reader} and @code{infix-splitter},
-@xref{Record I/O and field parsing}.) @c TODO: Fix this link.
+@xref{Record I/O and field parsing}.)
 
 So if the @emph{<next-record>} form in an @code{awk} expression is
 @code{(read-passwd)}, then @emph{<record&field-vars>} must be a list of
@@ -9363,11 +9382,11 @@ A thread can be thought of as a procedure that can run independently of
 and concurrent to the rest of the system. The calling procedure fires
 the thread up and forgets about it.
 
-@c TODO: Fix reference to Scheme 48 docs.
 The current thread interface is completely taken from Scheme 48. This
-documentation is an extension of the file @code{doc/threads.txt}.
+documentation is an extension of the file @code{doc/threads.txt}
+included with the Scsh distribution.
 
-The thread structure is named @code{threads}, it has to be opened
+The thread structure is named @code{threads}; it has to be opened
 explicitly.
 
 @deffn Procedure spawn thunk [name]
@@ -9506,16 +9525,17 @@ until another thread sets the value using @code{placeholder-set!}.
 @anchor{The event interface to interrupts}
 @section The event interface to interrupts
 
-@c TODO: Clean up reference to paper.
 Scsh provides a synchronous interface to the asynchronous signals
 delivered by the operating system@footnote{Olin Shivers' paper
 ``Automatic management of operating-system resources'' describes this
-system in detail.}. The key element in this system is an object called
-@emph{sigevent} which corresponds to the single occurrence of a
-signal. A sigevent has two fields: the UNIX signal that occurred and a
-pointer to the sigevent that happened or will happen. That is, events
-are kept in a linked list in increasing-time order. Scsh's structure
-@code{sigevents} provides various procedures to access this list:
+system in detail. For Shivers' complete technical bibliography, see
+@uref{http://www.ccs.neu.edu/home/shivers/citations.html}}. The key
+element in this system is an object called @emph{sigevent} which
+corresponds to the single occurrence of a signal. A sigevent has two
+fields: the UNIX signal that occurred and a pointer to the sigevent
+that happened or will happen. That is, events are kept in a linked
+list in increasing-time order. Scsh's structure @code{sigevents}
+provides various procedures to access this list:
 
 @deffn Procedure most-recent-sigevent
 
@@ -9973,7 +9993,10 @@ specified form of calling @code{syslog} logs to the specified channel.
 
 Scsh provides a direct interface to the MD5 functions to compute the
 "fingerprint" or "message digest" of a file or string. It uses the C
-library written by Colin Plum. @c TODO: Better reference to this library?
+library written by Colin Plum.
+
+@c TODO: Check the spelling of Mr. Plum's name (it appears on the
+@c interwebs as both `Plum' and `Plumb'.
 
 @deffn Procedure md5-digest-for-string string
 Calculates the MD5 digest for the given @var{string}.
@@ -10206,10 +10229,8 @@ other static information (@emph{e.g.}, advisory type declarations, or
 syntax information).
 @end table
 
-@c TODO: Update this?
 More information on the the Scheme 48 module system can be found in
-the file @code{module.ps} in the @code{doc} directory of the Scheme 48
-and scsh releases.
+the file @code{doc/src/module.tex} in the scsh distribution.
 
 Programming Scheme with a module system is different from programming
 in older Scheme implementations, and the associated development
