@@ -51,7 +51,7 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 @menu
 * Introduction::
 * Process notation::
-* System Calls::
+* System calls::
 * Networking::
 * Strings and characters::
 * Pattern-matching strings with regular expressions::
@@ -60,7 +60,7 @@ Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
 * Concurrent system programming::
 * Miscellaneous routines::
 * Running scsh::
-* Index::               Complete index.
+* Index::
 
 @detailmenu
 --- The Detailed Node Listing ---
@@ -85,7 +85,7 @@ Process notation
 * Conditional process sequencing forms::
 * Process filters::
 
-System Calls
+System calls
 
 * Errors::
 * I/O::
@@ -158,8 +158,8 @@ Running scsh
 * The scsh virtual machine::
 * Compiling scsh programs::
 * Standard file locations::
-
 @end detailmenu
+
 @end menu
 
 
@@ -202,7 +202,7 @@ Cambridge
 September 4, 1994
 @end flushright
 
-@node Introduction
+@node Introduction, Process notation, Top, Top
 @chapter Introduction
 
 This is the reference manual for scsh, a UNIX shell that is embedded
@@ -218,7 +218,9 @@ operating system. This manual gives a complete description of scsh. A
 general discussion of the design principles behind scsh can be found in
 a companion paper, ``A Scheme Shell''.
 
+@anchor{Copyright & source-code license}
 @section Copyright & source-code license
+
 Scsh is open source. The complete sources come with the standard
 distribution, which can be downloaded off the net. Scsh has an
 ideologically hip, BSD-style license.
@@ -232,7 +234,9 @@ unless it's @emph{exactly} compliant with the scsh interfaces.)
 
 Take all the code you like; we'll just write more.
 
+@anchor{Obtaining scsh}
 @section Obtaining scsh
+
 Scsh is distributed via net publication. We place new releases at
 well-known network sites, and allow them to propagate from there. We
 currently release scsh to the following sites:
@@ -253,7 +257,9 @@ as archie, to find ftp servers storing scsh tar files. Take the set of
 sites storing the most recent release of scsh, choose one close to your
 site, and download the tar file.
 
+@anchor{Building scsh}
 @section Building scsh
+
 Scsh currently runs on a fairly large set of UNIX systems, including
 Linux, FreeBSD, OpenBSD, NetBSD, MacOS X, SunOS, Solaris, AIX, NeXTSTEP,
 Irix, and HP-UX. We use the Gnu project's autoconfig tool to generate
@@ -294,7 +300,9 @@ It is not too difficult to port scsh to another UNIX platform if your OS
 is not supported by the current release. See the release notes for more
 details on how to do this.
 
+@anchor{Caveats}
 @section Caveats
+
 It is important to note what scsh is not, as well as what it is. Scsh,
 in the current release, is primarily designed for the writing of shell
 scripts---programming.  It is not a very comfortable system for
@@ -305,7 +313,9 @@ not read in an initialisation file analogous to @code{.login} or
 releases; we even have designs for several of these features; but the
 system as-released does not currently provide these features.
 
+@anchor{Naming conventions}
 @section Naming conventions
+
 Scsh follows a general naming scheme that consistently employs a set of
 abbreviations. This is intended to make it easier to remember the names
 of things.  Some of the common ones are:
@@ -387,10 +397,14 @@ example, the various UNIX signal integers have the names
 @code{signal/cont}, @code{signal/kill}, @code{signal/int},
 @code{signal/hup}, and so forth.
 
+@anchor{Lexical issues}
 @section Lexical issues
+
 Scsh's lexical syntax is just @acronym{R5RS} Scheme, with the following exceptions.
 
+@anchor{Extended symbol syntax}
 @subsection Extended symbol syntax
+
 Scsh's symbol syntax differs from @acronym{R5RS} Scheme in the following ways:
 
 @itemize @bullet
@@ -425,11 +439,15 @@ A symbol may begin with a digit. So the following are legitimate symbols:
 @end example
 @end itemize
 
+@anchor{Extended string syntax}
 @subsection Extended string syntax
+
 Scsh strings are allowed to contain the @acronym{ANSI} C escape sequences such as
 @code{\n} and @code{\161}.
 
+@anchor{Block comments and executable interpreter-triggers}
 @subsection Block comments and executable interpreter-triggers
+
 Scsh allows source files to begin with a header of the form
 
 @example
@@ -449,7 +467,9 @@ interpreter-triggers for executable UNIX scripts, it is a general
 block-comment sequence and can be used as such anywhere in a scsh
 program.
 
+@anchor{Here-strings}
 @subsection Here-strings
+
 The read macro @code{#<} is used to introduce ``here-strings'' in
 programs, similar to the @code{<<} ``here document'' redirections
 provided by sh and csh. There are two kinds of here-string,
@@ -542,7 +562,9 @@ final newline in the here-string---see the example above). If @acronym{eof} is
 encountered before reading the end of the here-string, an error is
 signalled.
 
+@anchor{Dot}
 @subsection Dot
+
 It is unfortunate that the single-dot token, ``.'', is both a
 fundamental UNIX filename and a deep, primitive syntactic token in
 Scheme -- it means the following will not parse correctly in scsh:
@@ -560,7 +582,9 @@ You must instead quote the dot:
 When you write shell scripts that manipulate the file system, keep in
 mind the special status of the dot token.
 
+@anchor{Record types and the define-record form}
 @section Record types and the define-record form
+
 @cindex define-record
 
 Scsh's interfaces occasionally provide data in structured record types;
@@ -627,7 +651,9 @@ prefers @footnote{He wrote it.}. It can be found in the
 
 Alternatively, you may define your own, of course.
 
+@anchor{A word about UNIX standards}
 @section A word about UNIX standards
+
 ``The wonderful thing about UNIX standards is that there are so many to
 choose from''. You may be totally bewildered about the multitude of
 various standards that exist. Rest assured that nowhere in this manual
@@ -643,7 +669,7 @@ sticks to @acronym{POSIX} when at all possible; its major departure is
 symbolic links, which aren't in @acronym{POSIX} (see---it really
 @emph{is} a least common denominator).
 
-@node Process notation
+@node Process notation, System calls, Introduction, Top
 @chapter Process notation
 
 Scsh has a notation for controlling UNIX processes that takes the form
@@ -652,7 +678,9 @@ standard Scheme code. The basic elements of this notation are
 @emph{process forms}, @emph{extended process forms}, and
 @emph{redirections}.
 
+@anchor{Extended process forms and I/O redirections}
 @section Extended process forms and I/O redirections
+
 An extended process form is a specification of a UNIX process to run,
 in a particular I/O environment:
 
@@ -749,7 +777,9 @@ port). More complex redirections can be accomplished using the
 @code{begin} process form, discussed below, which gives the programmer
 full control of I/O redirection from Scheme.
 
+@anchor{Port and file descriptor sync}
 @subsection Port and file descriptor sync
+
 It's important to remember that rebinding Scheme's current I/O ports
 (e.g.,using @code{call-with-input-file} to rebind the value of
 @code{(current-input-port)}) does @emph{not} automatically ``rebind''
@@ -782,7 +812,9 @@ a string port). This Scheme/UNIX I/O synchronisation can also be had in
 Scheme code (as opposed to a redirection spec) with the
 @code{(stdports->stdio)} procedure.
 
+@anchor{Process forms}
 @section Process forms
+
 A @emph{process form} specifies a computation to perform as an
 independent UNIX process. It can be one of the following:
 
@@ -844,7 +876,9 @@ associated I/O redirections.
 Note that @acronym{R5RS} does not specify whether or not @code{|} and @code{|+}
 are readable symbols. Scsh does.
 
+@anchor{Using extended process forms in Scheme}
 @section Using extended process forms in Scheme
+
 Process forms and extended process forms are not Scheme. They are a
 different notation for expressing computation that, like Scheme, is
 based upon s-expressions. Extended process forms are used in Scheme
@@ -883,7 +917,9 @@ set up pipelines. However, the definitions of the @code{&} and
 @equiv{} @code{(wait (& . @var{epf}))}
 @end table
 
+@anchor{Procedures and special forms}
 @subsection Procedures and special forms
+
 It is a general design principle in scsh that all functionality made
 available through special syntax is also available in a
 straightforward procedural form.  So there are procedural equivalents
@@ -909,10 +945,12 @@ Redirection specs use @code{open} and @code{dup}.
 Having a solid procedural foundation also allows for general
 notational experimentation using Scheme's macros. For example, the
 programmer can build his own pipeline notation on top of the
-@code{fork} and @code{fork/pipe} procedures. @ref{System Calls} for
+@code{fork} and @code{fork/pipe} procedures. @ref{System calls} for
 the full story on all the procedures in the syscall library.
 
+@anchor{Interfacing process output to Scheme}
 @subsection Interfacing process output to Scheme
+
 There is a family of procedures and special forms that can be used to
 capture the output of processes as Scheme data.
 
@@ -1038,13 +1076,17 @@ port, where the seed values express the loop state.
 @end flushright
 @end deffn
 
+@anchor{More complex process operations}
 @section More complex process operations
+
 The procedures and special forms in the previous section provide for
 the common case, where the programmer is only interested in the output
 of the process. These special forms and procedures provide more
 complicated facilities for manipulating processes.
 
+@anchor{Pids and ports together}
 @subsection Pids and ports together
+
 @deffn Syntax run/port+proc . @var{epf}
 @deffnx Procedure run/port+proc* @var{thunk}
 This special form and its analogous procedure can be used if the
@@ -1071,7 +1113,9 @@ Note that you must @emph{first} do the @code{port->string} and
 when the @code{zcat} fills up its output pipe buffer.
 @end deffn
 
+@anchor{Multiple stream capture}
 @subsection Multiple stream capture
+
 Occasionally, the programmer may want to capture multiple distinct
 output streams from a process. For instance, he may wish to read the
 stdout and stderr streams into two distinct strings. This is
@@ -1186,7 +1230,9 @@ See @code{temp-file-channel} for more information on creating temp
 files as communication channels.
 @end deffn
 
+@anchor{Conditional process sequencing forms}
 @section Conditional process sequencing forms
+
 These forms allow conditional execution of a sequence of processes.
 
 @deffn Syntax || @math{pf_1} @dots{} @math{pf_n}
@@ -1200,7 +1246,9 @@ Run each proc until one fails (i.e., exit status non-zero). Return
 true if all procs complete successfully; otherwise @code{#f}.
 @end deffn
 
+@anchor{Process filters}
 @section Process filters
+
 These procedures are useful for forking off processes to filter text
 streams.
 
@@ -1237,8 +1285,8 @@ will never be applied to a string longer than @var{buflen} chars. The
 default @var{buflen} value is 1024.
 @end deffn
 
-@node System Calls
-@chapter System Calls
+@node System calls, Networking, Process notation, Top
+@chapter System calls
 
 Scsh provides (almost) complete access to the basic UNIX kernel
 services: processes, files, signals and so forth. These procedures
@@ -1246,7 +1294,9 @@ comprise a Scheme binding for @acronym{POSIX}, with a few of the more
 standard extensions thrown in (e.g., symbolic links, @code{fchown},
 @code{fstat}, sockets).
 
+@anchor{Errors}
 @section Errors
+
 Scsh syscalls never return error codes, and do not use a global
 @code{errno} variable to report errors. Errors are consistently
 reported by raising exceptions. This frees up the procedures to return
@@ -1354,7 +1404,9 @@ handler explicitly raise an exception or invoke a stored continuation to
 throw out of the system call.
 @end deffn
 
+@anchor{Interactive mode and error handling}
 @subsection Interactive mode and error handling
+
 Scsh runs in two modes: interactive and script mode. It starts up in
 interactive mode if the scsh interpreter is started up with no script
 argument. Otherwise, scsh starts up in script mode. The mode determines
@@ -1368,7 +1420,10 @@ handler causes the scsh process to exit.
 When scsh forks a child with @code{(fork)}, the child resets to script
 mode. This can be overridden if the programmer wishes.
 
+@anchor{I/O}
 @section I/O
+
+@anchor{Standard @acronym{R5RS} I/O procedures}
 @subsection Standard @acronym{R5RS} I/O procedures
 
 In scsh, most standard @acronym{R5RS} I/O operations (such as @code{display} or
@@ -1391,6 +1446,7 @@ file descriptor arguments, since these functions require the ability
 to read ahead in the input stream, a feature not supported by UNIX
 I/O.
 
+@anchor{Port manipulation and standard ports}
 @subsection Port manipulation and standard ports
 
 @deffn Procedure close-after @var{port} @var{consumer}
@@ -1498,7 +1554,9 @@ and then calls @var{thunk}. It is equivalent to:
 The @code{with-stdio-ports} special form is merely syntactic sugar.
 @end deffn
 
+@anchor{String ports}
 @subsection String ports
+
 Scheme 48 has string ports, which you can use. Scsh has not committed
 to the particular interface or names that Scheme 48 uses, so be warned
 that the interface described herein may be liable to change.
@@ -1521,7 +1579,9 @@ characters that were written to that port during the execution of
 @var{procedure}.
 @end deffn
 
+@anchor{Revealed ports and file descriptors}
 @subsection Revealed ports and file descriptors
+
 The material in this section and the following one is not critical for
 most applications. You may safely skim or completely skip this section
 on a first reading.
@@ -1681,7 +1741,9 @@ ports, which he should almost never have to do. If a user starts asking
 what file descriptors have been allocated to what ports, he has to
 take responsibility for managing this information.
 
+@anchor{Port-mapping machinery}
 @subsection Port-mapping machinery
+
 The procedures provided in this section are almost never needed. You
 may safely skim or completely skip this section on a first reading.
 
@@ -1751,7 +1813,9 @@ port already using @var{target-fd}, it is first relocated to some
 other file descriptor.
 @end deffn
 
+@anchor{UNIX I/O}
 @subsection UNIX I/O
+
 @deffn Procedure dup @var{fd/port} [@var{newfd}]
 @deffnx Procedure dup->inport @var{fd/port} [@var{newfd}]
 @deffnx Procedure dup->outport @var{fd/port} [@var{newfd}]
@@ -2130,7 +2194,9 @@ Oops: @code{write-string/partial} is currently not
 implemented. Consider using threads to achive the same functionality.
 @end deffn
 
+@anchor{Buffered I/O}
 @subsection Buffered I/O
+
 Scheme 48 ports use buffered I/O---data is transferred to or from the
 OS in blocks. Scsh provides control of this mechanism: the programmer
 may force saved-up output data to be transferred to the OS when he
@@ -2200,6 +2266,7 @@ value.
 This procedure flushes all open output ports with buffered data.
 @end deffn
 
+@anchor{File locking}
 @subsection File locking
 
 Scsh provides @acronym{POSIX} advisory file locking. Advisory locks are
@@ -2318,6 +2385,7 @@ by @code{with-region-lock*}. The @code{with-region-lock} special form
 is equivalent syntactic sugar.
 @end deffn
 
+@anchor{File system}
 @section File system
 
 Besides the following procedures, which allow access to the computer's
@@ -3064,6 +3132,7 @@ way to do this is for the reader to delay doing input until the writer
 has completely finished doing output, or exited.
 @end deffn
 
+@anchor{Processes}
 @section Processes
 
 @deffn Procedure exec prog @math{arg_1} @dots{} @math{arg_n}
@@ -3270,6 +3339,7 @@ Like @code{fork/pipe}, but the pipe connections between the child and parent are
 process form for a description of connection lists.
 @end deffn
 
+@anchor{Process objects and process reaping}
 @subsection Process objects and process reaping
 
 Scsh uses process objects to represent UNIX processes. They are created
@@ -3418,7 +3488,9 @@ of the kernel's process table. If a program doesn't use process reaping,
 it should either avoid these forms, or use @code{wait-any} to wait for
 the children to exit.
 
+@anchor{Process waiting}
 @subsection Process waiting
+
 @deffn Procedure wait proc/pid [flags]
 
 This procedure waits until a child process exits, and returns its exit
@@ -3480,7 +3552,9 @@ processes (to implement job control), so this is rarely an issue, as
 stopped processes are not subject to reaping.
 @end deffn
 
+@anchor{Analysing process status codes}
 @subsection Analysing process status codes
+
 When a child process dies (or is suspended), its parent can call the
 @code{wait} procedure to recover the exit (or suspension) status of the
 child. The exit status is a small integer that encodes information
@@ -3517,7 +3591,9 @@ returns the signal that terminated the child. Otherwise, this procedure
 returns false.
 @end deffn
 
+@anchor{Process state}
 @section Process state
+
 @deffn Procedure umask
 @deffnx Procedure set-umask perms
 @deffnx Procedure with-umask* perms thunk
@@ -3625,7 +3701,9 @@ can be used to convert the times reported by @code{process-times} to
 seconds.
 @end deffn
 
+@anchor{User and group database access}
 @section User and group database access
+
 These procedures are used to access the user and group databases (e.g.,
 the ones traditionally stored in @code{/etc/passwd} and
 @code{/etc/group}.)
@@ -3663,7 +3741,9 @@ particular group:
 The @var{gid/name} argument is either an integer gid or a string group-name.
 @end deffn
 
+@anchor{Accessing command-line arguments}
 @section Accessing command-line arguments
+
 @deffn Variable command-line-arguments
 @deffnx Procedure command-line
 
@@ -3774,6 +3854,7 @@ execute the program on, so it is not properly part of the program's
 argument list.
 @end deffn
 
+@anchor{System parameters}
 @section System parameters
 
 @deffn Procedure system-name
@@ -3803,7 +3884,9 @@ characters, and that the node name does not necessarily correspond to
 the fully-qualified domain name.
 @end deffn
 
+@anchor{Signal system}
 @section Signal system
+
 Signal numbers are bound to the variables @code{signal/hup},
 @code{signal/int}, @dots{}. See tables 3.9 and 3.3 for the full list.
 @c TODO: Create links to tables.
@@ -3836,7 +3919,9 @@ purposes.  Consider using the @code{sleep} procedure from the
 @code{thread} package.
 @end deffn
 
+@anchor{Interrupt handlers}
 @subsection Interrupt handlers
+
 Scsh interrupt handlers are complicated by the fact that scsh is
 implemented on top of the Scheme 48 virtual machine, which has its own
 interrupt system, independent of the UNIX signal system. This means
@@ -4067,6 +4152,7 @@ calls cannot succeed otherwise. Do not use these procedures for
 asynchronous signals!
 @end deffn
 
+@anchor{Time}
 @section Time
 
 Scsh's time system is fairly sophisticated, particularly with respect to
@@ -4074,7 +4160,8 @@ its careful treatment of time zones. However, casual users shouldn't be
 intimidated; all of the complexity is optional, and defaulting all the
 optional arguments reduces the system to a simple interface.
 
-@subsection Terminology
+@anchor{Time Terminology}
+@subsection Time Terminology
 
 ``@acronym{UTC}'' and ``@acronym{UCT}'' stand for ``universal
 coordinated time'', which is the official name for what is colloquially
@@ -4088,6 +4175,7 @@ The Scsh time package consistently uses this terminology: we never say
 ``@acronym{GMT}'' or ``@acronym{dst}''; we always say ``@acronym{utc}''
 and ``summer time''.
 
+@anchor{Basic data types}
 @subsection Basic data types
 
 We have two types: @emph{time} and @emph{date}.
@@ -4163,7 +4251,9 @@ are optional, and default to @code{#f}, @code{#f}, @code{#f}, @code{0},
 and @code{0} respectively.  This is useful when creating a @code{date}
 record to pass as an argument to @code{time}. Other procedures, however,
 may refuse to work with these incomplete date records.
+@end deffn
 
+@anchor{Time zones}
 @subsection Time zones
 
 Several time procedures take time zones as arguments. When optional, the
@@ -4190,9 +4280,9 @@ An integer time zone gives the number of seconds you must add to
 
 To get @acronym{UTC} time, use a time zone of either @code{0} or
 @code{"UCT0"}.
-@end deffn
 
-@subsection Procedures
+@anchor{Time Procedures}
+@subsection Time Procedures
 
 @deffn Procedure time+ticks
 @deffnx Procedure ticks/sec
@@ -4431,6 +4521,7 @@ should take precedence.
 @emph{Oops:} @code{fill-in-date!} isn't implemented yet.
 @end deffn
 
+@anchor{Environment variables}
 @section Environment variables
 
 @deffn Procedure setenv var val
@@ -4562,6 +4653,7 @@ Example: These four pieces of code all run the mailer with special
 
 @end deffn
 
+@anchor{Path lists and colon lists}
 @subsection Path lists and colon lists
 
 When environment variables such as @code{$PATH} need to encode a list of
@@ -4604,6 +4696,7 @@ may share structure with the original list. Both functions use
 @code{equal?} for comparing elements.
 @end deffn
 
+@anchor{$USER, $HOME, and $PATH}
 @subsection $USER, $HOME, and $PATH
 
 Like @code{sh} and unlike @code{csh}, Scsh has no interactive
@@ -4628,6 +4721,7 @@ To access, rebind or side-effect thread-fluid cells, you must open the
 @code{thread-fluids} package.
 @end deffn
 
+@anchor{Terminal device control}
 @section Terminal device control
 
 Scsh provides a complete set of routines for manipulating terminal
@@ -4645,6 +4739,7 @@ This section can only lay out the basic functionality of the terminal
 device interface. For further details, see the @code{termios(3)} man
 page on your system, or consult one of the standard UNIX texts.
 
+@anchor{Portability across OS variants}
 @subsection Portability across OS variants
 
 Terminal-control software is inescapably complex, ugly, and low-level.
@@ -4681,6 +4776,7 @@ system inevitably has nonstandard extensions. While a particular Scsh
 implementation may provide these extensions, they are not portable, and
 so are not documented here.
 
+@anchor{Miscellaneous procedures}
 @subsection Miscellaneous procedures
 
 @deffn Procedure tty? fd/port
@@ -4692,6 +4788,7 @@ The argument @var{fd/port} must be a file descriptor or port open on a
 tty. Return the filename of the tty.
 @end deffn
 
+@anchor{The tty-info record type}
 @subsection The tty-info record type
 
 The primary data structure that describes a terminal's mode is a
@@ -4779,6 +4876,7 @@ if you are putting the terminal into raw mode; set the @acronym{EOF} and
 @acronym{EOL} control-characters only if you are putting the terminal
 into canonical mode. It's ugly, but it's UNIX.
 
+@anchor{Using tty-info records}
 @subsection Using tty-info records
 
 @deffn Procedure make-tty-info if of cf lf ispeed ospeed min time
@@ -4831,6 +4929,7 @@ Drain output, flush input, then change.
 order, I could have made @var{fd/port/fname} optional. Too late now.
 @end deffn
 
+@anchor{Other terminal-device procedures}
 @subsection Other terminal-device procedures
 
 @deffn Procedure send-tty-break [fd/port/fname duration]
@@ -4890,6 +4989,7 @@ special STOP and START characters to the terminal with the intention of
 stopping and starting terminal input flow.
 @end deffn
 
+@anchor{Control terminals, sessions, and terminal process groups}
 @subsection Control terminals, sessions, and terminal process groups
 
 @deffn Procedure open-control-tty tty-name [flags]
@@ -4946,6 +5046,7 @@ However, this procedure uses the official @acronym{POSIX} interface, so
 it is more portable than simply using a constant string.
 @end deffn
 
+@anchor{Pseudo-terminals}
 @subsection Pseudo-terminals
 
 Scsh implements an interface to Berkeley-style pseudo-terminals.
@@ -5491,7 +5592,7 @@ generally control the details of the terminal's serial line. Only the
 control the details of the line-editing user interface. Only the
 @acronym{POSIX} entries are guaranteed to be non-@code{#f}.
 
-@node Networking
+@node Networking, Strings and characters, System calls, Top
 @chapter Networking
  
 The Scheme Shell provides a BSD-style sockets interface. There is not
@@ -5507,6 +5608,7 @@ also released a network library with many of these protocols as a
 companion to the current release of scsh. See this code for examples
 showing the use of the sockets interface.
 
+@anchor{High-level interface}
 @section High-level interface
 
 For convenience, and to avoid some of the messy details of the socket
@@ -5565,6 +5667,7 @@ user ID from the superuser to some unprivileged ID once the address
 has been bound.
 @end deffn
 
+@anchor{Sockets}
 @section Sockets
 
 @deffn Procedure create-socket protocol-family type [protocol]
@@ -5642,6 +5745,7 @@ children of @code{inetd}: after receiving a connection @code{inetd}
 creates a socket and passes it as standard input to its child.
 @end deffn
 
+@anchor{Socket addresses}
 @section Socket addresses
 
 The format of a socket address depends on the address family of the
@@ -5702,6 +5806,7 @@ anything more than an empty string for addresses in the UNIX
 address-family.
 @end deffn
 
+@anchor{Socket primitives}
 @section Socket primitives
 
 The procedures in this section are presented in the order in which a
@@ -5804,6 +5909,7 @@ shutdown/sends+receives
 @end example
 @end deffn
 
+@anchor{Performing input and output on sockets}
 @section Performing input and output on sockets
 
 @deffn Procedure receive-message socket length [flags]
@@ -5838,6 +5944,7 @@ See @code{read-string} and @code{write-string} for a more detailed
 description of the arguments and return values.
 @end deffn
 
+@anchor{Socket options}
 @section Socket options
 
 @deffn Procedure socket-option socket level option
@@ -5896,6 +6003,7 @@ microseconds resolution and return a value of the same type upon
 inspection.
 @end deffn
 
+@anchor{Database-information entries}
 @section Database-information entries
 
 @deffn Procedure host-info name-or-socket-address
@@ -5967,7 +6075,7 @@ have the following structure:
 @code{#f} if the specified entity was not found.
 @end deffn
 
-@node Strings and characters
+@node Strings and characters, Pattern-matching strings with regular expressions, Networking, Top
 @chapter Strings and characters
 
 Strings are the basic communication medium for UNIX processes, so a UNIX
@@ -6020,6 +6128,7 @@ More documentation on this library can be found at URLs
 @end example
 @end itemize
 
+@anchor{Manipulating file names}
 @section Manipulating file names
 
 These procedures do not access the file system at all; they merely
@@ -6028,7 +6137,8 @@ the GNU Emacs design. Perhaps a more sophisticated system would be
 better, something like the pathname abstractions of Common Lisp or MIT
 Scheme. However, being UNIX-specific, we can be a little less general.
 
-@subsection Terminology
+@anchor{Filename Terminology}
+@subsection Filename Terminology
 
 These procedures carefully adhere to the @acronym{POSIX} standard for
 filename resolution, which occasionally entails some slightly odd
@@ -6092,7 +6202,8 @@ form to filename form if it does not have a trailing slash. Bear in
 mind that the ambiguous case, empty string, will be interpreted in file
 name form, i.e., as root.
 
-@subsection Procedures
+@anchor{Filename Procedures}
+@subsection Filename Procedures
 
 @deffn Procedure file-name-directory? fname
 @deffnx Procedure file-name-non-directory? fname
@@ -6103,7 +6214,7 @@ they both return true on the ambiguous case of the empty string, which
 is both a directory (the current working directory), and a filename
 (the file system root).
 
-@multitable
+@multitable @columnfractions .33 .33 .33
 @headitem Filename 
 @tab @code{*-directory?} 
 @tab @code{*-non-directory?}
@@ -6131,8 +6242,11 @@ Convert a filename to directory form. Basically, add a trailing slash
 if needed:
 
 @example
-(file-name-as-directory "src/des") =) "src/des/"
-(file-name-as-directory "src/des/") =) "src/des/"
+(file-name-as-directory "src/des")
+  ==> "src/des/"
+
+(file-name-as-directory "src/des/")
+  ==> "src/des/"
 @end example
 
 @code{.}, @code{/}, and @code{""} are special:
@@ -6454,6 +6568,7 @@ The general @code{substitute-env-vars} string procedure, defined in
 the previous section, is also frequently useful for expanding
 filenames.
 
+@anchor{Other string manipulation facilities}
 @section Other string manipulation facilities
 
 @deffn Procedure substitute-env-vars fname
@@ -6471,6 +6586,7 @@ alphanumeric characters and underscores, or is surrounded by braces.
 @end example
 @end deffn
 
+@anchor{ASCII encoding}
 @section ASCII encoding
 
 @deffn Procedure char->ascii character
@@ -6480,6 +6596,7 @@ These are identical to @code{char->integer} and @code{integer->char}
 except that they use the ASCII encoding.
 @end deffn
 
+@anchor{Character predicates}
 @section Character predicates
 
 @deffn Procedure char-letter? character
@@ -6502,7 +6619,7 @@ character sets provided by the SRFI-14 character-set
 library. Additionally, the following redundant bindings are provided
 for @acronym{R5RS} compatibility:
 
-@multitable
+@multitable @columnfractions .50 .50
 @headitem @acronym{R5RS} name 
 @tab scsh definition
 
@@ -6518,6 +6635,7 @@ for @acronym{R5RS} compatibility:
 @end multitable
 @end deffn
 
+@anchor{Deprecated character-set procedures}
 @section Deprecated character-set procedures
 
 The SRFI-13 character-set library grew out of an earlier library
@@ -6530,7 +6648,7 @@ this library, along with the equivalent SRFI-13 binding. This obsolete
 library is deprecated and not open by default in the standard scsh
 environment; new code should use the SRFI-13 bindings.
 
-@multitable
+@multitable @columnfractions .50 .50
 @headitem Old @code{obsolete-char-set-lib}
 @tab SRFI-13 @code{char-set-lib}
 
@@ -6575,7 +6693,7 @@ environment; new code should use the SRFI-13 bindings.
 Note also that the @code{->char-set} procedure no longer handles a
 predicate argument.
 
-@node Pattern-matching strings with regular expressions
+@node Pattern-matching strings with regular expressions, Reading delimited strings, Strings and characters, Top
 @chapter Pattern-matching strings with regular expressions
 
 Scsh provides a rich facility for matching regular-expression patterns
@@ -6645,6 +6763,7 @@ The regexp language supported is a complete superset of @acronym{POSIX} function
 @item Submatch-marking
 @end itemize
 
+@anchor{Summary SRE syntax}
 @section Summary SRE syntax
 
 The following figures give a summary of the @acronym{SRE} syntax; the
@@ -6867,6 +6986,7 @@ characters are taken in pairs to form inclusive ranges, @emph{e.g.},
 @b{Figure 5}: These are the ``type-checking'' rules applied to
 @acronym{SRE}s that specify character sets.
 
+@anchor{Examples}
 @section Examples
 
 @example
@@ -6901,6 +7021,7 @@ characters are taken in pairs to form inclusive ranges, @emph{e.g.},
 (csl (rx (| "John" "Paul" "George" "Ringo")))
 @end example
 
+@anchor{A short tutorial}
 @section A short tutorial
 
 S-expression regexps are called @acronym{SRE}s. Keep in mind that they
@@ -6972,7 +7093,7 @@ of a regular expression. For example, the @acronym{SRE} @code{(*
 @code{(: @var{sre} @dots{})}. Here is the complete list of
 @acronym{SRE} repetition forms:
 
-@multitable
+@multitable @columnfractions .25 .25 .25 .25
 @headitem @acronym{SRE} 
 @tab Means 
 @tab At least 
@@ -7111,7 +7232,7 @@ wildcard in line-oriented matching.
 There are also predefined named character classes for the standard
 @acronym{POSIX} and @acronym{GNU} character classes:
 
-@multitable
+@multitable @columnfractions .25 .25 .25 .25
 @headitem scsh name 
 @tab @acronym{POSIX}/ctype 
 @tab Alternate name 
@@ -7591,6 +7712,7 @@ can be simplified to
 (dsm 1 0 (submatch "bar")).
 @end example
 
+@anchor{Embedding regexps within Scheme programs}
 @subsection Embedding regexps within Scheme programs
 
 @acronym{SRE}s can be placed in a Scheme program using the @code{(rx
@@ -7626,8 +7748,10 @@ underlying C-based matching engine; there is no run-time
 overhead. Dynamic @acronym{SRE}s are partially simplified and then
 expanded into Scheme code that constructs the regexp at run-time.
 
+@anchor{Regexp functions}
 @section Regexp functions
 
+@anchor{Obsolete, deprecated procedures}
 @subsection Obsolete, deprecated procedures
 
 These two procedures are survivors from the previous, now-obsolete
@@ -7647,6 +7771,7 @@ and the necessary data structures are cached inside the @acronym{ADT}
 values.
 @end deffn
 
+@anchor{Standard procedures and syntax}
 @subsection Standard procedures and syntax
 
 @deffn Syntax rx sre @dots{}
@@ -8020,6 +8145,7 @@ class names such as @code{[[:alnum:]]}; the current implementation was
 written in in three hours.
 @end deffn
 
+@anchor{The regexp @acronym{ADT}}
 @section The regexp @acronym{ADT}
 
 The following functions may be used to construct and examine scsh's
@@ -8036,7 +8162,7 @@ its arguments, and a set of accessors. The @code{@dots{}:tsm} accessor
 returns the total number of sub-matches contained in the regular
 expression.
 
-@multitable
+@multitable @columnfractions .33 .33 .33
 @headitem Procedure
 @tab Returns
 @tab Is of Type
@@ -8105,7 +8231,7 @@ expression.
 @tab boolean
 @tab Type predicate
 
-@item @code{(make-re-submatch @var{body} @var{[pre-dsm post-dsm]})}
+@item @code{(make-re-submatch @var{body} [@var{pre-dsm post-dsm}])}
 @tab re
 @tab Accessor
 
@@ -8255,6 +8381,7 @@ to release C-heap storage associated with compiled regexps. Hopefully,
 this procedure will be removed at a later date.
 @end deffn
 
+@anchor{Syntax-hacking tools}
 @section Syntax-hacking tools
 
 The Scheme 48 package @code{sre-syntax-tools} exports several tools for
@@ -8324,7 +8451,7 @@ will be part of the constructed regexp value.
 Is the regexp a static one?
 @end deffn
 
-@node Reading delimited strings
+@node Reading delimited strings, Awk record I/O and field parsing, Pattern-matching strings with regular expressions, Top
 @chapter Reading delimited strings
 
 Scsh provides a set of procedures that read delimited strings from
@@ -8344,7 +8471,7 @@ All of the delimited input operations described below take a
 with the terminating delimiter character. There are four possible
 choices for a @code{handle-delim} parameter:
 
-@multitable
+@multitable @columnfractions .50 .50
 @headitem @code{handle-delim}
 @tab Meaning
 
@@ -8458,7 +8585,7 @@ number of characters skipped. The @var{skip-chars} argument may be a
 charset, a string, or a character; it is coerced to a charset.
 @end deffn
 
-@node Awk record I/O and field parsing
+@node Awk record I/O and field parsing, Concurrent system programming, Reading delimited strings, Top
 @chapter Awk record I/O and field parsing
 
 UNIX programs frequently process streams of records, where each record
@@ -8471,6 +8598,7 @@ colon-separated @code{$PATH} lists. These routines can be used with
 scsh's awk loop construct to conveniently perform pattern-directed
 computation over streams of records.
 
+@anchor{Record I/O and field parsing}
 @section Record I/O and field parsing
 
 The procedures in this section are used to read records from I/O
@@ -8487,6 +8615,7 @@ delimited strings} are also useful for reading simple records, such as
 single lines, paragraphs of text, or strings terminated by specific
 characters.
 
+@anchor{Reading records}
 @subsection Reading records
 
 @deffn Procedure record-reader [delims elide-delims? handle-delim])
@@ -8530,6 +8659,7 @@ from which to read, which defaults to the current input port. It
 returns a string or @acronym{eof}.
 @end deffn
 
+@anchor{Parsing fields}
 @subsection Parsing fields
 
 @deffn Procedure field-splitter [field num-fields])
@@ -8548,7 +8678,7 @@ expressions. You can parse by specifying a pattern that
 @emph{separates} fields, a pattern that @emph{terminates} fields, or a
 pattern that @emph{matches} fields:
 
-@multitable
+@multitable @columnfractions .50 .50
 @headitem Procedure 
 @tab Pattern
 
@@ -8569,7 +8699,7 @@ These parser generators are controlled by a range of options, so that
 you can precisely specify what kind of parsing you want. However,
 these options default to reasonable values for general use:
 
-@multitable
+@multitable @columnfractions .33 .33 .33
 @headitem Option
 @tab Default
 @tab Description
@@ -8773,6 +8903,7 @@ Example:
 @end example
 @end deffn
 
+@anchor{Field readers}
 @subsection Field readers
 
 @deffn Procedure field-reader [field-parser rec-reader]
@@ -8867,6 +8998,7 @@ This figure shows @code{field-reader} being used to read different kinds of UNIX
 @emph{Figure 7}: Some examples of @code{field-reader}.
 @end deffn
 
+@anchor{Forward-progress guarantees and empty-string matches}
 @subsection Forward-progress guarantees and empty-string matches
 
 A loop that pulls text off a string by repeatedly matching a regexp
@@ -8910,6 +9042,7 @@ Or, more efficiently,
 ((* (s) (map string (string->list s))) "foo")
 @end example
 
+@anchor{Reader limitations}
 @subsection Reader limitations
 
 Since all of the readers in this package require the ability to peek
@@ -8917,6 +9050,7 @@ ahead one char in the input stream, they cannot be applied to raw
 integer file descriptors, only Scheme input ports. This is because
 UNIX doesn't support peeking ahead into input streams.
      
+@anchor{Awk}
 @section Awk
 
 Scsh provides a loop macro and a set of field parsers that can be used
@@ -9033,7 +9167,7 @@ A regular expression in @acronym{SRE} notation can be used as a test.
 successful if the pattern matches the record. In particular, note that
 any string is an @acronym{SRE}.
 
-@item @code{(when @var{expr})}: 
+@item @code{(when @var{expr})}:
 
 The body of a @code{when} test is evaluated as a Scheme boolean
 expression in the inner scope of the @code{awk} form.
@@ -9096,7 +9230,8 @@ If there is no @code{after} clause, @code{awk} returns the loop's state
 variables as multiple values.
 @end itemize
 
-@subsection Examples
+@anchor{Awk Examples}
+@subsection Awk Examples
 
 Here are some examples of awk being used to process various types of inputstream.
 
@@ -9190,6 +9325,7 @@ Here are some examples of awk being used to process various types of inputstream
      (#t (format #t "~d:\t~a~%" lineno line)))
 @end example
 
+@anchor{Backwards compatibility}
 @section Backwards compatibility
 
 Previous scsh releases provided an @code{awk} form with a different
@@ -9200,7 +9336,7 @@ This form is still available in a separate module for old code. It'll be
 documented in the next release of this manual. Dig around in the sources
 for it.
 
-@node Concurrent system programming
+@node Concurrent system programming, Miscellaneous routines, Awk record I/O and field parsing, Top
 @chapter Concurrent system programming
 
 The Scheme Shell provides the user with support for concurrent
@@ -9220,6 +9356,7 @@ transparent to the user. For a description of the interaction between
 process state and threads, @xref{Interaction between threads and process
 state}.
 
+@anchor{Threads}
 @section Threads
 
 A thread can be thought of as a procedure that can run independently of
@@ -9288,6 +9425,7 @@ Returns true if and only if @var{thing} is a thread object.
 Returns a unique identifier for the current thread.
 @end deffn
 
+@anchor{Locks}
 @section Locks
 
 Locks are a simple means for mutual exclusion. They implement a concept
@@ -9329,6 +9467,7 @@ Returns the uid of the thread that currently holds @var{lock} or false
 if the lock is free.
 @end deffn
 
+@anchor{Placeholders}
 @section Placeholders
 
 Placeholders combine synchronization with value delivery. They can be
@@ -9364,6 +9503,7 @@ Returns the value of the @var{placeholder}. If the valuse of
 until another thread sets the value using @code{placeholder-set!}.
 @end deffn
 
+@anchor{The event interface to interrupts}
 @section The event interface to interrupts
 
 @c TODO: Clean up reference to paper.
@@ -9430,6 +9570,7 @@ will most likely not see an effect of the synchronous event interface
 described here. It is therefore recommended to disable the corresponding
 interrupt handler using @code{(set-interrupt-handler interrupt #f)}.
 
+@anchor{Interaction between threads and process state}
 @section Interaction between threads and process state
 
 In UNIX, a number of resources are global to the process: signal
@@ -9483,9 +9624,10 @@ changes one of these values, all other threads see the new
 value. Consequently, scsh does not provide @code{with-uid} and friends.
 @end deffn
 
-@node Miscellaneous routines
+@node Miscellaneous routines, Running scsh, Concurrent system programming, Top
 @chapter Miscellaneous routines
 
+@anchor{Integer bitwise ops}
 @section Integer bitwise ops
 
 @deffn  Procedure arithmetic-shift i j
@@ -9501,6 +9643,7 @@ bitstrings, using a 2's-complement encoding.
 @math{@var{j}> 0}; a right shift is @math{@var{j} < 0}.
 @end deffn
 
+@anchor{Password encryption}
 @section Password encryption
 
 @deffn Procedure crypt key salt
@@ -9511,6 +9654,7 @@ two-character string consisting of digits, alphabetic characters, ``.'',
 or ``\''. The length of @var{key} may be at most eight.
 @end deffn
 
+@anchor{Dot-Locking}
 @section Dot-Locking
 
 @ref{File locking} already points out that @acronym{POSIX}'s file locks
@@ -9575,6 +9719,7 @@ by @var{with-dot-lock*}. The @code{with-dot-lock} special form is
 equivalent syntactic sugar.
 @end deffn
 
+@anchor{Syslog facility}
 @section Syslog facility
 
 (@emph{Note}: the functionality presented in this section is still
@@ -9596,6 +9741,7 @@ and the level identifying the importance of the message. Moreover, a log
 mask can prevent messages at certain levels from actually being sent to
 the syslog daemon.
 
+@anchor{Log options}
 @subsection Log options
 
 A log option specifies details of the I/O behavior of the syslog
@@ -9658,6 +9804,7 @@ Log the process ID with each message; useful for identifying
 instantiations of daemons.
 @end table
 
+@anchor{Log facilities}
 @subsection Log facilities
 
 A log facility identifies the originator of a log message from a
@@ -9709,6 +9856,7 @@ The @code{uucp} system.
 Reserved for local use.
 @end table
 
+@anchor{Log levels}
 @subsection Log levels
 
 A log level identifies the importance of a message from a fixed set of possible levels.
@@ -9752,6 +9900,7 @@ Messages that contain information normally of use only when debugging
 a program.
 @end table
 
+@anchor{Log masks}
 @subsection Log masks
 Log masks can mask out log messages at a set of levels. A log mask is
 an enum set of log levels. @c TODO: Replace `enum' with `enumerated'?
@@ -9770,6 +9919,7 @@ consisting of all levels up to and including a certain level, starting
 with @code{emergency}.
 @end deffn
 
+@anchor{Logging}
 @subsection Logging
 
 Scheme 48 dynamically maintains implicit connections to the syslog
@@ -9801,6 +9951,7 @@ the parameters of the channel. The parameters revert to their original
 values after the call.
 @end deffn
 
+@anchor{Syslog channels}
 @subsection Syslog channels
 
 The @code{syslog-channels} structure allows direct manipulation of
@@ -9817,6 +9968,7 @@ destroy a connection to the syslog facility, respectively. The
 specified form of calling @code{syslog} logs to the specified channel.
 @end deffn
 
+@anchor{MD5 interface}
 @section MD5 interface
 
 Scsh provides a direct interface to the MD5 functions to compute the
@@ -9861,6 +10013,7 @@ incrementally add strings to an @var{md5-context} before computing the
 digest.
 @end deffn
 
+@anchor{Configuration variables}
 @section Configuration variables
 
 This section describes procedures to access the configuration
@@ -9910,7 +10063,7 @@ programs. The procedure @code{linker-flags} returns the appropriate
 flags to link the scsh library to another program.
 @end deffn
 
-@node Running scsh
+@node Running scsh, Index, Miscellaneous routines, Top
 @chapter Running scsh
 
 Scsh is currently implemented on top of Scheme 48, a freely-available
@@ -9958,6 +10111,7 @@ program's startup time, memory requirements, and paging overhead.
 
 This chapter will cover these various ways of invoking scsh programs.
 
+@anchor{Scsh command-line switches}
 @section Scsh command-line switches
 
 When the scsh top-level starts up, it scans the command line for
@@ -9965,6 +10119,7 @@ switches that control its behaviour. These arguments are removed from
 the command line; the remaining arguments can be accessed as the value
 of the scsh variable @code{command-line-arguments}.
 
+@anchor{Scripts and programs}
 @subsection Scripts and programs
 
 The scsh command-line switches provide sophisticated support for the
@@ -9988,6 +10143,7 @@ export procedural interfaces for use by other Scheme
 packages. However, scsh supports both the script and the program style
 of programming.
 
+@anchor{Inserting interpreter triggers into scsh programs}
 @subsection Inserting interpreter triggers into scsh programs
 
 When UNIX tries to execute an executable file whose first 16 bits are
@@ -10020,6 +10176,7 @@ In this way, the programmer can arrange for an initial
 header appearing in a Scheme program to be ignored when the program is
 loaded into scsh.
 
+@anchor{Module system}
 @subsection Module system
 
 Scsh uses the Scheme 48 module system, which defines @emph{packages},
@@ -10100,6 +10257,7 @@ For programs which should run in versions of scsh prior to release
 0.6.3, programmers should make sure to always put the scsh reference
 first.
 
+@anchor{Library directories search facility}
 @subsection Library directories search facility
 
 Scsh's command line switches allow loading of code not present in the
@@ -10200,6 +10358,7 @@ Set the @emph{library-directories} path list to system default,
 @emph{i.e.}, to the value of @code{default-lib-dirs}.
 @end deffn
 
+@anchor{Switches}
 @subsection Switches
 
 The scsh top-level takes command-line switches in the following format:
@@ -10461,6 +10620,7 @@ never even parsed, so a bogus value will not affect the script's
 execution at all.
 @end itemize
 
+@anchor{The meta argument}
 @subsection The meta argument
 
 The scsh switch parser takes a special command-line switch, a single
@@ -10603,7 +10763,8 @@ would produce the arguments
 ("foo" "bar" "" "quux yow")
 @end example
 
-@subsection Examples
+@anchor{Argument Examples}
+@subsection Argument Examples
 
 @itemize
 
@@ -10745,6 +10906,7 @@ sort program with the module language. The command line design allows
 us to run this program as either an interpreted script (given the
 @code{#!} args in the header) or as a compiled heap image.
 
+@anchor{Process exit values}
 @subsection Process exit values
 
 Scsh ignores the value produced by its top-level computation when
@@ -10765,6 +10927,7 @@ scsh -c \
 "(exit (status:exit-val (run (| (fmt) (mail shivers)))))"
 @end example
 
+@anchor{The scsh virtual machine}
 @section The scsh virtual machine
 
 To run the Scheme 48 implementation of scsh, you run a specially
@@ -10798,6 +10961,7 @@ switches, or to invoke the virtual machine on special heap images,
 which can contain precompiled scsh programs with their own top-level
 procedures.
 
+@anchor{VM arguments}
 @subsection VM arguments
 
 The VM takes arguments in the following form:
@@ -10822,6 +10986,7 @@ end-option: -i image-file-name
 The VM's meta-switch ``\ @var{filename}'' is handled the same as
 scsh's meta-switch, and serves the same purpose.
 
+@anchor{VM options}
 @subsubsection VM options
 
 The @code{-o} @var{object-file-name} switch tells the VM where to find
@@ -10835,6 +11000,7 @@ allocate for the heap and stack. The heap size value is the total
 number of words allocated for the heap; this space is then split into
 two semi-spaces for Scheme 48's stop-and-copy collector.
 
+@anchor{End options}
 @subsubsection End options
 
 End options terminate argument parsing. The @code{-i} switch is
@@ -10854,6 +11020,7 @@ Notice that you are not allowed to pass arguments to the heap image's
 top-level procedure (@emph{e.g.}, scsh) without delimiting them with
 @code{-i} or @code{-} flags.
 
+@anchor{Stripped image}
 @subsection Stripped image
 
 Besides the standard image @code{scsh.image} scsh also ships with the
@@ -10865,6 +11032,7 @@ count but debugging the Scheme code is not that important. To use the
 image the VM has to be called directly and the path to the image must
 be given after the @code{-i} argument.
 
+@anchor{Inserting interpreter triggers into heap images}
 @subsection Inserting interpreter triggers into heap images
 
 Scheme 48's heap image format allows for an informational header: when
@@ -10881,6 +11049,7 @@ meta-switch. Here's an example heap-image header:
 ... @emph{Your heap image goes here} ...
 @end example
 
+@anchor{Inserting a double-level trigger into Scheme programs}
 @subsection Inserting a double-level trigger into Scheme programs
 
 If you're a nerd, you may enjoy doing a double-level machine shift in
@@ -10893,6 +11062,7 @@ the trigger line of your Scheme programs with the following magic:
 ... @emph{Your Scheme program goes here} ...
 @end example
 
+@anchor{Compiling scsh programs}
 @section Compiling scsh programs
 
 Scsh allows you to create a heap image with your own top-level
@@ -10936,6 +11106,7 @@ Scheme files or Scheme modules. The only way to compile is to load
 source and then dump out a heap image. One occasionally hears rumours
 that this is being addressed by the Scheme 48 development team.
 
+@anchor{Standard file locations}
 @section Standard file locations
 
 Because the @code{scshvm} binary is intended to be used for writing
@@ -10977,7 +11148,7 @@ following form:
 ... @emph{heap image goes here} ...
 @end example
 
-@node Index
+@node Index, , Running scsh, Top
 @unnumbered Index
 
 @printindex cp
