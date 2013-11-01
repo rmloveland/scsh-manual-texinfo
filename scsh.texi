@@ -1084,8 +1084,8 @@ the common case, where the programmer is only interested in the output
 of the process. These special forms and procedures provide more
 complicated facilities for manipulating processes.
 
-@anchor{Pids and ports together}
-@subsection Pids and ports together
+@anchor{PIDs and ports together}
+@subsection PIDs and ports together
 
 @deffn Syntax run/port+proc . @var{epf}
 @deffnx Procedure run/port+proc* @var{thunk}
@@ -2644,7 +2644,7 @@ or (2) it doesn't exist and the directory is writeable. Since symlink
 permission bits are ignored by the filesystem, these calls do not take a @var{chase?} flag.
 
 Note that these procedures use the process' @emph{effective} user and
-group ids for permission checking. @acronym{POSIX} defines an
+group IDs for permission checking. @acronym{POSIX} defines an
 @code{access()} function that uses the process' real uid and gids. This
 is handy for setuid programs that would like to find out if the actual
 user has specific rights; scsh ought to provide this functionality (but
@@ -3357,7 +3357,7 @@ procedure.
 
 @deffn Procedure pid->proc pid [probe?]
 
-This procedure maps integer UNIX process ids to scsh process objects. It
+This procedure maps integer UNIX process IDs to scsh process objects. It
 is intended for use in interactive and debugging code, and is deprecated
 for use in production code. If there is no process object in the system
 indexed by the given @var{pid}, @code{pid->proc}'s action is determined
@@ -3396,7 +3396,7 @@ object, it will simply be garbage collected. On the other hand, if the
 scsh program retains a pointer to the process object, it can use scsh's
 @code{wait} system call to synchronise with the child and retrieve its
 exit status multiple times (this is not possible with simple UNIX
-integer pids in C---the programmer can only wait on a pid once).
+integer PIDs in C---the programmer can only wait on a pid once).
 
 Thus, process objects allow the scsh programmer to do two things not
 allowed in other programming environments:
@@ -3413,14 +3413,14 @@ Subprocesses can be waited on multiple times.
 However, note that once a child has exited, if the scsh programmer drops
 all pointers to the child's @var{proc} object, the child's exit status
 will be reaped and thrown away. This is the intended behaviour, and it
-means that integer pids are not enough to cause a process's exit status
+means that integer PIDs are not enough to cause a process's exit status
 to be retained by the scsh runtime.  (This is because it is clearly
 impossible to GC data referenced by integers.)
 
 As a convenience for interactive use and debugging, all procedures that
-take process objects will also accept integer UNIX pids as arguments,
+take process objects will also accept integer UNIX PIDs as arguments,
 coercing them to the corresponding process objects. Since integer
-process ids are not reliable ways to keep a child's exit status from
+process IDs are not reliable ways to keep a child's exit status from
 being reaped and garbage collected, programmers are encouraged to use
 process objects in production code.
 @end deffn
