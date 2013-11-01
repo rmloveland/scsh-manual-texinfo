@@ -47,4 +47,6 @@ the scsh manual.
   - Sections marked `Note' use simple emphasis only on the first word.
 * UNIX
 
-  UNIX is a trademarked name, and will be denoted as such.
+  UNIX (all caps) is a trademarked name, and should be denoted as
+  such.  An alternative would be to use the phrases/terms
+  ``UNIX-like'', ``Unix'', ``unix'', or something along those lines.
