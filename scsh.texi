@@ -16,7 +16,6 @@
 This manual is for scsh, release 0.6.7.
 
 Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
-Copyright @copyright{} 2013 Rich Loveland (Texinfo conversion, additional edits)
 @end copying
 
 
@@ -31,7 +30,6 @@ Copyright @copyright{} 2013 Rich Loveland (Texinfo conversion, additional edits)
 @author Brian D. Carlstrom
 @author Martin Gasbichler
 @author Mike Sperber
-@author Rich Loveland (Texinfo conversion, additional edits)
 
 @c The following two commands start the copyright page.
 @page
@@ -52,7 +50,7 @@ Copyright @copyright{} 2013 Rich Loveland (Texinfo conversion, additional edits)
 For scsh release 0.6.7
 
 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler, and Mike Sperber
-(Texinfo conversion and additional edits by Rich Loveland)
+(Texinfo conversion and some copyediting by Rich Loveland)
 @end ifnottex
 
 @menu
