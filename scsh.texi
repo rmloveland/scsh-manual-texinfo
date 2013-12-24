@@ -1,7 +1,14 @@
 \input texinfo  @c                                     -*- Texinfo -*-
 @c %**start of header
-@setfilename scsh.info
 @settitle Scsh Reference Manual
+@setfilename scsh.info
+
+@ifinfo
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Scsh: (scsh.info).    A UNIX shell embedded within Scheme.
+@end direntry
+@end ifinfo
 
 @c VR and FN below correspond to VINDEX and FINDEX, which stand for
 @c variable and function indices, respectively. See the end of this
