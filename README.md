@@ -1,21 +1,15 @@
 # Scsh 0.6.7 Manual in GNU Texinfo Format
 
-This is a work in progress. Build it using the command
+This is the Scsh 0.6.7 manual, converted to the Texinfo documentation
+format.  It builds cleanly with HTML, Info, and PDF output.  This
+includes all function and variable indices.
 
-    makeinfo --html --force scsh.texi
+During the conversion I've lightly edited the manual in places, with
+the following aims:
 
-The current status is that I've finally completed the main part of the
-work. Conversion to Texinfo is complete, modulo `makeinfo' build
-errors.
+* Correct grammar and spelling
 
-In the process of doing the conversion, I've edited some sections
-*very slightly* in order to do the following:
+* Consistent use of terms (this is still underway; see the file
+  `style-guide.org')
 
-* Correct grammar and spelling errors
-
-* Use terms consistently (see the file `style-guide.org')
-
-* Get Texinfo to stop screaming (it insists you use parenthetical
-  notes in specific ways, for example)
-
-* Use slightly more idiomatic English
+* Clean Texinfo builds
