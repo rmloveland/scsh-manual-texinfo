@@ -37,6 +37,7 @@ Copyright @copyright{} 2006 Olin Shivers, Brian D. Carlstrom, Martin Gasbichler,
 @author Brian D. Carlstrom
 @author Martin Gasbichler
 @author Mike Sperber
+@author Rich Loveland (Texinfo conversion, copyediting)
 
 @c The following two commands start the copyright page.
 @page
